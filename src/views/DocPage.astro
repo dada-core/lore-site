@@ -1,0 +1,173 @@
+---
+/* A documentation page: the documentation menu, the page itself, its outline, and the search window. */
+import '../styles/docs.css';
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { GITHUB, githubEdit } from '../config';
+import { DOC_ORDER, DOC_SECTIONS, docHref, docSection, docSource, type DocKey, type DocLang } from '../docs/nav';
+
+interface Props {
+  lang: DocLang;
+  key: DocKey;
+}
+const { lang, key } = Astro.props;
+const T = {
+  fr: {
+    docs: 'Documentation',
+    nav: 'Pages de la documentation',
+    menu: 'Menu de la documentation : ',
+    navToggle: 'Afficher ou masquer le menu de la documentation',
+    tocToggle: 'Afficher ou masquer le sommaire de la page',
+    crumbs: 'Fil d’Ariane',
+    search: 'Rechercher dans la documentation',
+    searchShort: 'Rechercher',
+    results: 'Résultats',
+    close: 'Fermer la recherche',
+    hints: [['↑ ↓', 'parcourir'], ['Entrée', 'ouvrir'], ['Échap', 'fermer']],
+    none: 'Aucune page ne correspond à « {q} ».',
+    count: ['Aucun résultat', '1 résultat', '{n} résultats'],
+    anchor: 'Lien vers cette section',
+    toc: 'Sur cette page',
+    notice: 'Documentation de la version 0.1, en préparation. Les commandes, les variables et les points d’accès de l’API sont des propositions : ils peuvent changer d’ici la sortie.',
+    edit: 'Modifier cette page sur GitHub',
+    report: 'Signaler un problème',
+    issue: 'Documentation : ',
+    top: 'Haut de page',
+    pages: 'Pages voisines',
+    prev: 'Précédent',
+    next: 'Suivant',
+    planned: 'Prévu en '
+  },
+  en: {
+    docs: 'Documentation',
+    nav: 'Documentation pages',
+    menu: 'Documentation menu: ',
+    navToggle: 'Show or hide the documentation menu',
+    tocToggle: 'Show or hide the page outline',
+    crumbs: 'Breadcrumb',
+    search: 'Search the documentation',
+    searchShort: 'Search',
+    results: 'Results',
+    close: 'Close the search',
+    hints: [['↑ ↓', 'move'], ['Enter', 'open'], ['Esc', 'close']],
+    none: 'No page matches “{q}”.',
+    count: ['No results', '1 result', '{n} results'],
+    anchor: 'Link to this section',
+    toc: 'On this page',
+    notice: 'Documentation for version 0.1, in preparation. Commands, variables and API endpoints are proposals: they may change before the release.',
+    edit: 'Edit this page on GitHub',
+    report: 'Report a problem',
+    issue: 'Documentation: ',
+    top: 'Back to top',
+    pages: 'Previous and next pages',
+    prev: 'Previous',
+    next: 'Next',
+    planned: 'Planned for '
+  }
+}[lang];
+
+/* Every page of the documentation in this language, by key. A page missing in one language stops the build. */
+const entries = new Map((await getCollection('docs', ({ id }) => id.startsWith(lang + '/'))).map((e) => [e.id.slice(lang.length + 1), e]));
+const entryOf = (k: DocKey) => {
+  const e = entries.get(k);
+  if (!e) throw new Error(`Missing documentation page: src/content/docs/${lang}/${k}.md`);
+  return e;
+};
+const entry = entryOf(key);
+const { title, description, release } = entry.data;
+const { Content, headings } = await render(entry);
+
+/* Release badges are part of a heading's text: the outline leaves them out. */
+const BADGE_TEXT = /\s*(?:v\d+\.\d+|Après v\d+\.\d+|After v\d+\.\d+|En préparation|In preparation)\s*$/;
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3).map((h) => ({ ...h, text: h.text.replace(BADGE_TEXT, '') }));
+
+const section = docSection(key);
+const i = DOC_ORDER.indexOf(key);
+const prev = i > 0 ? DOC_ORDER[i - 1] : null;
+const next = i < DOC_ORDER.length - 1 ? DOC_ORDER[i + 1] : null;
+const pageTitle = key === 'introduction' ? T.docs : `${title} – ${T.docs}`;
+const report = `${GITHUB.siteIssues}?title=${encodeURIComponent(T.issue + title)}`;
+const words = JSON.stringify({ none: T.none, count: T.count, anchor: T.anchor, index: lang === 'fr' ? '/docs/search.json' : '/en/docs/search.json' });
+---
+<Base lang={lang} page="docs" title={pageTitle} description={description} paths={{ fr: docHref(key, 'fr'), en: docHref(key, 'en') }}>
+  <div class="d-bar">
+    <div class="d-bar-in">
+      <button class="d-nav-btn" type="button" data-doc-nav aria-controls="d-nav" aria-expanded="true" title={T.navToggle + ' ( [ )'}>
+        <Icon name="panel" /><span class="sr-only">{T.menu}</span><span class="d-nav-btn-label">{title}</span><Icon name="chevron-right" class="d-chev" />
+      </button>
+      <nav class="d-crumbs" aria-label={T.crumbs}>
+        <ol>
+          <li><a href={docHref('introduction', lang)}>{T.docs}</a></li>
+          <li>{section.title[lang]}</li>
+          <li><a href={docHref(key, lang)} aria-current="page">{title}</a></li>
+        </ol>
+      </nav>
+      <button class="d-search-btn" type="button" data-doc-search aria-haspopup="dialog" aria-controls="d-search" title={T.search}>
+        <Icon name="search" /><span class="d-search-label">{T.searchShort}</span><kbd>Ctrl K</kbd>
+      </button>
+      <button class="icon-btn d-toc-btn" type="button" data-doc-toc aria-controls="d-toc" aria-expanded="true" aria-label={T.tocToggle} title={T.tocToggle + ' ( ] )'}><Icon name="list" /></button>
+    </div>
+  </div>
+
+  <div class="d-layout" data-doc={words}>
+    <nav class="d-nav" id="d-nav" aria-label={T.nav}>
+      {DOC_SECTIONS.map((s) => (
+        <div class="d-group">
+          <h2>{s.title[lang]}</h2>
+          <ul>
+            {s.pages.map((k) => {
+              const e = entryOf(k);
+              return <li><a href={docHref(k, lang)} aria-current={k === key ? 'page' : undefined}><span>{e.data.title}</span>{e.data.release && <span class="vb" title={T.planned + e.data.release}>{e.data.release}</span>}</a></li>;
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+
+    <article class="d-article">
+      <h1>{title}{release && <span class="vb" title={T.planned + release}>{release}</span>}</h1>
+      <p class="d-lead">{description}</p>
+      <p class="d-notice"><Icon name="clock" /><span>{T.notice}</span></p>
+      {toc.length > 1 && (
+        <details class="d-mtoc">
+          <summary><Icon name="list" />{T.toc}<Icon name="chevron-right" class="d-chev" /></summary>
+          <ul>{toc.map((h) => <li class={'l' + h.depth}><a href={'#' + h.slug}>{h.text}</a></li>)}</ul>
+        </details>
+      )}
+      <div class="d-content">
+        <Content />
+      </div>
+      <div class="d-foot">
+        <a href={githubEdit(docSource(key, lang))}><Icon name="pencil" />{T.edit}</a>
+        <a href={report}><Icon name="bug" />{T.report}</a>
+      </div>
+      <nav class="d-pn" aria-label={T.pages}>
+        {prev && <a class="prev" href={docHref(prev, lang)} rel="prev"><span>{T.prev}</span><strong>{entryOf(prev).data.title}</strong></a>}
+        {next && <a class="next" href={docHref(next, lang)} rel="next"><span>{T.next}</span><strong>{entryOf(next).data.title}</strong></a>}
+      </nav>
+    </article>
+
+    <aside class="d-toc" id="d-toc" aria-label={T.toc}>
+      {toc.length > 0 && <h2>{T.toc}</h2>}
+      {toc.length > 0 && <ul>{toc.map((h) => <li class={'l' + h.depth}><a href={'#' + h.slug}>{h.text}</a></li>)}</ul>}
+      <a class="d-top" href="#content"><Icon name="chevron-right" class="d-up" />{T.top}</a>
+    </aside>
+  </div>
+
+  <dialog class="d-search" id="d-search" slot="after" aria-label={T.search}>
+    <div class="d-search-field">
+      <Icon name="search" />
+      <input type="search" aria-label={T.search} placeholder={T.search} autocomplete="off" spellcheck="false" enterkeyhint="go" />
+      <button class="icon-btn" type="button" data-close aria-label={T.close}><Icon name="x" /></button>
+    </div>
+    <ul class="d-hits" aria-label={T.results}></ul>
+    <p class="d-search-empty" hidden></p>
+    <p class="d-search-foot" aria-hidden="true">{T.hints.map(([k, v]) => <span><kbd>{k}</kbd>{v}</span>)}</p>
+    <p class="sr-only" aria-live="polite" data-live></p>
+  </dialog>
+</Base>
+
+<script>
+  import '../scripts/docs';
+</script>
