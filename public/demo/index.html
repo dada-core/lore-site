@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Démo Lore</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>
+  /* Applique le thème choisi avant l'affichage, pour éviter un flash. */
+  try { var t = localStorage.getItem('lore-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-mock="app">
+<script src="assets/icons.js"></script>
+
+
+<div id="root"></div>
+<div id="overlay" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="assets/common.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
