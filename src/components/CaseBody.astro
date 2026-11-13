@@ -1,0 +1,28 @@
+---
+/* One use case: the situation, before and after, and the search that solves it. */
+import Icon from './Icon.astro';
+import type { Case } from '../data/cases';
+import type { Lang } from '../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  c: Case;
+  level?: 2 | 3;
+}
+const { lang, c, level = 3 } = Astro.props;
+const Heading = level === 2 ? 'h2' : 'h3';
+const label = lang === 'fr' ? { before: 'Avant', after: 'Avec Lore' } : { before: 'Before', after: 'With Lore' };
+---
+<div>
+  <div class="s-kicker"><Icon name={c.icon} />{c.who}</div>
+  <Heading>{c.title}</Heading>
+  <p>{c.text}</p>
+  <div class="s-ba">
+    <div class="before"><strong>{label.before}</strong>{c.before}</div>
+    <div class="after"><strong>{label.after}</strong>{c.after}</div>
+  </div>
+</div>
+<div class="s-vis" aria-hidden="true">
+  <div class="s-msearch"><Icon name="search" />{c.query}</div>
+  <div class="s-mres"><b>{c.result}</b><span>{c.where}</span></div>
+</div>

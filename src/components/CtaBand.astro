@@ -1,0 +1,25 @@
+---
+/* Closing band of the home, features and use cases pages, until version 0.1 is published. */
+import Icon from './Icon.astro';
+import { demo, GITHUB } from '../config';
+import type { Lang } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui(lang);
+---
+<section class="s-sec">
+  <div class="s-wrap">
+    <div class="s-cta s-holo">
+      <h2 class="s-h2">{t.cta.title}</h2>
+      <p class="s-intro">{t.cta.text}</p>
+      <div class="s-ctas">
+        <a class="btn btn-primary s-lg" href={demo(lang).home}><Icon name="play" />{t.openDemo}</a>
+        <a class="btn s-lg" href={GITHUB.repo}><Icon name="star" />{t.follow}</a>
+      </div>
+    </div>
+  </div>
+</section>

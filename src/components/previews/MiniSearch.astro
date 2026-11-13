@@ -1,0 +1,21 @@
+---
+/* Search preview: an error message pasted as is, and the passages that match it. */
+import Icon from '../Icon.astro';
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const fr = Astro.props.lang === 'fr';
+const results = fr
+  ? [
+      ['Restaurer une base PostgreSQL', 'Runbooks, section 4.2', '… si <mark>pg_restore</mark> signale <mark>role</mark> "app_rw" <mark>does not exist</mark>, créez le <mark>rôle</mark> puis relancez …'],
+      ['Incident INC-2291', 'Rapports d’incident, chronologie', '… la restauration échoue avec <mark>pg_restore</mark>: error: <mark>role</mark> "reporting" <mark>does not exist</mark> …']
+    ]
+  : [
+      ['Restore a PostgreSQL database', 'Runbooks, section 4.2', '… if <mark>pg_restore</mark> reports <mark>role</mark> "app_rw" <mark>does not exist</mark>, create the <mark>role</mark> and run it again …'],
+      ['Incident INC-2291', 'Incident reports, timeline', '… the restore fails with <mark>pg_restore</mark>: error: <mark>role</mark> "reporting" <mark>does not exist</mark> …']
+    ];
+---
+<div class="s-msearch"><Icon name="search" />pg_restore role "does not exist"</div>
+{results.map(([title, where, excerpt]) => <div class="s-mres"><b>{title}</b><span>{where}</span><p set:html={excerpt} /></div>)}

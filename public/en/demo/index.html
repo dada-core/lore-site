@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lore demo</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- English version of site/public/demo/index.html: both must stay in sync. The language-neutral
+     files (styles.css, icons.js) are shared with the French demo. -->
+<script>
+  /* Applies the chosen theme before the first paint, to avoid a flash. */
+  try { var t = localStorage.getItem('lore-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/demo/assets/styles.css">
+</head>
+<body data-mock="app">
+<script src="/demo/assets/icons.js"></script>
+
+
+<div id="root"></div>
+<div id="overlay" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="assets/common.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

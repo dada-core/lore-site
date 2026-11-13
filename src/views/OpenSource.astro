@@ -1,0 +1,153 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import CheckList from '../components/CheckList.astro';
+import Faq from '../components/Faq.astro';
+import { GITHUB, SITE } from '../config';
+import { docHref } from '../docs/nav';
+import { href, REPORT_ANCHOR, type Lang } from '../i18n/routes';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const docsHome = docHref('contributing', lang);
+const mailto = `mailto:${SITE.email}?subject=Lore`;
+const T = {
+  fr: {
+    title: 'Open source',
+    description: 'Le code de Lore est publié sous licence AGPL-3.0 : licence, prix, accord de contribution, façons de contribuer, versions prévues et contact.',
+    h1: 'Un socle ouvert, pour garder la maîtrise.',
+    lead: 'Le code de Lore est publié sous licence AGPL-3.0. L’édition Community est gratuite et complète : vous pouvez l’auditer, l’héberger et l’adapter, sans dépendre d’un éditeur.',
+    license: ['La licence AGPL-3.0', ['Utiliser Lore gratuitement, sans limite.', 'Étudier et modifier le code.', 'L’héberger pour votre organisation.', 'Si vous modifiez Lore et le proposez en service à d’autres, donner à ses utilisateurs accès au code source de votre version.']],
+    cla: ['L’accord de contribution', 'Avant votre première contribution, vous signerez un accord de contribution (CLA), inspiré de celui de la fondation Apache ; son texte sera publié avant la première contribution externe. Vous resterez propriétaire de votre code ; l’accord permettra au projet de le distribuer aussi sous d’autres licences, ce qui finance son développement.'],
+    price: {
+      h2: 'Gratuit et complet.',
+      intro: 'L’édition Community n’a aucune limite de temps, d’utilisateurs ni de documents, et aucune fonction essentielle réservée. Une offre hébergée est envisagée après la version 0.1, pour les équipes qui ne veulent pas gérer de serveur.',
+      faq: [
+        ['Que signifie la licence AGPL-3.0 pour mon entreprise ?', 'Vous pouvez utiliser, modifier et héberger Lore librement, pour vos équipes. Si vous modifiez Lore et le proposez en service à d’autres, vous devez donner à ses utilisateurs accès au code source de votre version. Si cette obligation ne vous convient pas, écrivez-nous : une licence commerciale est possible.'],
+        ['Mes documents servent-ils à entraîner des modèles ?', 'Non. L’assistant, prévu en v0.3, est désactivé par défaut. Une fois activé, seuls les passages nécessaires à une réponse sont transmis au modèle choisi par votre organisation, et uniquement ceux que la personne a le droit de lire.']
+      ] as [string, string][]
+    },
+    contribute: ['Contribuer', 'Le projet en est au début : vos retours sur son orientation sont les contributions les plus utiles aujourd’hui.'],
+    cards: [
+      ['message', 'Donner votre avis', 'Où vit la documentation de votre équipe, et comment la cherchez-vous ? Ouvrez une discussion.', 'Ouvrir une discussion', GITHUB.discussions],
+      ['bug', 'Signaler un problème', 'Un comportement inattendu, une idée de fonction : ouvrez un ticket sur GitHub.', 'Ouvrir un ticket', GITHUB.issues],
+      ['code', 'Proposer du code', 'Pour une modification importante, ouvrez d’abord un ticket pour en discuter.', 'Guide de contribution', GITHUB.contributing],
+      ['book', 'Améliorer la documentation', 'Une page peu claire ou incomplète ? La documentation se modifie depuis GitHub, comme le code.', 'Contribuer à la documentation', docsHome],
+      ['language', 'Traduire', 'L’interface est traduisible dès le départ, en français et en anglais pour commencer.', '', ''],
+      ['shield', 'Signaler une vulnérabilité', 'En privé uniquement, jamais dans un ticket public.', 'Procédure', href('security', lang, REPORT_ANCHOR)]
+    ],
+    versions: ['Versions prévues', 'Chaque version doit être utile seule. L’assistant arrive en dernier, une fois le socle solide.', [
+      ['v0.1', 'Comptes, organisations, espaces, permissions, import PDF, Word, texte et Markdown, lecteur, recherche plein texte filtrée par les droits, versions.'],
+      ['v0.2', 'Recherche par le sens, fiches de connaissances, tableau de bord, dates de révision et circuit de validation.'],
+      ['v0.3', 'Assistant facultatif et historique des conversations.']
+    ]],
+    contact: {
+      h2: 'Nous écrire',
+      intro: 'Une question sur le projet, une organisation intéressée, un partenariat : écrivez-nous. Pour une question technique, la documentation et les discussions GitHub sont souvent plus rapides.',
+      hint: 'Précisez votre organisation, la taille de votre équipe technique et où se trouve votre documentation aujourd’hui.',
+      send: 'Écrire un e-mail'
+    }
+  },
+  en: {
+    title: 'Open source',
+    description: 'Lore’s code is published under the AGPL-3.0 license: license, price, contributor agreement, ways to contribute, planned releases and contact.',
+    h1: 'An open foundation, so you stay in control.',
+    lead: 'Lore’s code is published under the AGPL-3.0 license. The Community edition is free and complete: you can audit it, host it and adapt it, without depending on a vendor.',
+    license: ['The AGPL-3.0 license', ['Use Lore for free, without limits.', 'Study and modify the code.', 'Host it for your organization.', 'If you modify Lore and offer it as a service to others, give its users access to the source code of your version.']],
+    cla: ['The contributor agreement', 'Before your first contribution, you will sign a contributor license agreement (CLA) based on the Apache Software Foundation’s; its text will be published before the first outside contribution. You will keep ownership of your code; the agreement will let the project also distribute it under other licenses, which funds its development.'],
+    price: {
+      h2: 'Free and complete.',
+      intro: 'The Community edition has no limit on time, users or documents, and no essential feature held back. A hosted offer is being considered after version 0.1, for teams that do not want to run a server.',
+      faq: [
+        ['What does the AGPL-3.0 license mean for my company?', 'You can use, modify and host Lore freely, for your teams. If you modify Lore and offer it as a service to others, you must give its users access to the source code of your version. If this obligation does not suit you, write to us: a commercial license is possible.'],
+        ['Are my documents used to train models?', 'No. The assistant, planned for v0.3, is off by default. Once enabled, only the passages needed for an answer are sent to the model chosen by your organization, and only those the person is allowed to read.']
+      ] as [string, string][]
+    },
+    contribute: ['Contribute', 'The project is just getting started: feedback on its direction is the most useful contribution today.'],
+    cards: [
+      ['message', 'Share your feedback', 'Where does your team’s documentation live, and how do you search it? Start a discussion.', 'Start a discussion', GITHUB.discussions],
+      ['bug', 'Report a problem', 'Unexpected behavior, a feature idea: open an issue on GitHub.', 'Open an issue', GITHUB.issues],
+      ['code', 'Contribute code', 'For a significant change, open an issue first to discuss it.', 'Contributing guide', GITHUB.contributing],
+      ['book', 'Improve the documentation', 'An unclear or incomplete page? The documentation is edited on GitHub, just like the code.', 'Contribute to the documentation', docsHome],
+      ['language', 'Translate', 'The interface is translatable from the start, beginning with French and English.', '', ''],
+      ['shield', 'Report a vulnerability', 'Privately only, never in a public issue.', 'How to report', href('security', lang, REPORT_ANCHOR)]
+    ],
+    versions: ['Planned releases', 'Each release must be useful on its own. The assistant comes last, once the foundation is solid.', [
+      ['v0.1', 'Accounts, organizations, spaces, permissions, PDF, Word, text and Markdown import, viewer, permission-aware full-text search, versions.'],
+      ['v0.2', 'Search by meaning, knowledge records, dashboard, review dates and approval workflow.'],
+      ['v0.3', 'Optional assistant and conversation history.']
+    ]],
+    contact: {
+      h2: 'Write to us',
+      intro: 'A question about the project, an interested organization, a partnership: write to us. For a technical question, the documentation and GitHub Discussions are often faster.',
+      hint: 'Tell us about your organization, the size of your technical team and where your documentation lives today.',
+      send: 'Send an email'
+    }
+  }
+}[lang];
+const [licenseTitle, licenseItems] = T.license as [string, string[]];
+const [versionsTitle, versionsIntro, versionList] = T.versions as [string, string, [string, string][]];
+---
+<Base lang={lang} page="opensource" title={T.title} description={T.description}>
+  <PageHero kicker={T.title} icon="code" title={T.h1} lead={T.lead} />
+
+  <section class="s-sec-tight s-sec-flush">
+    <h2 class="sr-only">{lang === 'fr' ? 'Licence et contributions' : 'License and contributions'}</h2>
+    <div class="s-wrap s-split top">
+      <div class="s-card"><h3>{licenseTitle}</h3><CheckList items={licenseItems} tight /></div>
+      <div class="s-card"><h3>{T.cla[0]}</h3><p>{T.cla[1]}</p></div>
+    </div>
+  </section>
+
+  <section class="s-sec s-sec-alt" id="price">
+    <div class="s-wrap s-split top">
+      <div>
+        <h2 class="s-h2">{T.price.h2}</h2>
+        <p class="s-intro">{T.price.intro}</p>
+      </div>
+      <Faq items={T.price.faq} />
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap">
+      <div class="s-head">
+        <h2 class="s-h2">{T.contribute[0]}</h2>
+        <p class="s-intro">{T.contribute[1]}</p>
+      </div>
+      <div class="s-cards">
+        {T.cards.map(([icon, title, text, label, url]) => <div class="s-card"><span class="s-ico-box"><Icon name={icon as IconName} /></span><h3>{title}</h3><p>{text}</p>{url && <a class="link" href={url}>{label}</a>}</div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec s-sec-alt">
+    <div class="s-wrap s-split top">
+      <div>
+        <h2 class="s-h2">{versionsTitle}</h2>
+        <p class="s-intro">{versionsIntro}</p>
+      </div>
+      <div class="s-versions">
+        {versionList.map(([v, text]) => <div><strong>{v}</strong><p>{text}</p></div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec" id="contact">
+    <div class="s-wrap s-split top">
+      <div>
+        <h2 class="s-h2">{T.contact.h2}</h2>
+        <p class="s-intro">{T.contact.intro}</p>
+      </div>
+      <div class="s-mail">
+        <a class="s-mail-addr" href={mailto}>{SITE.email}</a>
+        <p>{T.contact.hint}</p>
+        <a class="btn btn-primary s-lg" href={mailto}><Icon name="mail" />{T.contact.send}</a>
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,8 @@
+---
+interface Props {
+  tone?: 'blue' | 'teal' | 'green' | 'yellow' | 'orange' | 'red' | 'purple' | 'gray';
+  style?: string;
+}
+const { tone = 'gray', style } = Astro.props;
+---
+<span class={`pill p-${tone}`} style={style}><slot /></span>

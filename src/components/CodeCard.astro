@@ -1,0 +1,25 @@
+---
+/* Code sample with tabs (one per file) and a copy button. */
+import Icon from './Icon.astro';
+import { colorize } from '../data/code';
+import type { Lang } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  id: string;
+  lang: Lang;
+  label: string;
+  tabs: { name: string; code: string }[];
+}
+const { id, lang, label, tabs } = Astro.props;
+const t = ui(lang);
+---
+<div class="s-code">
+  <div class="s-code-head">
+    <div role="tablist" aria-label={label}>
+      {tabs.map((tab: { name: string; code: string }, i: number) => <button type="button" role="tab" id={`${id}-tab-${i}`} aria-controls={`${id}-pane-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{tab.name}</button>)}
+    </div>
+    <button class="icon-btn" type="button" data-copy-pane aria-label={t.copy.label} title={t.copy.label}><Icon name="copy" /></button>
+  </div>
+  {tabs.map((tab: { name: string; code: string }, i: number) => <div role="tabpanel" id={`${id}-pane-${i}`} aria-labelledby={`${id}-tab-${i}`} hidden={i > 0}><pre tabindex="0"><code set:html={colorize(tab.code)} /></pre></div>)}
+</div>

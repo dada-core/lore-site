@@ -1,0 +1,101 @@
+---
+/* Every page: head (title, description, languages, social cards), header, footer, scripts. */
+import '../styles/base.css';
+import '../styles/site.css';
+import '../styles/motion.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../config';
+import { LANGS, ROUTES, type Lang, type PageId } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+import { PRE_HIDE } from '../scripts/reveal';
+
+interface Props {
+  lang: Lang;
+  page: PageId | null;
+  title?: string;
+  description: string;
+  noindex?: boolean;
+  /* Address of this page in each language, when it is not one of ROUTES (documentation pages). */
+  paths?: Record<Lang, string>;
+}
+const { lang, page, title, description, noindex, paths } = Astro.props;
+const alternates = paths ?? (page ? { fr: ROUTES[page].fr, en: ROUTES[page].en } : null);
+const t = ui(lang);
+const fullTitle = title ? `${title} – Lore` : t.siteTitle;
+const abs = (path: string) => new URL(path, SITE.url).href;
+/* A page left out of search engines (the error page, shown at any address) has no address of its own. */
+const canonical = noindex ? null : abs(alternates ? alternates[lang] : Astro.url.pathname);
+
+/* Words the scripts need, in the page's language. */
+const words = JSON.stringify({
+  'theme-auto': t.theme.toast.auto,
+  'theme-light': t.theme.toast.light,
+  'theme-dark': t.theme.toast.dark,
+  copied: t.copy.done,
+  'copy-fail': t.copy.fail
+});
+---
+<!doctype html>
+<html lang={lang} data-words={words}>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+{noindex && <meta name="robots" content="noindex" />}
+{canonical && <link rel="canonical" href={canonical} />}
+{alternates && LANGS.map((l) => <link rel="alternate" hreflang={l} href={abs(alternates[l])} />)}
+{alternates && <link rel="alternate" hreflang="x-default" href={abs(alternates.fr)} />}
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Lore" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+{canonical && <meta property="og:url" content={canonical} />}
+<meta property="og:locale" content={t.locale} />
+<meta property="og:image" content={abs(lang === 'en' ? '/og-en.png' : '/og.png')} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={t.siteTitle} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#111215" media="(prefers-color-scheme: dark)" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/fonts/fonts.css" />
+<script is:inline>
+  /* Before the first paint: chosen theme, motion (unless reduced motion is requested), logo intro once per visit. */
+  (function () {
+    var d = document.documentElement;
+    try { var t = localStorage.getItem('lore-theme'); if (t === 'light' || t === 'dark') d.setAttribute('data-theme', t); } catch (e) {}
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    d.classList.add('motion');
+    try {
+      if (!sessionStorage.getItem('lore-intro')) {
+        sessionStorage.setItem('lore-intro', '1');
+        d.classList.add('logo-intro');
+        setTimeout(function () { d.classList.remove('logo-intro'); }, 1600);
+      }
+    } catch (e) {}
+    /* If the scripts never run, show everything rather than leave hidden content. */
+    setTimeout(function () { if (!d.classList.contains('mo-ready')) d.classList.remove('motion'); }, 3000);
+  })();
+</script>
+<style is:inline set:html={PRE_HIDE}></style>
+</head>
+<body>
+<a class="s-skip" href="#content">{t.skip}</a>
+<Header lang={lang} page={page} paths={paths} />
+<main id="content">
+  <slot />
+</main>
+<slot name="after" />
+<Footer lang={lang} page={page} paths={paths} />
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script>
+  import '../scripts/site';
+  import '../scripts/motion';
+</script>
+</body>
+</html>

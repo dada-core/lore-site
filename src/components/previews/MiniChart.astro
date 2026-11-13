@@ -1,0 +1,14 @@
+---
+/* Insights preview: searches per week. An illustration of the dashboard, with sample values. */
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const fr = Astro.props.lang === 'fr';
+const values = [148, 162, 171, 158, 190, 204, 187, 213, 226, 219, 241, 258];
+---
+<div class="s-chart" role="img" aria-label={fr ? 'Recherches par semaine, en hausse sur douze semaines' : 'Searches per week, rising over twelve weeks'}>
+  {values.map((v) => <span style={`--v:${Math.round(v / 280 * 100)}%`} title={fr ? `${v} recherches` : `${v} searches`}></span>)}
+</div>
+<div class="s-chart-legend"><span>{fr ? 'Recherches par semaine' : 'Searches per week'}</span><span>{fr ? '6 % sans résultat' : '6% with no results'}</span></div>

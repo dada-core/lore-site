@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import CaseBody from '../components/CaseBody.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { cases } from '../data/cases';
+import type { Lang } from '../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const T = {
+  fr: {
+    title: 'Cas d’usage',
+    description: 'Restaurer une base en pleine nuit, diagnostiquer une panne, répondre au support, intégrer un développeur, garder les connaissances d’un expert : Lore au quotidien.',
+    h1: 'Retrouver la bonne information, au bon moment.',
+    lead: 'Lore sert tous ceux qui exploitent, maintiennent et font évoluer des systèmes : développeurs, administrateurs, DevOps, support et consultants.',
+    nav: 'Situations'
+  },
+  en: {
+    title: 'Use cases',
+    description: 'Restoring a database at night, diagnosing an outage, answering support, onboarding a developer, keeping an expert’s knowledge: Lore day to day.',
+    h1: 'The right information, at the right time.',
+    lead: 'Lore serves everyone who runs, maintains and evolves systems: developers, administrators, DevOps engineers, support teams and consultants.',
+    nav: 'Situations'
+  }
+}[lang];
+const list = cases(lang);
+---
+<Base lang={lang} page="cases" title={T.title} description={T.description}>
+  <PageHero kicker={T.title} icon="users" title={T.h1} lead={T.lead} />
+  <nav class="s-subnav" aria-label={T.nav}>
+    <div class="s-wrap">
+      <div class="hx" style="--hx-bg:var(--bg)"><div class="s-subnav-in">
+        {list.map((c) => <a href={`#${c.id}`}><Icon name={c.icon} />{c.tab}</a>)}
+      </div></div>
+    </div>
+  </nav>
+  <div class="s-wrap">
+    {list.map((c) => <section class="s-case-block" id={c.id}><div class="s-case"><CaseBody lang={lang} c={c} level={2} /></div></section>)}
+  </div>
+  <CtaBand lang={lang} />
+</Base>

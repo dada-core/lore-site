@@ -1,0 +1,8 @@
+---
+interface Props {
+  initials: string;
+  color: string;
+}
+const { initials, color } = Astro.props;
+---
+<span class="avatar" style={`--av:${color}`} aria-hidden="true">{initials}</span>

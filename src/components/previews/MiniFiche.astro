@@ -1,0 +1,21 @@
+---
+/* A knowledge record: problem, cause, fix, sources. */
+import Pill from '../Pill.astro';
+import Status from '../Status.astro';
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+const rows = fr
+  ? [['Problème', 'pg_restore échoue : rôle inexistant sur le serveur cible'], ['Cause', 'Les droits font référence à un rôle supprimé lors d’un nettoyage.'], ['Solution', 'Recréer le rôle, puis relancer la restauration.'], ['Sources', 'Runbook de restauration, incident INC-2291']]
+  : [['Problem', 'pg_restore fails: the role does not exist on the target server'], ['Cause', 'The grants refer to a role deleted during a cleanup.'], ['Fix', 'Recreate the role, then run the restore again.'], ['Sources', 'Restore runbook, incident INC-2291']];
+---
+<div class="s-fiche">
+  <div class="s-fiche-head"><Status lang={lang} s="validated" /><Pill tone="blue">PostgreSQL</Pill></div>
+  <dl class="s-fiche">
+    {rows.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+  </dl>
+</div>

@@ -1,0 +1,17 @@
+---
+/* Connected sources: repositories and shared folders indexed where they live. */
+import Icon from '../Icon.astro';
+import Pill from '../Pill.astro';
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+---
+<ul class="list s-sources">
+  <li><div class="list-row"><Icon name="branch" /><div class="list-main"><div class="list-title">{fr ? 'GitLab : infra/runbooks' : 'GitLab: infra/runbooks'}</div><div class="list-sub">{fr ? '42 fichiers Markdown, vers Infrastructure' : '42 Markdown files, into Infrastructure'}</div></div><Pill tone="green">{fr ? 'Synchronisé' : 'Synced'}</Pill></div></li>
+  <li><div class="list-row"><Icon name="server" /><div class="list-main"><div class="list-title">{fr ? 'Dossier partagé : nas01' : 'Shared folder: nas01'}</div><div class="list-sub">{fr ? '1 203 fichiers, vers Support N2' : '1,203 files, into Tier 2 support'}</div></div><Pill tone="yellow">{fr ? '3 fichiers illisibles' : '3 unreadable files'}</Pill></div></li>
+  <li><div class="list-row"><Icon name="book" /><div class="list-main"><div class="list-title">Confluence</div><div class="list-sub">{fr ? 'Avec reprise des permissions' : 'With its permissions'}</div></div><Pill tone="gray">{fr ? 'Prévu' : 'Planned'}</Pill></div></li>
+</ul>

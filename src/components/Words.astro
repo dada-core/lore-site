@@ -1,0 +1,8 @@
+---
+/* Heading text split into words, so each word can rise in turn. */
+interface Props {
+  text: string;
+}
+const words = Astro.props.text.split(' ');
+---
+{words.map((w: string, i: number) => <Fragment>{i > 0 && ' '}<span class="s-w"><span style={`--i:${i}`}>{w}</span></span></Fragment>)}

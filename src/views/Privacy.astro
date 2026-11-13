@@ -1,0 +1,43 @@
+---
+/* Privacy policy. The site collects nothing itself: no form, no cookie, no analytics, no third-party resource. */
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { LEGAL, SITE } from '../config';
+import { href, type Lang } from '../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+const date = new Date(LEGAL.updated).toLocaleDateString(fr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const mail = `<a href="mailto:${SITE.email}">${SITE.email}</a>`;
+const legal = `<a href="${href('legal', lang)}">${fr ? 'mentions légales' : 'legal notice'}</a>`;
+const sections: [string, string][] = fr
+  ? [
+      ['En bref', 'Ce site ne dépose aucun cookie, n’utilise aucun outil de mesure d’audience ni de publicité, et ne charge aucune ressource depuis un autre site : même les polices de caractères sont hébergées avec lui.'],
+      ['Journaux du serveur', `Comme tout serveur web, celui qui héberge le site enregistre des journaux techniques (adresse IP, date, page demandée, navigateur), nécessaires à sa sécurité et à son bon fonctionnement. L’hébergeur est indiqué dans les ${legal}.`],
+      ['Préférences enregistrées dans votre navigateur', 'Le thème choisi (clair, sombre ou celui du système), l’ouverture des menus de la documentation et, dans la démo, l’état des panneaux sont enregistrés dans le stockage local de votre navigateur. Un simple indicateur, effacé à la fermeture de l’onglet, évite de rejouer l’animation d’ouverture. Ces informations ne quittent pas votre appareil.'],
+      ['Si vous nous écrivez', 'Votre adresse e-mail et votre message servent uniquement à vous répondre. Ils sont conservés le temps de l’échange, puis au plus trois ans après le dernier contact.'],
+      ['Liens vers d’autres sites', 'Les liens vers GitHub mènent vers un service tiers, soumis à sa propre politique de confidentialité.'],
+      ['Vos droits', `Vous pouvez accéder à vos données, les faire rectifier ou effacer, et vous opposer à leur traitement. Écrivez à ${mail}. Vous pouvez aussi adresser une réclamation à l’ARTCI, l’autorité de protection des données de Côte d’Ivoire, où l’éditeur est établi (<a href="https://www.artci.ci">artci.ci</a>). Si vous résidez dans l’Union européenne, l’autorité de votre pays peut aussi être saisie : la CNIL en France (<a href="https://www.cnil.fr">cnil.fr</a>).`]
+    ]
+  : [
+      ['In short', 'This website sets no cookies, uses no analytics or advertising tools, and loads nothing from other websites: even the fonts are hosted with it.'],
+      ['Server logs', `Like any web server, the one hosting this website keeps technical logs (IP address, date, requested page, browser) needed for its security and proper operation. The host is named in the ${legal}.`],
+      ['Preferences stored in your browser', 'The theme you choose (light, dark or the system’s), whether the documentation menus are open and, in the demo, the state of the panels are stored in your browser’s local storage. A simple flag, cleared when the tab closes, keeps the opening animation from playing again. This information never leaves your device.'],
+      ['If you write to us', 'Your email address and your message are only used to reply to you. They are kept for the duration of the exchange, then for at most three years after the last contact.'],
+      ['Links to other websites', 'Links to GitHub lead to a third-party service, subject to its own privacy policy.'],
+      ['Your rights', `You can access your data, have it corrected or deleted, and object to its processing. Write to ${mail}. You can also lodge a complaint with the ARTCI, the data protection authority of Côte d’Ivoire, where the publisher is established (<a href="https://www.artci.ci">artci.ci</a>). If you live in the European Union, you can also turn to the authority of your country, such as the CNIL in France (<a href="https://www.cnil.fr/en">cnil.fr</a>).`]
+    ];
+const title = fr ? 'Politique de confidentialité' : 'Privacy policy';
+---
+<Base lang={lang} page="privacy" title={fr ? 'Confidentialité' : 'Privacy'} description={fr ? 'Ce que le site lore.dada-core.com collecte : rien, sauf les journaux techniques du serveur et ce que vous nous écrivez.' : 'What the lore.dada-core.com website collects: nothing, apart from the server’s technical logs and what you write to us.'}>
+  <PageHero title={title} />
+  <section class="s-sec-tight" style="padding-top:0">
+    <div class="s-wrap s-legal">
+      {sections.map(([h, p]) => <Fragment><h2>{h}</h2><p set:html={p} /></Fragment>)}
+      <p class="s-updated">{fr ? 'Dernière mise à jour : ' : 'Last updated: '}{date}</p>
+    </div>
+  </section>
+</Base>

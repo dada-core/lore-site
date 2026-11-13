@@ -1,0 +1,241 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Logo from '../components/Logo.astro';
+import Pill from '../components/Pill.astro';
+import Badge from '../components/Badge.astro';
+import Words from '../components/Words.astro';
+import VideoFrame from '../components/VideoFrame.astro';
+import CheckList from '../components/CheckList.astro';
+import CodeCard from '../components/CodeCard.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import MiniGrid from '../components/previews/MiniGrid.astro';
+import MiniSearch from '../components/previews/MiniSearch.astro';
+import MiniStrata from '../components/previews/MiniStrata.astro';
+import MiniPerms from '../components/previews/MiniPerms.astro';
+import MiniFiche from '../components/previews/MiniFiche.astro';
+import MiniAnswer from '../components/previews/MiniAnswer.astro';
+import { demo, GITHUB } from '../config';
+import { docHref } from '../docs/nav';
+import { install, packages } from '../data/code';
+import { href, type Lang } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const u = ui(lang);
+
+const T = {
+  fr: {
+    description: 'Lore réunit les runbooks, procédures, documents d’architecture et rapports d’incident de votre équipe. Open source et auto-hébergeable.',
+    h1: 'La mémoire technique de votre équipe, au même endroit.',
+    lead: 'Lore rassemble vos runbooks, procédures, documents d’architecture et rapports d’incident. Importez-les, retrouvez le bon passage en quelques secondes, suivez leurs versions et décidez précisément qui peut les lire.',
+    copy: 'Copier la commande',
+    copied: 'Commande copiée',
+    builtFor: 'Pensé pour',
+    audience: [['Équipes DevOps et SRE', 'blue'], ['Administrateurs systèmes', 'teal'], ['Support technique', 'yellow'], ['Équipes de développement', 'purple'], ['Consultants', 'orange']],
+    scatter: ['Wiki interne', '\\\\nas01\\docs-support', 'README.md', 'PDF du constructeur', 'Ticket INC-2291', 'E-mail du 3 mars', '« Demande à Hervé »', 'Tableur partagé'],
+    problem: { h2: ['La bonne procédure existe. Encore faut-il la', 'retrouver', '.'], p1: 'Dans la plupart des équipes, les connaissances techniques sont dispersées : un wiki que plus personne ne met à jour, un partage réseau, des fichiers Markdown dans les dépôts, des rapports d’incident dans les tickets et, surtout, la mémoire de quelques experts.', p2: 'Au moment d’une panne, personne ne sait quelle version fait foi.' },
+    points: [
+      ['search', 'Retrouver en quelques secondes', 'La recherche comprend les identifiants techniques, ignore les accents et ouvre le document au passage exact.'],
+      ['layers', 'Savoir si l’on peut s’y fier', 'Chaque document a un statut, un responsable et un historique de versions. Une procédure obsolète est signalée comme telle.'],
+      ['book', 'Garder la mémoire de l’équipe', 'Les retours d’expérience deviennent des fiches validées, qui restent disponibles quand les personnes changent de poste.']
+    ],
+    workspace: { h2: ['Un environnement complet pour vos', 'connaissances techniques', '.'], intro: 'Bibliothèque, recherche, versions, permissions et base de connaissances partagent les mêmes documents, les mêmes droits et le même historique.' },
+    tiles: {
+      library: ['Bibliothèque', 'Espaces, dossiers et documents dans une grille que l’on filtre, trie et regroupe. PDF, Word, texte et Markdown sont indexés dès l’import.'],
+      search: ['Recherche', 'Les identifiants techniques sont retrouvés tels quels, et chaque résultat ouvre le document au bon passage.'],
+      versions: ['Versions', 'Chaque import crée une version. L’historique reste consultable, strate après strate.'],
+      perms: ['Permissions', 'Un document restreint n’apparaît nulle part pour ceux qui n’y ont pas accès : ni dans les listes, ni dans la recherche, ni dans les extraits.'],
+      knowledge: ['Base de connaissances', 'Une investigation ou un incident résolu devient une fiche structurée, validée par les responsables.'],
+      assistant: ['Assistant facultatif', 'Des réponses en langage naturel, toujours sourcées, qui ne lisent que ce que vous avez le droit de lire.']
+    },
+    allFeatures: 'Voir toutes les fonctionnalités',
+    host: {
+      h2: 'Un service. Une base à sauvegarder.',
+      intro: 'Lore s’installe sur votre serveur en moins de cinq minutes, avec Docker, un paquet .deb ou .rpm, ou une archive. PostgreSQL est sa seule dépendance : pas de file de messages, pas de cache, pas de service d’authentification à maintenir.',
+      checks: ['<strong>Installation guidée.</strong> Un écran de configuration crée l’organisation et le premier compte. Aucun mot de passe par défaut.', '<strong>Sauvegarde simple.</strong> Une commande <code>pg_dump</code> et une copie du dossier des fichiers.', '<strong>Mises à jour sans surprise.</strong> Une nouvelle image ou un nouveau paquet ; les migrations de la base s’appliquent au démarrage.', '<strong>Vos données restent chez vous.</strong> Rien ne quitte votre infrastructure.'],
+      guide: 'Guide d’installation',
+      vars: 'Variables d’environnement',
+      code: 'Commandes d’installation',
+      install: 'Installation',
+      packages: 'Paquets'
+    },
+    open: {
+      h2: 'Votre code. Vos données. Votre serveur.',
+      intro: 'Lore est open source, sous licence AGPL-3.0, et gratuit : sans limite d’utilisateurs ni de documents. Vous pouvez l’auditer, l’héberger vous-même et l’adapter, sans dépendre d’un éditeur.',
+      model: 'Le modèle open source',
+      follow: 'Suivre sur GitHub',
+      card: 'Ce que permet la licence AGPL-3.0',
+      items: ['Utiliser Lore gratuitement, sans limite d’utilisateurs ni de documents.', 'Étudier le code et l’adapter à vos besoins.', 'L’héberger pour votre équipe ou votre organisation.', 'Si vous modifiez Lore et le proposez en service à d’autres, donner à ses utilisateurs accès au code source de votre version.']
+    },
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Faut-il une intelligence artificielle pour utiliser Lore ?', 'Non. Lore n’est pas un chatbot : la bibliothèque, la recherche, les versions, les permissions et la base de connaissances fonctionnent sans aucun modèle de langage. L’assistant conversationnel est un module facultatif, prévu en v0.3 et désactivé par défaut.'],
+      ['Combien coûte Lore ?', 'Rien. L’édition Community est gratuite et complète, sans limite de temps, d’utilisateurs ni de documents. Une offre hébergée, avec mises à jour et sauvegardes gérées, est envisagée après la version 0.1.'],
+      ['Quels formats de fichiers sont pris en charge ?', 'PDF, Word (DOCX), texte et Markdown dès la v0.1, jusqu’à 50 Mo par fichier par défaut. Les PDF numérisés sont importés, mais leur contenu n’est pas recherchable tant que la reconnaissance de texte n’est pas disponible.'],
+      ['Où sont stockés mes documents ?', 'Sur votre serveur : dans PostgreSQL et dans un dossier de fichiers. Rien ne quitte votre infrastructure.'],
+      ['Quand la première version sera-t-elle disponible ?', 'La version 0.1 est en préparation. Elle couvrira les comptes, les espaces, les permissions, l’import, le lecteur, la recherche et les versions.']
+    ] as [string, string][]
+  },
+  en: {
+    description: 'Lore brings together your team’s runbooks, procedures, architecture documents and incident reports. Open source and self-hostable.',
+    h1: 'Your team’s technical memory, all in one place.',
+    lead: 'Lore brings together your runbooks, procedures, architecture documents and incident reports. Import them, find the right passage in seconds, track their versions and decide exactly who can read them.',
+    copy: 'Copy the command',
+    copied: 'Command copied',
+    builtFor: 'Built for',
+    audience: [['DevOps and SRE teams', 'blue'], ['System administrators', 'teal'], ['Technical support', 'yellow'], ['Development teams', 'purple'], ['Consultants', 'orange']],
+    scatter: ['Internal wiki', '\\\\nas01\\docs-support', 'README.md', 'Vendor PDF', 'Ticket INC-2291', 'Email from March 3', '“Ask Hervé”', 'Shared spreadsheet'],
+    problem: { h2: ['The right procedure exists. You still have to', 'find', 'it.'], p1: 'In most teams, technical knowledge is scattered: a wiki nobody updates anymore, a network share, Markdown files in repositories, incident reports in tickets and, above all, the memory of a few experts.', p2: 'When something breaks, nobody knows which version to trust.' },
+    points: [
+      ['search', 'Find it in seconds', 'Search understands technical identifiers, ignores accents and opens the document at the exact passage.'],
+      ['layers', 'Know whether you can trust it', 'Every document has a status, an owner and a version history. An outdated procedure is flagged as such.'],
+      ['book', 'Keep your team’s memory', 'Lessons learned become approved records that stay available when people change roles.']
+    ],
+    workspace: { h2: ['A complete workspace for your', 'technical knowledge', '.'], intro: 'Library, search, versions, permissions and knowledge base share the same documents, the same permissions and the same history.' },
+    tiles: {
+      library: ['Library', 'Spaces, folders and documents in a grid you can filter, sort and group. PDF, Word, text and Markdown are indexed on import.'],
+      search: ['Search', 'Technical identifiers are found exactly as typed, and every result opens the document at the right passage.'],
+      versions: ['Versions', 'Every import creates a version. The history stays available, stratum after stratum.'],
+      perms: ['Permissions', 'A restricted document appears nowhere for people without access: not in lists, not in search, not in excerpts.'],
+      knowledge: ['Knowledge base', 'An investigation or a resolved incident becomes a structured record, approved by the owners.'],
+      assistant: ['Optional assistant', 'Natural-language answers, always sourced, that only read what you are allowed to read.']
+    },
+    allFeatures: 'See all features',
+    host: {
+      h2: 'One service. One database to back up.',
+      intro: 'Lore installs on your server in under five minutes, with Docker, a .deb or .rpm package, or an archive. PostgreSQL is its only dependency: no message queue, no cache, no authentication service to maintain.',
+      checks: ['<strong>Guided setup.</strong> A setup screen creates the organization and the first account. No default password.', '<strong>Simple backups.</strong> One <code>pg_dump</code> command and a copy of the files folder.', '<strong>Predictable updates.</strong> A new image or a new package; database migrations run at startup.', '<strong>Your data stays with you.</strong> Nothing leaves your infrastructure.'],
+      guide: 'Installation guide',
+      vars: 'Environment variables',
+      code: 'Installation commands',
+      install: 'Installation',
+      packages: 'Packages'
+    },
+    open: {
+      h2: 'Your code. Your data. Your server.',
+      intro: 'Lore is open source, under the AGPL-3.0 license, and free: no limit on users or documents. You can audit it, host it yourself and adapt it, without depending on a vendor.',
+      model: 'The open source model',
+      follow: 'Follow on GitHub',
+      card: 'What the AGPL-3.0 license allows',
+      items: ['Use Lore for free, with no limit on users or documents.', 'Study the code and adapt it to your needs.', 'Host it for your team or your organization.', 'If you modify Lore and offer it as a service to others, give its users access to the source code of your version.']
+    },
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do I need artificial intelligence to use Lore?', 'No. Lore is not a chatbot: the library, search, versions, permissions and knowledge base work without any language model. The conversational assistant is an optional module, planned for v0.3 and off by default.'],
+      ['How much does Lore cost?', 'Nothing. The Community edition is free and complete, with no limit on time, users or documents. A hosted offer, with managed updates and backups, is being considered after version 0.1.'],
+      ['Which file formats are supported?', 'PDF, Word (DOCX), plain text and Markdown from v0.1, up to 50 MB per file by default. Scanned PDFs are imported, but their content cannot be searched until text recognition is available.'],
+      ['Where are my documents stored?', 'On your server: in PostgreSQL and in a files folder. Nothing leaves your infrastructure.'],
+      ['When will the first version be available?', 'Version 0.1 is in progress. It will cover accounts, spaces, permissions, import, the viewer, search and versions.']
+    ] as [string, string][]
+  }
+}[lang];
+
+/* Where each scattered source sits: x %, y %, tilt, and how far it sways while scrolling. */
+const SCATTER: [tone: 'blue' | 'gray' | 'purple' | 'teal' | 'red' | 'yellow' | 'orange' | 'green', x: number, y: number, r: number][] = [
+  ['blue', 6, 10, -6], ['gray', 50, 8, 4], ['purple', 66, 30, -3], ['teal', 4, 34, 3], ['red', 8, 68, 5], ['yellow', 55, 72, -5], ['orange', 30, 86, 2], ['green', 58, 52, 6]
+];
+const vars = docHref('variables', lang);
+---
+<Base lang={lang} page="home" description={T.description}>
+  <section class="s-hero">
+    <div class="s-wrap">
+      <h1 class="s-h1" data-reveal="words"><Words text={T.h1} /></h1>
+      <p class="s-lead">{T.lead}</p>
+      <div class="s-ctas">
+        <a class="btn btn-primary s-lg" href={href('selfhost', lang)}><Icon name="terminal" />{u.installLong}</a>
+        <a class="btn s-lg" href={demo(lang).home}><Icon name="play" />{u.openDemo}</a>
+      </div>
+      <div class="s-cmd"><span class="p" aria-hidden="true">$</span><code>docker compose up -d</code><span class="s-caret" aria-hidden="true"></span><button class="icon-btn" type="button" data-copy="docker compose up -d" data-done={T.copied} aria-label={T.copy} title={T.copy}><Icon name="copy" /></button></div>
+      <VideoFrame lang={lang} />
+      <div class="s-audience"><span>{T.builtFor}</span>{T.audience.map(([label, tone]) => <Pill tone={tone as 'blue'}>{label}</Pill>)}</div>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap">
+      <div class="s-split">
+        <div>
+          <h2 class="s-h2">{T.problem.h2[0]} <span class="mk">{T.problem.h2[1]}</span>{lang === 'fr' ? T.problem.h2[2] : ' ' + T.problem.h2[2]}</h2>
+          <p class="s-intro">{T.problem.p1}</p>
+          <p class="s-intro">{T.problem.p2}</p>
+        </div>
+        <div class="s-scatter" aria-hidden="true">
+          {SCATTER.map(([tone, x, y, r], i) => (
+            <span class="s-sway" style={`left:${x}%;top:${y}%;--sy:${14 + (i % 3) * 10}px;--sr:${(i % 2 ? -1 : 1) * (1 + (i % 3))}deg`}>
+              <Pill tone={tone} style={`--r:${r}deg`}>{T.scatter[i]}</Pill>
+            </span>
+          ))}
+          <div class="s-scatter-center"><Logo size={22} />Lore</div>
+        </div>
+      </div>
+      <div class="s-cols3">
+        {T.points.map(([icon, title, text]) => <div class="s-point"><span class="s-ico-box"><Icon name={icon as IconName} /></span><h3>{title}</h3><p>{text}</p></div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec s-sec-alt">
+    <div class="s-wrap">
+      <div class="s-head">
+        <h2 class="s-h2">{T.workspace.h2[0]} <span class="mk">{T.workspace.h2[1]}</span>{T.workspace.h2[2]}</h2>
+        <p class="s-intro">{T.workspace.intro}</p>
+      </div>
+      <div class="s-bento">
+        <article class="s-tile w4"><h3><Icon name="grid" />{T.tiles.library[0]} <Badge lang={lang} v="v0.1" /></h3><p>{T.tiles.library[1]}</p><div class="s-vis"><MiniGrid lang={lang} /></div></article>
+        <article class="s-tile"><h3><Icon name="search" />{T.tiles.search[0]} <Badge lang={lang} v="v0.1" /></h3><p>{T.tiles.search[1]}</p><div class="s-vis"><MiniSearch lang={lang} /></div></article>
+        <article class="s-tile"><h3><Icon name="layers" />{T.tiles.versions[0]} <Badge lang={lang} v="v0.1" /></h3><p>{T.tiles.versions[1]}</p><div class="s-vis"><MiniStrata lang={lang} /></div></article>
+        <article class="s-tile w4"><h3><Icon name="lock" />{T.tiles.perms[0]} <Badge lang={lang} v="v0.1" /></h3><p>{T.tiles.perms[1]}</p><div class="s-vis"><MiniPerms lang={lang} /></div></article>
+        <article class="s-tile w3"><h3><Icon name="book" />{T.tiles.knowledge[0]} <Badge lang={lang} v="v0.2" /></h3><p>{T.tiles.knowledge[1]}</p><div class="s-vis"><MiniFiche lang={lang} /></div></article>
+        <article class="s-tile w3"><h3><Icon name="ask" />{T.tiles.assistant[0]} <Badge lang={lang} v="v0.3" /></h3><p>{T.tiles.assistant[1]}</p><div class="s-vis"><MiniAnswer lang={lang} /></div></article>
+      </div>
+      <p class="s-more"><a class="link" href={href('features', lang)}>{T.allFeatures}</a></p>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap s-split">
+      <div>
+        <h2 class="s-h2">{T.host.h2}</h2>
+        <p class="s-intro">{T.host.intro}</p>
+        <CheckList items={T.host.checks} />
+        <div class="s-ctas">
+          <a class="btn btn-primary s-md" href={href('selfhost', lang)}>{T.host.guide}</a>
+          <a class="btn s-md" href={vars}>{T.host.vars}</a>
+        </div>
+      </div>
+      <CodeCard id="home-code" lang={lang} label={T.host.code} tabs={[{ name: T.host.install, code: install(lang) }, { name: T.host.packages, code: packages(lang) }]} />
+    </div>
+  </section>
+
+  <section class="s-sec s-sec-alt">
+    <div class="s-wrap s-split">
+      <div>
+        <h2 class="s-h2">{T.open.h2}</h2>
+        <p class="s-intro">{T.open.intro}</p>
+        <div class="s-ctas">
+          <a class="btn s-md" href={href('opensource', lang)}>{T.open.model}</a>
+          <a class="btn s-md" href={GITHUB.repo}><Icon name="star" />{T.open.follow}</a>
+        </div>
+      </div>
+      <div class="s-card">
+        <h3>{T.open.card}</h3>
+        <CheckList items={T.open.items} tight />
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap">
+      <div class="s-head s-head-center"><h2 class="s-h2">{T.faqTitle}</h2></div>
+      <Faq items={T.faq} />
+    </div>
+  </section>
+
+  <CtaBand lang={lang} />
+</Base>

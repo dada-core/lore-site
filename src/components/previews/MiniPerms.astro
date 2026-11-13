@@ -1,0 +1,28 @@
+---
+/* Two people, the same search: the restricted document only exists for the one allowed to read it. */
+import Icon from '../Icon.astro';
+import Avatar from '../Avatar.astro';
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const fr = Astro.props.lang === 'fr';
+const base = fr ? ['Restaurer une base PostgreSQL', 'Incident INC-2291', 'Migration vers PostgreSQL 18'] : ['Restore a PostgreSQL database', 'Incident INC-2291', 'Migration to PostgreSQL 18'];
+const results = (n: number) => (fr ? `${n} résultats pour « certificat »` : `${n} results for “certificate”`);
+---
+<div class="s-perm">
+  <div>
+    <div class="s-perm-who"><Avatar initials="EB" color="#55636E" />{fr ? 'Eli, rôle Lecteur' : 'Eli, Reader role'}</div>
+    <div class="s-perm-n">{results(3)}</div>
+    <ul>{base.map((t) => <li><Icon name="file-text" />{t}</li>)}</ul>
+  </div>
+  <div>
+    <div class="s-perm-who"><Avatar initials="CK" color="#6B5A8E" />{fr ? 'Christ, rôle Contributeur' : 'Christ, Contributor role'}</div>
+    <div class="s-perm-n">{results(4)}</div>
+    <ul>
+      {base.map((t) => <li><Icon name="file-text" />{t}</li>)}
+      <li class="s-late"><Icon name="lock" /><strong>{fr ? 'Rotation des certificats TLS' : 'Rotating TLS certificates'}</strong></li>
+    </ul>
+  </div>
+</div>

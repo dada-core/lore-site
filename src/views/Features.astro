@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Badge from '../components/Badge.astro';
+import PageHero from '../components/PageHero.astro';
+import CheckList from '../components/CheckList.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Preview from '../components/previews/Preview.astro';
+import { modules } from '../data/modules';
+import type { Lang } from '../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const T = {
+  fr: {
+    title: 'Fonctionnalités',
+    description: 'Bibliothèque, recherche, permissions, versions, base de connaissances, pilotage et assistant facultatif : les modules de Lore.',
+    h1: 'Tout le cycle de vie de vos connaissances techniques.',
+    lead: 'Rédiger, importer, organiser, rechercher, valider et entretenir : chaque module partage les mêmes documents, les mêmes droits et le même historique.',
+    nav: 'Modules'
+  },
+  en: {
+    title: 'Features',
+    description: 'Library, search, permissions, versions, knowledge base, insights and an optional assistant: the modules of Lore.',
+    h1: 'The whole lifecycle of your technical knowledge.',
+    lead: 'Write, import, organize, search, approve and maintain: every module shares the same documents, the same permissions and the same history.',
+    nav: 'Modules'
+  }
+}[lang];
+const list = modules(lang);
+---
+<Base lang={lang} page="features" title={T.title} description={T.description}>
+  <PageHero kicker={T.title} icon="layers" title={T.h1} lead={T.lead} />
+  <nav class="s-subnav" aria-label={T.nav}>
+    <div class="s-wrap">
+      <div class="hx" style="--hx-bg:var(--bg)"><div class="s-subnav-in">
+        {list.map((m) => <a href={`#${m.id}`}><Icon name={m.icon} />{m.short ?? m.title}</a>)}
+      </div></div>
+    </div>
+  </nav>
+  <div class="s-wrap">
+    {list.map((m) => (
+      <section class="s-feature" id={m.id}>
+        <div>
+          <h2>{m.title} <Badge lang={lang} v={m.release} /></h2>
+          <p>{m.text}</p>
+          <CheckList items={m.items} />
+        </div>
+        <div class="s-feature-vis"><Preview lang={lang} kind={m.preview} /></div>
+      </section>
+    ))}
+  </div>
+  <CtaBand lang={lang} />
+</Base>

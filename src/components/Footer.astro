@@ -1,0 +1,56 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { demo, GITHUB, SITE } from '../config';
+import { docHref } from '../docs/nav';
+import { href, otherLang, ROUTES, REPORT_ANCHOR, type Lang, type PageId } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  page: PageId | null;
+  paths?: Record<Lang, string>;
+}
+const { lang, page, paths } = Astro.props;
+const t = ui(lang);
+const other = otherLang(lang);
+const f = t.footer;
+
+type Item = [label: string, url: string];
+const columns: [string, Item[]][] = [
+  [f.product, [[t.nav.features, href('features', lang)], [t.nav.cases, href('cases', lang)], [f.demo, demo(lang).home], [t.nav.security, href('security', lang)]]],
+  [f.resources, [[t.nav.docs, href('docs', lang)], [t.nav.selfhost, href('selfhost', lang)], [f.releases, docHref('release-notes', lang)], [f.source, GITHUB.repo]]],
+  [f.community, [[t.nav.opensource, href('opensource', lang)], [f.contribute, GITHUB.contributing], [f.discussions, GITHUB.discussions], [f.report, href('security', lang, REPORT_ANCHOR)], [SITE.email, `mailto:${SITE.email}`]]]
+];
+---
+<footer class="s-footer">
+  <div class="s-wrap">
+    <div class="s-footer-grid">
+      <div class="s-footer-about">
+        <a class="s-brand" href={href('home', lang)}><Logo size={24} />Lore</a>
+        <p>{f.about}</p>
+      </div>
+      {columns.map(([title, items]) => (
+        <div>
+          <h2>{title}</h2>
+          <ul>{items.map(([label, url]) => <li><a href={url}>{label}</a></li>)}</ul>
+        </div>
+      ))}
+    </div>
+    <div class="s-footer-bottom">
+      <div class="s-footer-legal">
+        <span>{f.rights}</span>
+        <a href={href('legal', lang)}>{f.legal}</a>
+        <a href={href('privacy', lang)}>{f.privacy}</a>
+      </div>
+      <div class="s-actions">
+        <a class="btn btn-ghost" href={paths?.[other] ?? ROUTES[page ?? 'home'][other]} hreflang={other} lang={other}><Icon name="language" />{t.lang.name}</a>
+        <select class="select" data-theme-select aria-label={t.theme.select}>
+          <option value="auto">{t.theme.auto}</option>
+          <option value="light">{t.theme.light}</option>
+          <option value="dark">{t.theme.dark}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</footer>
