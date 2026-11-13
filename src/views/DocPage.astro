@@ -79,7 +79,7 @@ const { title, description, release } = entry.data;
 const { Content, headings } = await render(entry);
 
 /* Release badges are part of a heading's text: the outline leaves them out. */
-const BADGE_TEXT = /\s*(?:v\d+\.\d+|Après v\d+\.\d+|After v\d+\.\d+|En préparation|In preparation)\s*$/;
+const BADGE_TEXT = /\s*(?:v\d+\.\d+|Après v\d+\.\d+|After v\d+\.\d+|En préparation|In preparation|Préversion|Preview)\s*$/;
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3).map((h) => ({ ...h, text: h.text.replace(BADGE_TEXT, '') }));
 
 const section = docSection(key);

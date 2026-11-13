@@ -16,6 +16,18 @@ First version: a complete workspace, without artificial intelligence.
 - Audit log
 - Installation with Docker Compose, .deb and .rpm packages or a universal archive
 
+## Version 0.1.0-alpha.1 <span class="vb">Preview</span>
+
+Released on November 13, 2026, to try the installation before version 0.1. It is not meant for production: its data may not carry over to the next version.
+
+- Initial setup in the browser, with the code shown in the server logs
+- Sign-in, invitations by link and password reset links
+- My account
+- Administration of the organization: members, roles and security settings
+- Docker image for amd64 and arm64, .deb and .rpm packages, universal archive
+
+Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.1).
+
 ## Next versions
 
 | Version | Planned content |
