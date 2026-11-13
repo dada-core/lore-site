@@ -1,0 +1,4 @@
+# Build output and caches
+dist/
+.astro/
+node_modules/
