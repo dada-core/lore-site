@@ -1,0 +1,19 @@
+---
+/* An assistant answer that cites its sources. */
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const fr = Astro.props.lang === 'fr';
+---
+<div class="s-ans">
+  <div class="q">{fr ? 'Comment restaurer la base si pg_restore signale un rôle manquant ?' : 'How do I restore the database if pg_restore reports a missing role?'}</div>
+  {fr
+    ? <Fragment>Créez le rôle indiqué, puis relancez la restauration<span class="cite">1</span>. Ce cas s’est déjà produit lors de l’incident INC-2291<span class="cite">2</span>.</Fragment>
+    : <Fragment>Create the role it names, then run the restore again<span class="cite">1</span>. This already happened during incident INC-2291<span class="cite">2</span>.</Fragment>}
+  <div class="s-ans-src">
+    <span><span class="cite">1</span>Runbook, section 4.2, version 4</span>
+    <span><span class="cite">2</span>{fr ? 'INC-2291, chronologie' : 'INC-2291, timeline'}</span>
+  </div>
+</div>

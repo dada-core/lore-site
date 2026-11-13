@@ -1,0 +1,39 @@
+---
+/* Library preview: a few documents in a grid. */
+import Icon from '../Icon.astro';
+import Pill from '../Pill.astro';
+import Status from '../Status.astro';
+import Avatar from '../Avatar.astro';
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+const head = fr ? ['Titre', 'Statut', 'Catégorie', 'Responsable', 'Mis à jour'] : ['Title', 'Status', 'Category', 'Owner', 'Updated'];
+const rows = [
+  { t: fr ? 'Restaurer une base PostgreSQL depuis une sauvegarde' : 'Restore a PostgreSQL database from a backup', s: 'published', c: 'Runbook', tone: 'blue', a: 'AS', col: '#13705E', d: fr ? 'Hier' : 'Yesterday', lock: false },
+  { t: fr ? 'Incident INC-2291 : disque saturé sur pg-prod-02' : 'Incident INC-2291: disk full on pg-prod-02', s: 'published', c: fr ? 'Rapport d’incident' : 'Incident report', tone: 'red', a: 'CK', col: '#6B5A8E', d: fr ? '3 nov.' : 'Nov 3', lock: false },
+  { t: fr ? 'Rotation des certificats TLS internes' : 'Rotating internal TLS certificates', s: 'draft', c: fr ? 'Sécurité' : 'Security', tone: 'purple', a: 'CK', col: '#6B5A8E', d: fr ? '29 oct.' : 'Oct 29', lock: true },
+  { t: fr ? 'Sauvegardes nocturnes avec Barman' : 'Nightly backups with Barman', s: 'obsolete', c: 'Runbook', tone: 'blue', a: 'HC', col: '#3F6C9A', d: fr ? '2 mars' : 'Mar 2', lock: false }
+] as const;
+---
+<div class="hx">
+  <div class="s-scroll-x" tabindex="0" role="group" aria-label={fr ? 'Aperçu de la bibliothèque' : 'Library preview'}>
+    <table class="s-mg">
+      <thead><tr>{head.map((h) => <th>{h}</th>)}</tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td class="t">{r.t}{r.lock && <Icon name="lock" />}</td>
+            <td><Status lang={lang} s={r.s} /></td>
+            <td><Pill tone={r.tone}>{r.c}</Pill></td>
+            <td><Avatar initials={r.a} color={r.col} /></td>
+            <td class="muted">{r.d}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+---
+/* Version history drawn as strata: the thicker the stratum, the larger the change. */
+import type { Lang } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const fr = Astro.props.lang === 'fr';
+const versions = [
+  [4, fr ? '10 nov.' : 'Nov 10', 40, 'var(--accent)'],
+  [3, fr ? '2 sept.' : 'Sep 2', 18, 'var(--s4)'],
+  [2, fr ? '15 mai' : 'May 15', 28, 'var(--s3)'],
+  [1, fr ? '3 févr.' : 'Feb 3', 50, 'var(--s2)']
+] as const;
+---
+<div class="strata" role="img" aria-label={fr ? 'Historique de 4 versions' : 'History of 4 versions'}>
+  {versions.map(([n, date, h, c], i) => (
+    <div class:list={['stratum', { 'is-current': i === 0 }]} style={`--h:${h}px;--c:${c};--j:${i}`}>
+      <span class="band"></span>
+      <span class="stratum-label"><span>Version {n}</span><span>{date}</span></span>
+    </div>
+  ))}
+</div>
+<p class="caption">{fr ? 'L’épaisseur d’une strate indique l’ampleur des modifications.' : 'The thickness of a stratum shows how much changed.'}</p>

@@ -1,0 +1,16 @@
+---
+/* Small dashed badge: the release a feature is planned for. */
+import type { Lang } from '../i18n/routes';
+import type { Release } from '../data/modules';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  v: Release;
+}
+const { lang, v } = Astro.props;
+const b = ui(lang).badge;
+const text = v === 'later' ? b.later : v;
+const title = v === 'later' ? b.laterTitle : b.planned + v;
+---
+<span class="vb" title={title}>{text}</span>
