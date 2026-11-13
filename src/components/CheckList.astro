@@ -1,0 +1,13 @@
+---
+/* List with green check marks. Items may contain simple HTML (strong, code). */
+import Icon from './Icon.astro';
+
+interface Props {
+  items: string[];
+  tight?: boolean;
+}
+const { items, tight } = Astro.props;
+---
+<ul class:list={['s-check', { tight }]}>
+  {items.map((html: string) => <li><Icon name="check-circle" /><span set:html={html} /></li>)}
+</ul>

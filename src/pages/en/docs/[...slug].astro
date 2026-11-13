@@ -1,0 +1,11 @@
+---
+/* Documentation in English: /en/docs/ and /en/docs/<page>/. */
+import DocPage from '../../../views/DocPage.astro';
+import { DOC_ORDER, docSlug } from '../../../docs/nav';
+
+export function getStaticPaths() {
+  return DOC_ORDER.map((key) => ({ params: { slug: docSlug(key) || undefined }, props: { key } }));
+}
+const { key } = Astro.props;
+---
+<DocPage lang="en" key={key} />

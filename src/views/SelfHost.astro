@@ -1,0 +1,122 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import PageHero from '../components/PageHero.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import { demo, GITHUB } from '../config';
+import { docHref, type DocKey } from '../docs/nav';
+import { STEPS } from '../data/code';
+import type { Lang } from '../i18n/routes';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const T = {
+  fr: {
+    title: 'Auto-hébergement',
+    description: 'Installer Lore sur votre serveur avec Docker Compose, un paquet .deb ou .rpm, ou l’archive universelle. Prérequis, installation, sauvegarde et mise à jour.',
+    h1: 'Installé en cinq minutes, sur votre serveur.',
+    lead: 'Lore et PostgreSQL, rien d’autre : avec Docker, un paquet .deb ou .rpm, ou une archive. Aucun autre service à installer, à sauvegarder ni à mettre à jour.',
+    notice: ['Lore n’est pas encore publié. Ces étapes décrivent l’installation prévue pour la version 0.1.', 'Suivre le projet sur GitHub'],
+    needs: 'Ce qu’il vous faut',
+    req: [
+      ['Système', 'Linux, ou macOS et Windows pour un essai'],
+      ['Logiciel', 'Docker 24 avec Docker Compose, ou PostgreSQL 18 avec un paquet ou l’archive'],
+      ['Ressources', '2 processeurs et 4 Go de mémoire pour une équipe <span class="help">(indicatif)</span>'],
+      ['Disque', '10 Go, plus le volume de vos documents'],
+      ['Réseau', 'Un nom de domaine et un certificat pour le HTTPS, recommandés']
+    ],
+    install: 'Installer avec Docker',
+    steps: ['Télécharger le fichier de démarrage', 'Choisir le mot de passe de la base', 'Démarrer'],
+    finish: ['Terminer dans le navigateur', 'Ouvrez l’adresse de votre serveur et saisissez le code de configuration, affiché par docker compose logs lore : l’écran crée ensuite l’organisation et le premier compte administrateur.', 'Voir l’écran de configuration'],
+    others: 'Ou sans Docker',
+    ways: [
+      ['server', 'Paquet .deb', 'Ubuntu 22.04, 24.04 et 26.04, Debian 12 et 13. Un service systemd, mis à jour avec <code>apt</code>.', 'Installer le paquet', 'paquets-deb-et-rpm'],
+      ['server', 'Paquet .rpm', 'RHEL, Rocky Linux et AlmaLinux 8, 9 et 10. Un service systemd, mis à jour avec <code>dnf</code>.', 'Installer le paquet', 'paquets-deb-et-rpm'],
+      ['code', 'Archive universelle', 'Pour tout système qui dispose de Java 21 : Linux, macOS ou Windows.', 'Installer l’archive', 'archive-universelle']
+    ],
+    cards: [
+      ['database', 'Sauvegarder', 'Une copie de la base avec <code>pg_dump</code> et une copie du dossier des fichiers suffisent.', 'Sauvegarde et restauration', 'backup'],
+      ['refresh', 'Mettre à jour', 'Installez la nouvelle image ou le nouveau paquet : les migrations de la base s’appliquent au démarrage.', 'Mise à jour', 'upgrade'],
+      ['shield', 'Exposer en HTTPS', 'Placez Lore derrière votre proxy inverse habituel : Caddy, Nginx ou Traefik.', 'HTTPS et proxy inverse', 'reverse-proxy']
+    ]
+  },
+  en: {
+    title: 'Self-hosting',
+    description: 'Install Lore on your server with Docker Compose, a .deb or .rpm package, or the universal archive. Requirements, installation, backups and updates.',
+    h1: 'Installed in five minutes, on your server.',
+    lead: 'Lore and PostgreSQL, nothing else: with Docker, a .deb or .rpm package, or an archive. No other service to install, back up or update.',
+    notice: ['Lore has not been released yet. These steps describe the installation planned for version 0.1.', 'Follow the project on GitHub'],
+    needs: 'What you need',
+    req: [
+      ['System', 'Linux, or macOS and Windows for a trial'],
+      ['Software', 'Docker 24 with Docker Compose, or PostgreSQL 18 with a package or the archive'],
+      ['Resources', '2 CPUs and 4 GB of memory for a team <span class="help">(indicative)</span>'],
+      ['Disk', '10 GB, plus the size of your documents'],
+      ['Network', 'A domain name and a certificate for HTTPS, recommended']
+    ],
+    install: 'Install with Docker',
+    steps: ['Download the starter file', 'Choose the database password', 'Start'],
+    finish: ['Finish in the browser', 'Open your server’s address and enter the setup code, shown by docker compose logs lore: the screen then creates the organization and the first administrator account.', 'See the setup screen'],
+    others: 'Or without Docker',
+    ways: [
+      ['server', '.deb package', 'Ubuntu 22.04, 24.04 and 26.04, Debian 12 and 13. A systemd service, updated with <code>apt</code>.', 'Install the package', 'deb-and-rpm-packages'],
+      ['server', '.rpm package', 'RHEL, Rocky Linux and AlmaLinux 8, 9 and 10. A systemd service, updated with <code>dnf</code>.', 'Install the package', 'deb-and-rpm-packages'],
+      ['code', 'Universal archive', 'For any system with Java 21: Linux, macOS or Windows.', 'Install the archive', 'universal-archive']
+    ],
+    cards: [
+      ['database', 'Back up', 'A copy of the database with <code>pg_dump</code> and a copy of the files folder are enough.', 'Backup and restore', 'backup'],
+      ['refresh', 'Update', 'Install the new image or the new package: database migrations are applied on startup.', 'Upgrading', 'upgrade'],
+      ['shield', 'Serve over HTTPS', 'Put Lore behind your usual reverse proxy: Caddy, Nginx or Traefik.', 'HTTPS and reverse proxy', 'reverse-proxy']
+    ]
+  }
+}[lang];
+const commands = [STEPS.download, STEPS.password, STEPS.start];
+---
+<Base lang={lang} page="selfhost" title={T.title} description={T.description}>
+  <PageHero kicker={T.title} icon="terminal" title={T.h1} lead={T.lead}>
+    <p class="s-notice" style="margin-top:28px"><Icon name="clock" /><span>{T.notice[0]} <a href={GITHUB.repo}>{T.notice[1]}</a></span></p>
+  </PageHero>
+
+  <section class="s-sec-tight s-sec-flush">
+    <div class="s-wrap s-split top">
+      <div>
+        <h2 class="s-h2 s-h2-sm">{T.needs}</h2>
+        <dl class="s-req">
+          {T.req.map(([k, v]) => <div><dt>{k}</dt><dd set:html={v} /></div>)}
+        </dl>
+      </div>
+      <div>
+        <h2 class="s-h2 s-h2-sm">{T.install}</h2>
+        <ol class="s-steps">
+          {commands.map((cmd, i) => <li><div><h3>{T.steps[i]}</h3><CodeBlock lang={lang} code={cmd} /></div></li>)}
+          <li><div><h3>{T.finish[0]}</h3><p>{T.finish[1]}</p><a class="btn s-md" href={demo(lang).setup}>{T.finish[2]}</a></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec-tight">
+    <div class="s-wrap">
+      <h2 class="s-h2 s-h2-sm">{T.others}</h2>
+      <div class="s-cards">
+        {T.ways.map(([icon, title, text, label, anchor]) => (
+          <div class="s-card"><span class="s-ico-box"><Icon name={icon as IconName} /></span><h3>{title}</h3><p set:html={text} /><a class="link" href={docHref('installation', lang, anchor)}>{label}</a></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="s-sec">
+    <div class="s-wrap">
+      <div class="s-cards">
+        {T.cards.map(([icon, title, text, label, path]) => {
+          const link = docHref(path as DocKey, lang);
+          return <div class="s-card"><span class="s-ico-box"><Icon name={icon as IconName} /></span><h3>{title}</h3><p set:html={text} /><a class="link" href={link}>{label}</a></div>;
+        })}
+      </div>
+    </div>
+  </section>
+</Base>

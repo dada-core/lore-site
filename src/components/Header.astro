@@ -1,0 +1,68 @@
+---
+/* Header with the main menu, the mobile menu (a modal dialog), and the window of the presentation video
+   opened by "See the demo" (without the script, the button leads to the video file itself). */
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { demo, GITHUB, VIDEO } from '../config';
+import { href, otherLang, ROUTES, type Lang, type PageId } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  page: PageId | null;
+  /* Address of this page in each language, when it is not one of ROUTES (documentation pages). */
+  paths?: Record<Lang, string>;
+}
+const { lang, page, paths } = Astro.props;
+const t = ui(lang);
+const other = otherLang(lang);
+const otherHref = paths?.[other] ?? ROUTES[page ?? 'home'][other];
+
+/* Each page has its own color in the menu. Security and self-hosting are in the footer,
+   and the Install button leads to self-hosting. */
+type NavId = 'features' | 'cases' | 'docs' | 'opensource';
+const NAV: [NavId, string][] = [['features', 'blue'], ['cases', 'teal'], ['docs', 'gray'], ['opensource', 'orange']];
+/* The current page, or the section it belongs to (a documentation page, for "Documentation"). */
+const here = Astro.url.pathname;
+const current = (id: PageId): 'page' | 'true' | undefined => (id !== page ? undefined : here === ROUTES[id][lang] ? 'page' : 'true');
+---
+<header class="s-header">
+  <div class="s-wrap s-header-in">
+    <a class="s-brand" href={href('home', lang)}><Logo size={26} />Lore</a>
+    <nav class="s-nav" aria-label={t.nav.label}>
+      {NAV.map(([id, tone]) => <a href={href(id, lang)} data-tone={tone} aria-current={current(id)}>{t.nav[id]}</a>)}
+    </nav>
+    <div class="s-actions">
+      <a class="icon-btn s-hide-sm" href={GITHUB.repo} aria-label={t.github} title={t.github}><Icon name="github" /></a>
+      <a class="s-lang s-hide-sm" href={otherHref} hreflang={other} lang={other} title={t.lang.label}><span aria-hidden="true">{t.lang.short}</span><span class="sr-only">{t.lang.label}</span></a>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label={t.theme.toggle} title={t.theme.toggle}><Icon name="theme" /></button>
+      <a class="btn s-md s-hide-sm s-demo-btn" href={VIDEO.src} data-video-open>{t.seeDemo}</a>
+      <a class="btn btn-primary s-md" href={href('selfhost', lang)}>{t.install}</a>
+      <button class="icon-btn s-menu-btn" type="button" data-drawer-open aria-haspopup="dialog" aria-controls="s-drawer" aria-label={t.menu.open}><Icon name="menu" /></button>
+    </div>
+  </div>
+</header>
+
+<dialog class="s-drawer" id="s-drawer" aria-label={t.menu.label}>
+  <div class="s-drawer-head">
+    <a class="s-brand" href={href('home', lang)}><Logo size={24} />Lore</a>
+    <button class="icon-btn" type="button" data-drawer-close aria-label={t.menu.close} autofocus><Icon name="x" /></button>
+  </div>
+  <nav class="s-drawer-body" aria-label={t.menu.label}>
+    <a href={href('home', lang)} aria-current={current('home')}>{t.nav.home}</a>
+    {NAV.map(([id]) => <a href={href(id, lang)} aria-current={current(id)}>{t.nav[id]}</a>)}
+    <a href={GITHUB.repo}>GitHub</a>
+    <a href={otherHref} hreflang={other} lang={other}>{t.lang.name}</a>
+  </nav>
+  <div class="s-drawer-foot">
+    <a class="btn btn-primary s-lg" href={href('selfhost', lang)}>{t.installLong}</a>
+    <a class="btn s-lg" href={demo(lang).home}>{t.openDemo}</a>
+  </div>
+</dialog>
+
+<dialog class="s-video" id="s-video" aria-label={t.video.label}>
+  <button class="icon-btn s-video-close" type="button" data-video-close aria-label={t.video.close} title={t.video.close}><Icon name="x" /></button>
+  <video controls preload="none" playsinline width="1920" height="1080">
+    <source src={VIDEO.src} type="video/mp4" />
+  </video>
+</dialog>

@@ -1,0 +1,21 @@
+---
+/* One page not found for both languages: static hosts serve the same 404.html everywhere. */
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+---
+<Base lang="fr" page={null} title="Page introuvable" description="Cette page est introuvable." noindex>
+  <section class="s-404">
+    <div class="s-wrap">
+      <Logo size={40} />
+      <h1 class="s-h2">Cette page est introuvable.</h1>
+      <p class="s-intro">Elle a peut-être été déplacée.</p>
+      <div class="s-ctas"><a class="btn btn-primary s-md" href="/">Retour à l’accueil</a></div>
+      <hr />
+      <div lang="en">
+        <h2 class="s-h2" style="font-size:24px">This page could not be found.</h2>
+        <p class="s-intro">It may have moved.</p>
+        <div class="s-ctas"><a class="btn s-md" href="/en/" hreflang="en">Back to the English home page</a></div>
+      </div>
+    </div>
+  </section>
+</Base>

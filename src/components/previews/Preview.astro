@@ -1,0 +1,21 @@
+---
+/* The interface preview of a module, in its frame. */
+import type { Lang } from '../../i18n/routes';
+import type { Preview } from '../../data/modules';
+import MiniGrid from './MiniGrid.astro';
+import MiniSearch from './MiniSearch.astro';
+import MiniStrata from './MiniStrata.astro';
+import MiniPerms from './MiniPerms.astro';
+import MiniFiche from './MiniFiche.astro';
+import MiniAnswer from './MiniAnswer.astro';
+import MiniSources from './MiniSources.astro';
+import MiniChart from './MiniChart.astro';
+
+interface Props {
+  lang: Lang;
+  kind: Preview;
+}
+const { lang, kind } = Astro.props;
+const C = { grid: MiniGrid, search: MiniSearch, strata: MiniStrata, perms: MiniPerms, fiche: MiniFiche, answer: MiniAnswer, sources: MiniSources, chart: MiniChart }[kind];
+---
+<div class="s-vis"><C lang={lang} /></div>

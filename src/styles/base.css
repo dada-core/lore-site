@@ -1,0 +1,156 @@
+/* Lore: design tokens and shared components.
+   Direction: a dense structure driven by the keyboard, grids and colored labels.
+   Signature: the version history drawn as strata. */
+
+:root{
+  --bg:#FFFFFF; --bg-subtle:#F8F8FA; --bg-hover:#F0F0F3; --bg-active:#E8E8ED; --bg-raised:#FFFFFF;
+  --border:#E6E6EA; --border-strong:#D6D7DC;
+  --text:#1B1C20; --text-2:#585B63; --text-3:#6B6F77;
+  --accent:#5B5FD6; --accent-hover:#4A4EC2; --accent-soft:#EEEEFD; --accent-ink:#FFFFFF; --accent-text:#4549BE;
+  --st-draft:#8B8F97; --st-review:#C98A12; --st-published:#1F8A5B; --st-obsolete:#D9622B;
+  --mark:#FFE38A; --mark-ink:#2A2100;
+  --s2:#6B6F78; --s3:#A0A4AC; --s4:#C8CBD1;
+  --bar:#5B5FD6;
+  --shadow-sm:0 1px 2px rgba(16,17,20,.05);
+  --shadow-lg:0 16px 40px rgba(16,17,20,.16), 0 2px 6px rgba(16,17,20,.06);
+  --scrim:rgba(16,17,20,.28);
+
+  --p-blue-bg:#DEE8FF; --p-blue:#1C4AA3;
+  --p-teal-bg:#D4F2E5; --p-teal:#0D6243;
+  --p-green-bg:#E0F4D6; --p-green:#2D6619;
+  --p-yellow-bg:#FFF0C4; --p-yellow:#704C00;
+  --p-orange-bg:#FFE4D3; --p-orange:#8E3D0D;
+  --p-red-bg:#FFE1E4; --p-red:#9C1F2D;
+  --p-purple-bg:#ECE5FF; --p-purple:#5532AE;
+  --p-gray-bg:#EDEEF0; --p-gray:#44484F;
+
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111215; --bg-subtle:#16171A; --bg-hover:#1B1C20; --bg-active:#232429; --bg-raised:#17181C;
+    --border:#222327; --border-strong:#2E2F35;
+    --text:#ECEDEF; --text-2:#A4A7AE; --text-3:#8C9098;
+    --accent:#7F83F2; --accent-hover:#959AF6; --accent-soft:#22244A; --accent-ink:#0D0E1F; --accent-text:#A3A6F8;
+    --st-draft:#7E828A; --st-review:#E2A93B; --st-published:#3DBE84; --st-obsolete:#F08249;
+    --mark:#5C4B12; --mark-ink:#FFEDB0;
+    --s2:#3D4048; --s3:#5D616A; --s4:#868A93;
+    --bar:#7F83F2;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+    --shadow-lg:0 16px 48px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+    --scrim:rgba(0,0,0,.55);
+    --p-blue-bg:rgba(84,134,255,.18); --p-blue:#AFC6FF;
+    --p-teal-bg:rgba(40,190,140,.16); --p-teal:#93E3C2;
+    --p-green-bg:rgba(110,190,70,.17); --p-green:#B9E6A1;
+    --p-yellow-bg:rgba(230,180,40,.17); --p-yellow:#F3D684;
+    --p-orange-bg:rgba(240,130,60,.18); --p-orange:#FBBE96;
+    --p-red-bg:rgba(240,80,100,.18); --p-red:#FDB0B9;
+    --p-purple-bg:rgba(140,100,255,.2); --p-purple:#CDBDFF;
+    --p-gray-bg:rgba(150,155,165,.16); --p-gray:#C9CCD2;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111215; --bg-subtle:#16171A; --bg-hover:#1B1C20; --bg-active:#232429; --bg-raised:#17181C;
+  --border:#222327; --border-strong:#2E2F35;
+  --text:#ECEDEF; --text-2:#A4A7AE; --text-3:#8C9098;
+  --accent:#7F83F2; --accent-hover:#959AF6; --accent-soft:#22244A; --accent-ink:#0D0E1F; --accent-text:#A3A6F8;
+  --st-draft:#7E828A; --st-review:#E2A93B; --st-published:#3DBE84; --st-obsolete:#F08249;
+  --mark:#5C4B12; --mark-ink:#FFEDB0;
+  --s2:#3D4048; --s3:#5D616A; --s4:#868A93;
+  --bar:#7F83F2;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow-lg:0 16px 48px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+  --scrim:rgba(0,0,0,.55);
+  --p-blue-bg:rgba(84,134,255,.18); --p-blue:#AFC6FF;
+  --p-teal-bg:rgba(40,190,140,.16); --p-teal:#93E3C2;
+  --p-green-bg:rgba(110,190,70,.17); --p-green:#B9E6A1;
+  --p-yellow-bg:rgba(230,180,40,.17); --p-yellow:#F3D684;
+  --p-orange-bg:rgba(240,130,60,.18); --p-orange:#FBBE96;
+  --p-red-bg:rgba(240,80,100,.18); --p-red:#FDB0B9;
+  --p-purple-bg:rgba(140,100,255,.2); --p-purple:#CDBDFF;
+  --p-gray-bg:rgba(150,155,165,.16); --p-gray:#C9CCD2;
+  color-scheme:dark;
+}
+
+/* ---------- Base ---------- */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 var(--font);font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;line-height:1.25;font-weight:600}
+p{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:5px}
+[hidden]{display:none !important}
+.ico{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.muted{color:var(--text-3)}
+code,kbd,pre{font-family:var(--mono)}
+:not(pre)>code{font-size:.88em;padding:1px 5px;border-radius:5px;background:var(--bg-subtle);border:1px solid var(--border)}
+
+/* ---------- Buttons and fields ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 11px;border-radius:6px;border:1px solid var(--border-strong);background:var(--bg-raised);color:var(--text);font-weight:500;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap;box-shadow:var(--shadow-sm)}
+.btn:hover{background:var(--bg-hover)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:none}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn-ghost{border-color:transparent;background:transparent;box-shadow:none;color:var(--text-2)}
+.btn-ghost:hover{background:var(--bg-hover);color:var(--text)}
+.icon-btn{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:7px;border:0;background:none;color:var(--text-2);cursor:pointer;flex:none;text-decoration:none}
+.icon-btn:hover{background:var(--bg-hover);color:var(--text)}
+.link{border:0;background:none;padding:0;color:var(--accent-text);cursor:pointer;font-size:inherit;text-decoration:none;font-weight:500}
+.link:hover{text-decoration:underline;text-underline-offset:2px}
+.select{font:inherit;border:1px solid var(--border-strong);border-radius:6px;background:var(--bg-raised);color:var(--text);height:30px;font-size:13px;padding:0 6px}
+/* On phones, a field under 16 px makes iOS zoom in when it gets focus. */
+@media (max-width:560px){.select{font-size:16px;height:36px}}
+html{-webkit-tap-highlight-color:transparent}
+.help{font-size:12.5px;color:var(--text-3)}
+
+/* ---------- Labels, statuses, avatars ---------- */
+.pill{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;background:var(--pb,var(--p-gray-bg));color:var(--pc,var(--p-gray));max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.p-blue{--pb:var(--p-blue-bg);--pc:var(--p-blue)} .p-teal{--pb:var(--p-teal-bg);--pc:var(--p-teal)} .p-green{--pb:var(--p-green-bg);--pc:var(--p-green)}
+.p-yellow{--pb:var(--p-yellow-bg);--pc:var(--p-yellow)} .p-orange{--pb:var(--p-orange-bg);--pc:var(--p-orange)} .p-red{--pb:var(--p-red-bg);--pc:var(--p-red)}
+.p-purple{--pb:var(--p-purple-bg);--pc:var(--p-purple)} .p-gray{--pb:var(--p-gray-bg);--pc:var(--p-gray)}
+.status{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:13px}
+.st-ico{width:14px;height:14px;flex:none}
+.vb{display:inline-flex;align-items:center;height:17px;padding:0 5px;border-radius:4px;border:1px dashed var(--border-strong);color:var(--text-3);font-size:10.5px;font-weight:500;white-space:nowrap;letter-spacing:.01em;flex:none}
+.avatar{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:9.5px;font-weight:600;background:var(--av,#6B6F78);color:#fff;flex:none;letter-spacing:.02em}
+.cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 1px;border-radius:4px;background:var(--accent-soft);color:var(--accent-text);font-size:11px;font-weight:600;vertical-align:2px}
+
+/* ---------- Lists ---------- */
+.list{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg-raised)}
+.list>li+li{border-top:1px solid var(--border)}
+.list-row{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 14px}
+.list-main{flex:1;min-width:0}
+.list-title{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-sub{font-size:12.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Version strata: the Lore signature ---------- */
+.strata{display:flex;flex-direction:column;margin:2px 0 10px}
+.stratum{display:grid;grid-template-columns:64px 1fr;align-items:center;column-gap:10px;padding:0 4px;border-radius:5px}
+.band{height:var(--h);background:var(--c);clip-path:var(--edge,polygon(0 12%,25% 3%,50% 10%,75% 0,100% 8%,100% 100%,0 100%))}
+.stratum:nth-child(4n+1) .band{--edge:polygon(0 16%,17% 5%,39% 14%,61% 0,83% 10%,100% 4%,100% 100%,0 100%)}
+.stratum:nth-child(4n+2) .band{--edge:polygon(0 10%,24% 22%,46% 6%,70% 18%,100% 8%,100% 100%,0 100%)}
+.stratum:nth-child(4n+3) .band{--edge:polygon(0 6%,20% 14%,44% 2%,67% 12%,88% 4%,100% 10%,100% 100%,0 100%)}
+.stratum:nth-child(4n+4) .band{--edge:polygon(0 8%,28% 2%,53% 9%,77% 1%,100% 7%,100% 100%,0 100%)}
+.stratum-label{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--text-2)}
+.stratum.is-current .stratum-label{color:var(--text);font-weight:600}
+.caption{font-size:11.5px;color:var(--text-3);margin:8px 4px 0}
+
+/* ---------- Notification ---------- */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:13px;box-shadow:var(--shadow-lg)}
+
+/* ---------- Scrolling without visible scrollbars: a fade shows there is more ---------- */
+html,body,*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+.hx{position:relative;min-width:0}
+.hx::before,.hx::after{content:"";position:absolute;top:0;bottom:0;width:44px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:6}
+.hx::before{left:0;background:linear-gradient(to right,var(--hx-bg,var(--bg)),transparent)}
+.hx::after{right:0;background:linear-gradient(to left,var(--hx-bg,var(--bg)),transparent)}
+.hx.hint-l::before,.hx.hint-r::after{opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+}

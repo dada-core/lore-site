@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lore.dada-core.com/sitemap-index.xml

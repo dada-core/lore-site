@@ -1,0 +1,21 @@
+---
+import Icon from './Icon.astro';
+import Words from './Words.astro';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  kicker?: string;
+  icon?: IconName;
+  title: string;
+  lead?: string;
+}
+const { kicker, icon, title, lead } = Astro.props;
+---
+<section class="s-page-hero">
+  <div class="s-wrap">
+    {kicker && <span class="s-kicker">{icon && <Icon name={icon} />}{kicker}</span>}
+    <h1 class="s-h1" data-reveal="words"><Words text={title} /></h1>
+    {lead && <p class="s-lead">{lead}</p>}
+    <slot />
+  </div>
+</section>

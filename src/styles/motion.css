@@ -1,0 +1,139 @@
+/* Lore website: motion.
+   Everything here only runs when the <html> element has the "motion" class, which is not set
+   when the system asks for reduced motion. */
+
+:root{--eo:cubic-bezier(.16,1,.3,1)}
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  @view-transition{navigation:auto}
+}
+
+/* ---------- Reveals as elements enter the screen ---------- */
+.motion [data-reveal]:not([data-in]){opacity:0}
+.motion [data-reveal="words"]:not([data-in]){opacity:1}
+.motion [data-reveal][data-in]{animation-duration:.9s;animation-timing-function:var(--eo);animation-fill-mode:backwards;animation-delay:var(--d,0s)}
+.motion [data-reveal="rise"][data-in]{animation-name:s-rise}
+.motion [data-reveal="slap"][data-in]{animation-name:s-slap;animation-duration:.8s}
+.motion [data-reveal="toss"][data-in]{animation-name:s-toss;animation-duration:1s}
+.motion [data-reveal="wipe"][data-in]{animation-name:s-wipe;animation-duration:1.2s}
+@keyframes s-rise{from{opacity:0;filter:blur(6px);transform:translateY(30px)}}
+@keyframes s-slap{from{opacity:0;transform:translateY(-14px) scale(1.25) rotate(calc(var(--r,0deg) - 8deg))}to{opacity:1;transform:rotate(var(--r,0deg))}}
+@keyframes s-toss{from{opacity:0;transform:translate(var(--tx,36px),64px) rotate(var(--tr,5deg)) scale(.9)}}
+@keyframes s-wipe{from{clip-path:inset(100% 0 0 round 18px)}to{clip-path:inset(0 round 18px)}}
+
+/* Headings that rise word by word */
+.s-w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .02em .14em;margin:0 -.02em -.14em}
+.s-w>span{display:inline-block}
+.motion [data-reveal="words"] .s-w>span{transform:translateY(110%);opacity:0}
+.motion [data-reveal="words"][data-in] .s-w>span{animation:s-word 1s var(--eo) both;animation-delay:calc(var(--i) * 70ms + var(--base,.1s) + var(--d,0s))}
+@keyframes s-word{from{transform:translateY(110%);opacity:0;filter:blur(4px)}to{transform:none;opacity:1;filter:none}}
+
+/* Highlighter: the color of passages found by search */
+.mk{--mk-c:var(--mark);background-image:linear-gradient(var(--mk-c),var(--mk-c));background-repeat:no-repeat;background-position:0 88%;background-size:100% .42em;-webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 .06em}
+.motion .mk{background-size:0 .42em;transition:background-size 1.1s var(--eo) .5s}
+.motion [data-in] .mk{background-size:100% .42em}
+
+/* ---------- Header: transparent bar, then a floating capsule ---------- */
+.s-header{transition:padding .5s var(--eo),background-color .35s,border-color .35s;view-transition-name:s-header}
+.s-header:not(.is-scrolled){background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+.s-header-in{border:1px solid transparent;transition:height .5s var(--eo),max-width .55s var(--eo),padding .5s var(--eo),border-radius .55s var(--eo),background-color .35s,border-color .35s,box-shadow .5s var(--eo)}
+.s-header.is-scrolled{padding-top:10px;background:transparent;border-bottom-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+.s-header.is-scrolled .s-header-in{height:54px;max-width:min(1132px,calc(100% - 20px));padding:0 8px 0 16px;border-radius:999px;border-color:var(--border);background:color-mix(in srgb,var(--bg-raised) 84%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);box-shadow:0 16px 40px -20px rgba(16,17,20,.4)}
+
+/* Menu pill, in each page's color */
+.s-nav{position:relative}
+.s-nav a{position:relative;z-index:1;transition:color .25s}
+.s-nav.has-pill a:hover,.s-nav.has-pill a[aria-current]{background:none}
+.s-nav a[aria-current]{color:var(--pc,var(--text))}
+.s-nav-pill{position:absolute;left:0;top:0;width:var(--w,0);height:var(--h,0);transform:translate(var(--x,0),var(--y,0));border-radius:8px;background:var(--pill,var(--bg-active));transition:transform .5s var(--eo),width .5s var(--eo),height .5s var(--eo),background-color .3s,opacity .2s;pointer-events:none;z-index:0}
+.s-nav-pill.no-tr{transition:none}
+[data-tone="blue"]{--pill:var(--p-blue-bg);--pc:var(--p-blue)}
+[data-tone="teal"]{--pill:var(--p-teal-bg);--pc:var(--p-teal)}
+[data-tone="yellow"]{--pill:var(--p-yellow-bg);--pc:var(--p-yellow)}
+[data-tone="purple"]{--pill:var(--p-purple-bg);--pc:var(--p-purple)}
+[data-tone="green"]{--pill:var(--p-green-bg);--pc:var(--p-green)}
+[data-tone="orange"]{--pill:var(--p-orange-bg);--pc:var(--p-orange)}
+[data-tone="gray"]{--pill:var(--p-gray-bg);--pc:var(--p-gray)}
+
+/* ---------- Logo: the strata assemble, then spread apart on hover ---------- */
+.s-brand svg rect{transform-box:fill-box;transform-origin:center;transition:transform .5s var(--eo)}
+.logo-intro .s-header .s-brand svg rect{animation:s-slab .9s var(--eo) both}
+.logo-intro .s-header .s-brand svg rect:nth-of-type(1){--sx:-14px;animation-delay:.05s}
+.logo-intro .s-header .s-brand svg rect:nth-of-type(2){--sx:14px;animation-delay:.18s}
+.logo-intro .s-header .s-brand svg rect:nth-of-type(3){--sy:-12px;--sr:-12deg;animation-delay:.32s}
+@keyframes s-slab{from{opacity:0;transform:translate(var(--sx,0),var(--sy,0)) rotate(var(--sr,0deg)) scale(.9)}}
+.s-brand:hover svg rect:nth-of-type(1){transform:translateY(1.5px)}
+.s-brand:hover svg rect:nth-of-type(3){transform:translateY(-2px) rotate(-4deg)}
+
+/* ---------- Home opening ---------- */
+.s-caret{width:8px;height:17px;border-radius:2px;background:var(--accent);margin-left:-8px;flex:none}
+.motion .s-caret{animation:s-blink 1.1s steps(1) infinite}
+@keyframes s-blink{50%{opacity:0}}
+.s-tilt{margin-top:56px}
+.s-tilt>.s-frame{margin-top:0}
+.s-sway{position:absolute;display:inline-block}
+.motion .s-scatter-center{animation:s-bob 5s ease-in-out infinite}
+@keyframes s-bob{50%{translate:0 -6px}}
+
+/* Scroll-linked motion, without JavaScript, where the browser supports it */
+@supports (animation-timeline: view()){
+  .motion .s-sway{animation:s-sway linear both;animation-timeline:view();animation-range:cover 0% cover 100%}
+  @keyframes s-sway{from{translate:0 var(--sy,20px);rotate:calc(var(--sr,2deg) * -1)}to{translate:0 calc(var(--sy,20px) * -1);rotate:var(--sr,2deg)}}
+  .motion .s-tilt{animation:s-tilt linear both;animation-timeline:view();animation-range:entry 10% cover 42%}
+  @keyframes s-tilt{from{transform:perspective(1600px) rotateX(16deg) scale(.93);opacity:.6}to{transform:none;opacity:1}}
+}
+
+/* ---------- Stickers: they peel off on hover ---------- */
+.s-scatter .pill,.s-audience .pill{transition:transform .45s var(--eo),box-shadow .35s var(--eo)}
+.s-scatter .pill::after{content:"";position:absolute;right:10px;bottom:0;width:0;height:0;border-radius:0 0 6px 0;background:linear-gradient(135deg,transparent 50%,color-mix(in srgb,var(--bg-raised) 75%,var(--text)) 50%);transition:width .35s var(--eo),height .35s var(--eo)}
+/* Hover effects only where there is a real pointer: on touch screens they would stay stuck after a tap. */
+@media (hover:hover) and (pointer:fine){
+  .s-scatter .pill:hover,.s-audience .pill:hover{transform:rotate(calc(var(--r,0deg) * .2)) translateY(-4px) scale(1.06);box-shadow:var(--shadow-lg)}
+  .s-scatter .pill:hover::after{width:12px;height:12px}
+}
+
+/* ---------- Cards: lift, diagonal sweep, glow under the pointer ---------- */
+.s-tile,.s-card{position:relative;overflow:hidden;isolation:isolate;transition:transform .5s var(--eo),box-shadow .4s var(--eo),border-color .3s}
+.s-tile::after,.s-card::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,transparent 35%,color-mix(in srgb,var(--accent) 13%,transparent) 50%,transparent 65%);transform:translateX(-120%);transition:transform 1.1s var(--eo);pointer-events:none}
+[data-shine]{isolation:isolate}
+[data-shine]::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--accent) 11%,transparent),transparent 60%);opacity:0;transition:opacity .4s var(--eo);pointer-events:none;z-index:-1}
+@media (hover:hover) and (pointer:fine){
+  .s-tile:hover,.s-card:hover{transform:translateY(-4px);box-shadow:0 24px 48px -28px rgba(16,17,20,.4)}
+  .s-tile:hover::after,.s-card:hover::after{transform:translateX(120%)}
+  [data-shine]:hover::before{opacity:1}
+}
+
+
+/* ---------- Interface previews that come alive as they appear ---------- */
+.motion .s-vis .band{transform:scaleX(0);transform-origin:left center}
+.motion .s-vis[data-in] .band{transform:none;transition:transform .9s var(--eo) calc(var(--j,0) * 120ms + .45s)}
+.motion .s-vis mark{background:linear-gradient(var(--mark),var(--mark)) no-repeat 0 0/0 100%;transition:background-size .8s var(--eo) .7s}
+.motion .s-vis[data-in] mark{background-size:100% 100%}
+.motion .s-vis .s-late{opacity:0}
+.motion .s-vis[data-in] .s-late{animation:s-slap .8s var(--eo) 1s both}
+.ln{display:inline-block;min-height:1em}
+.motion .s-code .ln{opacity:0}
+.motion .s-code[data-in] .ln{animation:s-line .4s ease-out both;animation-delay:calc(var(--i) * 45ms + .5s)}
+@keyframes s-line{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+
+/* ---------- Final call to action: an iridescent background that drifts slowly ---------- */
+.s-cta.s-holo{background:radial-gradient(520px circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--accent) 22%,transparent),transparent 60%),linear-gradient(115deg,color-mix(in srgb,var(--accent) 16%,var(--bg-subtle)),color-mix(in srgb,#8B5CF6 14%,var(--bg-subtle)) 35%,color-mix(in srgb,#06B6D4 12%,var(--bg-subtle)) 65%,color-mix(in srgb,var(--accent) 16%,var(--bg-subtle)));background-size:100% 100%,260% 260%}
+.motion .s-cta.s-holo{animation:s-holo 12s ease-in-out infinite alternate}
+.motion .s-cta.s-holo[data-reveal][data-in]{animation:s-rise .9s var(--eo) var(--d,0s) backwards,s-holo 12s ease-in-out 1s infinite alternate}
+@keyframes s-holo{from{background-position:0 0,0% 30%}to{background-position:0 0,100% 70%}}
+
+/* ---------- Opening questions ---------- */
+@supports (interpolate-size: allow-keywords){
+  :root{interpolate-size:allow-keywords}
+  .s-faq details::details-content{block-size:0;overflow:hidden;transition:block-size .45s var(--eo),content-visibility .45s allow-discrete}
+  .s-faq details[open]::details-content{block-size:auto}
+}
+
+/* ---------- Page changes cross-fade ---------- */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.38s;animation-timing-function:var(--eo)}
+
+/* ---------- Reduced motion: everything is shown directly ---------- */
+@media (prefers-reduced-motion: reduce){
+  .s-cta.s-holo,.s-caret,.s-sway,.s-tilt,.s-scatter-center{animation:none !important}
+  .s-tile,.s-card,.s-header,.s-header-in,.s-nav-pill,.mk{transition:none !important}
+}

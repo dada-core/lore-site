@@ -1,0 +1,8 @@
+---
+/* The Lore mark: three strata, the newest on top. */
+interface Props {
+  size?: number;
+}
+const { size = 24 } = Astro.props;
+---
+<svg width={size} height={size} viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="19" width="23" height="6" rx="1.5" fill="var(--s2)" /><rect x="6" y="11.5" width="20" height="6" rx="1.5" fill="var(--s3)" /><rect x="2" y="4" width="17" height="6" rx="1.5" fill="var(--accent)" /></svg>

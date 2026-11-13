@@ -1,0 +1,45 @@
+---
+/* Legal notice, from LEGAL in src/config.ts: an empty field is shown as "to be completed" and reported at build time. */
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { LEGAL, SITE, GITHUB } from '../config';
+import type { Lang } from '../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const fr = lang === 'fr';
+const todo = fr ? 'À compléter' : 'To be completed';
+const missing = (['publisher', 'address', 'phone', 'director', 'host', 'hostAddress', 'hostPhone'] as const).filter((k) => !LEGAL[k]);
+if (missing.length && lang === 'fr') console.warn(`[legal] Missing legal notice fields in src/config.ts: ${missing.join(', ')}`);
+const date = new Date(LEGAL.updated).toLocaleDateString(fr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const T = fr
+  ? { title: 'Mentions légales', description: 'Éditeur, hébergeur et propriété intellectuelle du site lore.dada-core.com.', publisher: 'Éditeur du site', director: 'Directeur de la publication', host: 'Hébergement', ip: 'Propriété intellectuelle', contact: 'Contact', updated: 'Dernière mise à jour' }
+  : { title: 'Legal notice', description: 'Publisher, host and intellectual property of the lore.dada-core.com website.', publisher: 'Publisher', director: 'Publication director', host: 'Hosting', ip: 'Intellectual property', contact: 'Contact', updated: 'Last updated' };
+---
+<Base lang={lang} page="legal" title={T.title} description={T.description}>
+  <PageHero title={T.title} />
+  <section class="s-sec-tight" style="padding-top:0">
+    <div class="s-wrap s-legal">
+      <h2>{T.publisher}</h2>
+      <p>{LEGAL.publisher || <span class="s-todo">{todo}</span>}<br />{LEGAL.address || <span class="s-todo">{todo}</span>}<br />{LEGAL.phone || <span class="s-todo">{todo}</span>}<br /><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+
+      <h2>{T.director}</h2>
+      <p>{LEGAL.director || <span class="s-todo">{todo}</span>}</p>
+
+      <h2>{T.host}</h2>
+      <p>{LEGAL.host || <span class="s-todo">{todo}</span>}<br />{LEGAL.hostAddress[lang] || <span class="s-todo">{todo}</span>}<br />{LEGAL.hostPhone || <span class="s-todo">{todo}</span>}</p>
+
+      <h2>{T.ip}</h2>
+      {fr
+        ? <p>Le code source de Lore et de ce site est publié sous licence <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL-3.0</a> et disponible sur GitHub : <a href={GITHUB.repo}>dada-core/lore</a> pour Lore, <a href={GITHUB.site}>dada-core/lore-site</a> pour ce site. Les polices Inter et JetBrains Mono sont distribuées sous licence SIL Open Font License 1.1. Les exemples, noms de personnes et d’organisations présentés sur le site et dans la démo sont fictifs.</p>
+        : <p>The source code of Lore and of this website is published under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL-3.0</a> license and available on GitHub: <a href={GITHUB.repo}>dada-core/lore</a> for Lore, <a href={GITHUB.site}>dada-core/lore-site</a> for this website. The Inter and JetBrains Mono fonts are distributed under the SIL Open Font License 1.1. The examples, people and organizations shown on the website and in the demo are fictitious.</p>}
+
+      <h2>{T.contact}</h2>
+      <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+
+      <p class="s-updated">{T.updated}{fr ? ' : ' : ': '}{date}</p>
+    </div>
+  </section>
+</Base>

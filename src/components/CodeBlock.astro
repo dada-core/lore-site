@@ -1,0 +1,18 @@
+---
+/* A single command or file, with a copy button. */
+import Icon from './Icon.astro';
+import { colorize } from '../data/code';
+import type { Lang } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  code: string;
+}
+const { lang, code } = Astro.props;
+const t = ui(lang);
+---
+<div class="s-code s-code-solo">
+  <pre tabindex="0"><code set:html={colorize(code)} /></pre>
+  <button class="icon-btn" type="button" data-copy={code} data-done={t.copy.commandDone} aria-label={t.copy.command} title={t.copy.command}><Icon name="copy" /></button>
+</div>

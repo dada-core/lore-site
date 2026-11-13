@@ -1,0 +1,31 @@
+---
+/* The presentation video at the top of the home page, in a window frame.
+   It starts with its sound when it comes into view and pauses when it leaves (not with reduced motion or
+   data saving). Until the visitor has clicked or typed on the page, browsers only let it play silently:
+   the corner button then says so. The button in the middle plays or pauses it, and "Full screen" shows
+   the frame full screen with its sound; without the script, it leads to the file. */
+import Icon from './Icon.astro';
+import { VIDEO } from '../config';
+import type { Lang } from '../i18n/routes';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui(lang);
+---
+<div class="s-tilt">
+  <div class="s-frame">
+    <div class="s-frame-bar">
+      <a class="btn" href={VIDEO.src} data-video-full><Icon name="expand" />{t.frame.full}</a>
+    </div>
+    <div class="s-frame-view" data-video-frame data-play={t.video.play} data-pause={t.video.pause} data-sound-on={t.video.soundOn} data-sound-off={t.video.soundOff}>
+      <video muted playsinline preload="none" poster={VIDEO.poster} width="1920" height="1080" aria-label={t.frame.title}>
+        <source src={VIDEO.src} type="video/mp4" />
+      </video>
+      <button class="s-play" type="button" data-video-toggle aria-label={t.video.play}><Icon name="play" /><Icon name="pause" /></button>
+      <button class="s-sound" type="button" data-video-sound aria-pressed="false" aria-label={t.video.soundOn} title={t.video.soundOn}><Icon name="volume-off" /><Icon name="volume" /><span class="s-sound-hint">{t.video.soundOn}</span></button>
+    </div>
+  </div>
+</div>
