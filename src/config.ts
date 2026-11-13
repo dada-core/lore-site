@@ -17,7 +17,8 @@ export const GITHUB = {
   discussions: `${REPO}/discussions`,
   issues: `${REPO}/issues/new/choose`,
   security: `${REPO}/security/advisories/new`,
-  contributing: `${REPO}/blob/main/CONTRIBUTING.md`
+  contributing: `${REPO}/blob/main/CONTRIBUTING.md`,
+  releases: `${REPO}/releases`
 };
 
 /* Interactive demo with sample data, served as static files: public/demo/ in French,

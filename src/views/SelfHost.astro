@@ -19,7 +19,7 @@ const T = {
     description: 'Installer Lore sur votre serveur avec Docker Compose, un paquet .deb ou .rpm, ou l’archive universelle. Prérequis, installation, sauvegarde et mise à jour.',
     h1: 'Installé en cinq minutes, sur votre serveur.',
     lead: 'Lore et PostgreSQL, rien d’autre : avec Docker, un paquet .deb ou .rpm, ou une archive. Aucun autre service à installer, à sauvegarder ni à mettre à jour.',
-    notice: ['Lore n’est pas encore publié. Ces étapes décrivent l’installation prévue pour la version 0.1.', 'Suivre le projet sur GitHub'],
+    notice: ['La version 0.1 n’est pas encore publiée : ces étapes décrivent son installation. Une préversion permet déjà de l’essayer.', 'Voir les versions publiées'],
     needs: 'Ce qu’il vous faut',
     req: [
       ['Système', 'Linux, ou macOS et Windows pour un essai'],
@@ -48,7 +48,7 @@ const T = {
     description: 'Install Lore on your server with Docker Compose, a .deb or .rpm package, or the universal archive. Requirements, installation, backups and updates.',
     h1: 'Installed in five minutes, on your server.',
     lead: 'Lore and PostgreSQL, nothing else: with Docker, a .deb or .rpm package, or an archive. No other service to install, back up or update.',
-    notice: ['Lore has not been released yet. These steps describe the installation planned for version 0.1.', 'Follow the project on GitHub'],
+    notice: ['Version 0.1 has not been released yet: these steps describe its installation. A preview already lets you try it.', 'See the released versions'],
     needs: 'What you need',
     req: [
       ['System', 'Linux, or macOS and Windows for a trial'],
@@ -77,7 +77,7 @@ const commands = [STEPS.download, STEPS.password, STEPS.start];
 ---
 <Base lang={lang} page="selfhost" title={T.title} description={T.description}>
   <PageHero kicker={T.title} icon="terminal" title={T.h1} lead={T.lead}>
-    <p class="s-notice" style="margin-top:28px"><Icon name="clock" /><span>{T.notice[0]} <a href={GITHUB.repo}>{T.notice[1]}</a></span></p>
+    <p class="s-notice" style="margin-top:28px"><Icon name="clock" /><span>{T.notice[0]} <a href={GITHUB.releases}>{T.notice[1]}</a></span></p>
   </PageHero>
 
   <section class="s-sec-tight s-sec-flush">
