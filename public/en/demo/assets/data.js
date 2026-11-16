@@ -23,12 +23,12 @@ window.SL = (function () {
   };
 
   var spaces = [
-    { id: 'infrastructure', name: 'Infrastructure', color: '#13705E', desc: 'Operation of the servers, databases and backups.', docs: 9, members: 5, role: 'Owner', activity: 'Today' },
+    { id: 'infrastructure', name: 'Infrastructure', color: '#13705E', desc: 'Operation of the servers, databases and backups.', docs: 9, members: 5, role: 'Maintainer', activity: 'Today' },
     { id: 'reseau', name: 'Network', color: '#3F6C9A', desc: 'Network architecture, firewalls, VPN and DNS.', docs: 214, members: 9, role: 'Contributor', activity: 'Yesterday' },
     { id: 'support', name: 'L2 Support', color: '#8A6A1F', desc: 'Troubleshooting procedures and standard support answers.', docs: 486, members: 15, role: 'Reader', activity: 'Today' },
     { id: 'atlas', name: 'Atlas project', color: '#6B5A8E', desc: 'Rebuild of the billing platform.', docs: 97, members: 11, role: 'Contributor', activity: 'Nov 8' },
-    { id: 'securite', name: 'Security', color: '#8E4B44', desc: 'Policies, hardening and security incident response.', docs: 38, members: 4, role: 'Owner', activity: 'Nov 4' },
-    { id: 'applications', name: 'Business applications', color: '#4E7A5A', desc: 'Documentation of the internal applications.', docs: 0, members: 1, role: 'Owner', activity: 'Created today', empty: true }
+    { id: 'securite', name: 'Security', color: '#8E4B44', desc: 'Policies, hardening and security incident response.', docs: 38, members: 4, role: 'Maintainer', activity: 'Nov 4' },
+    { id: 'applications', name: 'Business applications', color: '#4E7A5A', desc: 'Documentation of the internal applications.', docs: 0, members: 1, role: 'Maintainer', activity: 'Created today', empty: true }
   ];
 
   var folders = {
@@ -191,11 +191,17 @@ window.SL = (function () {
 
   var spaceMembers = {
     infrastructure: [
-      { id: 'as', role: 'Owner', added: 'Feb 3, 2026' },
-      { id: 'hc', role: 'Owner', added: 'Feb 3, 2026' },
+      { id: 'as', role: 'Maintainer', added: 'Feb 3, 2026' },
+      { id: 'hc', role: 'Maintainer', added: 'Feb 3, 2026' },
       { id: 'ck', role: 'Contributor', added: 'Mar 12, 2026' },
       { id: 'ey', role: 'Contributor', added: 'Jun 2, 2026' },
       { id: 'eb', role: 'Reader', added: 'Jun 2, 2026' }
+    ],
+    securite: [
+      { id: 'as', role: 'Maintainer', added: 'Feb 5, 2026' },
+      { id: 'ck', role: 'Contributor', added: 'Mar 18, 2026' },
+      { id: 'ey', role: 'Contributor', added: 'Jun 2, 2026' },
+      { id: 'eb', role: 'Reader', added: 'Sep 9, 2026' }
     ]
   };
 
@@ -204,8 +210,8 @@ window.SL = (function () {
     { id: 'as', role: 'Administrator', spaces: 'All', state: 'Active', last: 'Today' },
     { id: 'hc', role: 'Member', spaces: 'Infrastructure, Atlas project', state: 'Active', last: 'Today' },
     { id: 'ck', role: 'Member', spaces: 'Infrastructure, L2 Support, Security', state: 'Active', last: 'Yesterday' },
-    { id: 'ey', role: 'Member', spaces: 'Infrastructure, Network, L2 Support', state: 'Active', last: 'Nov 9' },
-    { id: 'eb', role: 'Member', spaces: 'Infrastructure', state: 'Active', last: 'Today' }
+    { id: 'ey', role: 'Member', spaces: 'Infrastructure, Network, L2 Support, Security', state: 'Active', last: 'Nov 9' },
+    { id: 'eb', role: 'Member', spaces: 'Infrastructure, Security', state: 'Active', last: 'Today' }
   ];
 
   var audit = [

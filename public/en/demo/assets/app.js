@@ -58,7 +58,7 @@
   const status = (s) => `<span class="status">${stIcon(s)}${ST[s].label}</span>`;
 
   const CAT = { 'Runbook': 'p-blue', 'Operating procedure': 'p-teal', 'Incident report': 'p-red', 'Security documentation': 'p-purple', 'Vendor documentation': 'p-yellow', 'Architecture documentation': 'p-cyan', 'Technical documentation': 'p-gray' };
-  const ROLE = { 'Owner': 'p-purple', 'Contributor': 'p-blue', 'Reader': 'p-gray', 'Administrator': 'p-purple', 'Member': 'p-gray' };
+  const ROLE = { 'Maintainer': 'p-purple', 'Contributor': 'p-blue', 'Reader': 'p-gray', 'Owner': 'p-orange', 'Administrator': 'p-purple', 'Member': 'p-gray' };
   const TECH = { 'PostgreSQL': 'p-blue', 'NFS': 'p-gray', 'IPsec': 'p-teal', 'Network': 'p-cyan', 'Kubernetes': 'p-purple', 'TLS': 'p-green', 'LDAP': 'p-orange' };
   const AUDIT = { 'Permissions': 'p-purple', 'Import': 'p-blue', 'View': 'p-gray', 'Sign-in': 'p-red', 'Organization': 'p-orange', 'Members': 'p-teal', 'Status': 'p-yellow', 'Download': 'p-cyan' };
   const STATE = { 'Active': 'p-green', 'Invitation pending': 'p-yellow', 'Disabled': 'p-gray' };
@@ -522,8 +522,8 @@
     const actions = `<button class="btn" type="button" data-action="open" data-overlay="new-folder">${ico('folder-plus')}<span class="btn-label">New folder</span></button><button class="btn btn-primary" type="button" data-action="open" data-overlay="import">${ico('upload')}<span class="btn-label">Import</span></button>`;
     const base = { nav: 'space:' + s.id + ':docs', title: s.name, crumbs: spaceCrumbs(s), actions };
     if (s.empty) {
-      base.html = `<div class="empty">${spaceIco(s, true)}<h1 class="page-title">${esc(s.name)} is empty</h1><p>Import your first documents or invite colleagues. PDF, Word, text and Markdown files are indexed as soon as they are imported.</p>
-        <div class="actions"><button class="btn btn-primary btn-lg" type="button" data-action="open" data-overlay="import">${ico('upload')}Import documents</button><a class="btn btn-lg" href="#/spaces/${s.id}/members">${ico('users')}Invite members</a></div>
+      base.html = `<div class="empty">${spaceIco(s, true)}<h1 class="page-title">${esc(s.name)} is empty</h1><p>Import your first documents or add members. PDF, Word, text and Markdown files are indexed as soon as they are imported.</p>
+        <div class="actions"><button class="btn btn-primary btn-lg" type="button" data-action="open" data-overlay="import">${ico('upload')}Import documents</button><a class="btn btn-lg" href="#/spaces/${s.id}/members?open=add-members&space=${s.id}">${ico('users')}Add members</a></div>
         <p class="help">Tip: create folders (Runbooks, Procedures, Incident reports…) so everyone finds their way.</p></div>`;
       return base;
     }
@@ -743,7 +743,7 @@ pg_restore -U postgres -d billing_restore \\
 
     const members = D.spaceMembers[d.space] || [];
     const access = d.restricted
-      ? `<p class="access-note">Restricted access: only these people, the space owners and the administrators see this document.</p>${d.grants.map((g) => `<div class="grant">${avatar(g)}${esc(person(g).name)}</div>`).join('')}<button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}" style="margin-top:8px">${ico('lock')}Change access</button>`
+      ? `<p class="access-note">Restricted access: only these people, the space maintainers and the administrators see this document.</p>${d.grants.map((g) => `<div class="grant">${avatar(g)}${esc(person(g).name)}</div>`).join('')}<button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}" style="margin-top:8px">${ico('lock')}Change access</button>`
       : `<p class="access-note">Visible to ${members.length ? 'the ' + members.length + ' members' : 'the members'} of the ${esc(s.name)} space.</p><button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Restrict access</button>`;
     const fmt = d.format === 'PDF' ? `PDF, ${d.pagesCount} pages, ${d.size}` : `${d.format}, ${d.size}`;
     const props = `<aside class="props" aria-label="Document properties">
@@ -926,40 +926,31 @@ pg_restore -U postgres -d billing_restore \\
     return `<div class="menu"><button class="pill ${ROLE[role]}" type="button" data-action="menu" aria-expanded="false" style="border:0;cursor:pointer">${esc(role)}${ico('chevron')}</button><div class="popover" hidden>${roles.map((r) => `<button class="menu-item" type="button" data-action="set-role" data-role="${r}">${pill(r, ROLE[r])}</button>`).join('')}</div></div>`;
   }
 
-  function invitePanel(roles, def) {
-    return `<div class="set-box" id="invite-panel" hidden style="margin:0 0 16px;padding:16px">
-      <h3 style="font-size:14px">Invite with a link</h3><p class="help" style="margin:2px 0 12px">Create a link and pass it on yourself, by chat or by e-mail. No mail server is needed.</p>
-      <div class="target-chips"><label class="help" for="inv-role">Role</label><select class="select select-sm" id="inv-role">${roles.map((r) => `<option${r === def ? ' selected' : ''}>${r}</option>`).join('')}</select><button class="btn" type="button" data-action="invite-create">${ico('link')}Create the link</button></div>
-      <div id="invite-result" hidden style="margin-top:12px"><div class="target-chips"><label class="sr-only" for="inv-url">Invitation link</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#K7q2-vX9m-4TzR" style="flex:1;min-width:220px"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copy</button></div><p class="help" style="margin-top:6px">This link works only once and expires in 7 days.</p></div>
-    </div>`;
-  }
-
   function screenSpaceMembers(m) {
     const s = spaceById(m[1]);
     if (!s) return screen404();
-    const list = D.spaceMembers[s.id] || [{ id: 'as', role: 'Owner', added: 'Nov 11, 2026' }];
-    const roles = ['Reader', 'Contributor', 'Owner'];
+    const list = D.spaceMembers[s.id] || [{ id: 'as', role: 'Maintainer', added: 'Nov 11, 2026' }];
+    const roles = ['Reader', 'Contributor', 'Maintainer'];
     const rows = list.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}${esc(person(x.id).name)}</span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${esc(x.added)}</td><td><button class="btn btn-ghost" type="button" data-mock="Removing a member: not simulated.">Remove</button></td></tr>`).join('');
     const restricted = D.docs.filter((d) => d.space === s.id && d.restricted);
     return {
       nav: 'space:' + s.id + ':members', title: s.name + ': members',
       crumbs: spaceCrumbs(s, 'Members'),
-      actions: `<button class="btn btn-primary" type="button" data-action="toggle" data-target="invite-panel" aria-expanded="false">${ico('plus')}<span class="btn-label">Invite</span></button>`,
+      actions: `<button class="btn btn-primary" type="button" data-action="open" data-overlay="add-members" data-params="space=${s.id}">${ico('plus')}<span class="btn-label">Add members</span></button>`,
       html: `<div class="pad"><div class="stack" style="max-width:1040px;gap:0">
-        <div><h1 class="page-title">Members of ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} members. The organization’s administrators can also access the whole space.</p>
-          ${invitePanel(roles, 'Contributor')}
+        <div><h1 class="page-title">Members of ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} member${list.length > 1 ? 's' : ''}. The organization’s administrators can also access the whole space.</p>
           <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:680px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Member</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Role</span></th><th><span class="th">${ico('calendar')}Added on</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
           <section style="margin-top:28px"><h2 class="section-title">Restricted documents in this space <span class="muted">${restricted.length}</span></h2>
-            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible to ${d.grants.map((g) => esc(person(g).name)).join(' and ')}, as well as the space owners and the administrators</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">No restricted documents.</p>'}
+            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible to ${d.grants.map((g) => esc(person(g).name)).join(' and ')}, as well as the space maintainers and the administrators</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">No restricted documents.</p>'}
           </section>
         </div>
         <section style="margin-top:28px"><h2 class="section-title">What each role can do</h2>
           <dl class="roles">
             <div><dt>${pill('Reader', ROLE.Reader)}</dt><dd>Reads, searches and downloads the documents of the space.</dd></div>
             <div><dt>${pill('Contributor', ROLE.Contributor)}</dt><dd>Imports documents, edits them and creates new versions.</dd></div>
-            <div><dt>${pill('Owner', ROLE.Owner)}</dt><dd>Also manages the members, archives and deletes. Sees the restricted documents of the space.</dd></div>
+            <div><dt>${pill('Maintainer', ROLE.Maintainer)}</dt><dd>Also manages the members, archives and deletes. Sees the restricted documents of the space.</dd></div>
           </dl>
-          <p class="help" style="margin-top:10px">To keep a document from the space owners too, put it in a dedicated space with hand-picked members.</p>
+          <p class="help" style="margin-top:10px">To keep a document from the space maintainers too, put it in a dedicated space with hand-picked members.</p>
         </section>
       </div></div>`
     };
@@ -980,7 +971,7 @@ pg_restore -U postgres -d billing_restore \\
           <div class="set-row"><div class="lbl"><strong>Color</strong></div><div class="ctl">${spaceIco(s, true)}<button class="btn" type="button" data-mock="Choosing the color: not simulated.">Change</button></div></div>
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save</button></div></form>
         <section class="set-sec"><h2>Danger zone</h2><div class="set-box danger-box">
-          <div class="set-row"><div class="lbl"><strong>Archive the space</strong><p class="help">The space owners can still read the documents, but they disappear from navigation and search.</p></div><div class="ctl"><button class="btn" type="button" data-mock="Archiving: not simulated.">${ico('archive')}Archive</button></div></div>
+          <div class="set-row"><div class="lbl"><strong>Archive the space</strong><p class="help">It disappears from navigation and search for its readers and contributors; its maintainers and the administrators still see it. It can no longer be changed until it is made active again.</p></div><div class="ctl"><button class="btn" type="button" data-mock="Archiving: not simulated.">${ico('archive')}Archive</button></div></div>
           <div class="set-row"><div class="lbl"><strong>Delete the space</strong><p class="help">Permanently deletes its ${s.docs} documents, their versions and their files.</p></div><div class="ctl"><button class="btn btn-danger" type="button" data-action="open" data-overlay="delete-space" data-params="space=${s.id}">${ico('trash')}Delete</button></div></div>
         </div></section>
       </div></div>`
@@ -1200,7 +1191,7 @@ pg_restore -U postgres -d billing_restore \\
         ? `<button class="btn" type="button" data-mock="Change request sent to the author." title="Request changes">${ico('edit')}<span class="btn-label">Request changes</span></button><button class="btn btn-primary" type="button" data-mock="Article approved: it is now suggested in search." title="Approve the article">${ico('check')}<span class="btn-label">Approve the article</span></button>`
         : `<button class="btn" type="button" data-mock="Editing: not simulated.">${ico('edit')}<span class="btn-label">Edit</span></button>`) + panelBtn('props', 'the properties', 'sidebar-right', ']'),
       html: `<div class="record"><div class="record-main"><div class="record-inner">
-          ${review ? `<div class="callout" style="margin-bottom:14px">${stIcon('review')}<p>This article is awaiting approval. The owners of the ${esc(s.name)} space can approve it or request changes.</p></div>` : ''}
+          ${review ? `<div class="callout" style="margin-bottom:14px">${stIcon('review')}<p>This article is awaiting approval. The maintainers of the ${esc(s.name)} space can approve it or request changes.</p></div>` : ''}
           <h1 class="doc-title">${esc(f.title)}</h1>
           <div class="doc-sub" style="margin-bottom:12px">${status(f.status)}<span>By ${esc(person(f.author).name)}</span><span>Updated ${esc(f.updated)}</span></div>
           ${field('info', 'Context', f.context)}${field('eye', 'Symptoms', f.symptoms)}${field('search', 'Causes', f.causes)}${field('check', 'Solution', f.solution)}${field('alert', 'Precautions', f.precautions)}
@@ -1422,8 +1413,8 @@ pg_restore -U postgres -d billing_restore \\
         <p class="help" style="margin-top:-4px">${esc(d.title)}</p>
         <label class="radio-card"><input type="radio" name="access" value="all"${d.restricted ? '' : ' checked'}><span><strong>${ico('users')}All the members of the space</strong><span class="help">${members.length} people</span></span></label>
         <label class="radio-card"><input type="radio" name="access" value="restricted"${d.restricted ? ' checked' : ''}><span><strong>${ico('lock')}Only some people</strong><span class="help">The other members never see the document: not in the lists, not in search.</span></span></label>
-        <div class="people-pick" id="people-pick"${d.restricted ? '' : ' aria-disabled="true" style="opacity:.5;pointer-events:none"'}>${members.map((x) => `<label><input type="checkbox"${grants.indexOf(x.id) >= 0 || x.role === 'Owner' ? ' checked' : ''}${x.role === 'Owner' ? ' disabled' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role">${pill(x.role, ROLE[x.role])}</span></label>`).join('')}</div>
-        <p class="help">The space owners and the organization’s administrators always keep access.</p>`,
+        <div class="people-pick" id="people-pick"${d.restricted ? '' : ' aria-disabled="true" style="opacity:.5;pointer-events:none"'}>${members.map((x) => `<label><input type="checkbox"${grants.indexOf(x.id) >= 0 || x.role === 'Maintainer' ? ' checked' : ''}${x.role === 'Maintainer' ? ' disabled' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role">${pill(x.role, ROLE[x.role])}</span></label>`).join('')}</div>
+        <p class="help">The space maintainers and the organization’s administrators always keep access.</p>`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Save</button>`, { form: 'access' });
     },
     'status': (p) => {
@@ -1432,11 +1423,11 @@ pg_restore -U postgres -d billing_restore \\
       return modal('Change the status', `
         <p class="help" style="margin-top:-4px">${esc(d.title)}</p>
         ${opt('draft', 'Visible to the members of the space, flagged as unfinished.')}
-        ${opt('review', 'Submitted to the space owners before publication.', ' ' + vb('v0.2'), true)}
+        ${opt('review', 'Submitted to the space maintainers before publication.', ' ' + vb('v0.2'), true)}
         ${opt('published', 'Reference version.')}
         ${opt('obsolete', 'Can still be read and searched, but ranked last. The assistant does not use it.')}
         <div class="field" style="margin-left:34px"><label for="repl">Replaced by</label><select class="select" id="repl"><option>No document</option>${D.docs.filter((x) => x.id !== d.id && x.space === d.space).map((x) => `<option>${esc(x.title)}</option>`).join('')}</select></div>
-        ${opt('archived', 'Removed from the lists and from search. The space owners can still read it.')}`,
+        ${opt('archived', 'Removed from the lists and from search. The space maintainers can still read it.')}`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Save</button>`, { form: 'status' });
     },
     'create-space': () => {
@@ -1446,7 +1437,7 @@ pg_restore -U postgres -d billing_restore \\
         <div class="field"><label for="cs-desc">Description</label><input class="input" id="cs-desc" value="Documentation of the internal applications."></div>
         <div class="field"><label for="cs-slug">Address</label><input class="input input-mono" id="cs-slug" value="applications"><span class="help">${D.org.url}/spaces/applications</span></div>
         <div class="field"><span class="field-label">Color</span><div class="target-chips">${colors.map((c, i) => `<label style="cursor:pointer"><input class="sr-only" type="radio" name="cs-color"${i === 5 ? ' checked' : ''}><span class="space-ico space-ico-lg" style="--c:${c};width:28px;height:28px;border-radius:7px${i === 5 ? ';box-shadow:0 0 0 2px var(--bg-raised),0 0 0 4px ' + c : ''}"></span></label>`).join('')}</div></div>
-        <p class="help">You will be its owner. You can invite members afterwards.</p>`,
+        <p class="help">You will be its maintainer. You can add members afterwards.</p>`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Create the space</button>`, { form: 'create-space' });
     },
     'delete-space': (p) => {
@@ -1458,11 +1449,23 @@ pg_restore -U postgres -d billing_restore \\
     },
     'new-folder': () => modal('New folder', `<div class="field"><label for="nf">Folder name</label><input class="input" id="nf" placeholder="Example: On-call procedures"></div><p class="help">In the Infrastructure space.</p>`,
       `${cancelBtn}<button class="btn btn-primary" type="submit">Create the folder</button>`, { form: 'new-folder' }),
+    'add-members': (p) => {
+      const s = spaceById(p.get('space') || 'infrastructure');
+      const inSpace = (D.spaceMembers[s.id] || [{ id: 'as', role: 'Maintainer' }]).map((x) => x.id);
+      const candidates = D.orgMembers.filter((x) => inSpace.indexOf(x.id) < 0);
+      return modal('Add members', `
+        <p class="help" style="margin-top:-4px">Members of the organization who are not in the ${esc(s.name)} space yet.</p>
+        <div class="search-box" style="height:34px">${ico('search')}<input placeholder="Search by name or email address" aria-label="Search by name or email address"></div>
+        ${candidates.length ? `<div class="people-pick" role="group" aria-label="People">${candidates.map((x, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role help">${esc(person(x.id).email)}</span></label>`).join('')}</div>` : '<p class="help">Everyone in the organization is already a member of the space.</p>'}
+        <div class="field"><label for="am-role">Role in the space</label><select class="select" id="am-role"><option>Reader</option><option selected>Contributor</option><option>Maintainer</option></select></div>
+        <p class="help">To bring a new person into the organization, an administrator creates an invitation.</p>`,
+        `${cancelBtn}<button class="btn btn-primary" type="submit">${ico('plus')}Add</button>`, { form: 'add-members' });
+    },
     'invite': () => modal('Invite to the organization', `
       <p class="help" style="margin-top:-4px">Create a link and pass it on yourself. No mail server is needed.</p>
       <div class="form-2"><div class="field"><label for="io-role">Role in the organization</label><select class="select" id="io-role"><option>Member</option><option>Administrator</option></select></div>
         <div class="field"><label for="io-exp">Validity</label><select class="select" id="io-exp"><option>7 days, single use</option><option>48 hours, single use</option></select></div></div>
-      <div class="field"><span class="field-label">Spaces to join</span><div class="people-pick">${D.spaces.filter((s) => !s.empty).map((s, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${spaceIco(s)}${esc(s.name)}<span class="role"><select class="select select-sm" aria-label="Role in ${esc(s.name)}"><option>Reader</option><option selected>Contributor</option><option>Owner</option></select></span></label>`).join('')}</div></div>
+      <div class="field"><span class="field-label">Spaces to join</span><div class="people-pick">${D.spaces.filter((s) => !s.empty).map((s, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${spaceIco(s)}${esc(s.name)}<span class="role"><select class="select select-sm" aria-label="Role in ${esc(s.name)}"><option>Reader</option><option selected>Contributor</option><option>Maintainer</option></select></span></label>`).join('')}</div></div>
       <div id="invite-result" hidden><div class="target-chips"><label class="sr-only" for="inv-url">Invitation link</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#P3n8-Lw2c-9QxA" style="flex:1"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copy</button></div></div>`,
       `${cancelBtn}<button class="btn btn-primary" type="button" data-action="invite-create">${ico('link')}Create the link</button>`),
     'reset-link': (p) => {
@@ -1480,7 +1483,7 @@ pg_restore -U postgres -d billing_restore \\
         ['Workspace', 'v0.1', [['Home', '#/'], ['All spaces', '#/spaces'], ['Library, grid view', '#/spaces/infrastructure'], ['Library, kanban view', '#/spaces/infrastructure?view=kanban'], ['Library filtered on a folder', '#/spaces/infrastructure?folder=runbooks'], ['Empty space', '#/spaces/applications'], ['Space members', '#/spaces/infrastructure/members'], ['Space settings', '#/spaces/infrastructure/settings'], ['My account', '#/account'], ['Page not found', '#/not-found']]],
         ['Documents', 'v0.1', [['Markdown', '#/documents/restaurer-pg'], ['Converted Word file', '#/documents/inc-2291'], ['PDF', '#/documents/guide-baie'], ['Scanned PDF', '#/documents/schema-cablage'], ['Restricted access', '#/documents/rotation-tls'], ['Outdated', '#/documents/barman'], ['Extraction in progress', '#/documents/plan-reprise'], ['Opened from search', `#/documents/restaurer-pg?from=search&q=${enc2}&anchor=s-4-2`], ['PDF opened at the page found', '#/documents/guide-baie?from=search&q=snapshot%20restore&anchor=page-112']]],
         ['Search', 'v0.1', [['Search page', '#/search'], ['Results and filters', `#/search?q=${enc2}`], ['No results', '#/search?q=ceph%20quota'], ['Command palette (Ctrl K)', 'palette']]],
-        ['Windows', 'v0.1', [['Import documents', '#/spaces/infrastructure?open=import'], ['New version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Document access', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Change the status', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Create a space', '#/spaces?open=create-space'], ['New folder', '#/spaces/infrastructure?open=new-folder'], ['Delete a space', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Invite to the organization', '#/admin/members?open=invite'], ['Reset link', '#/admin/members?open=reset-link&for=hc']]],
+        ['Windows', 'v0.1', [['Import documents', '#/spaces/infrastructure?open=import'], ['New version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Document access', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Change the status', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Create a space', '#/spaces?open=create-space'], ['New folder', '#/spaces/infrastructure?open=new-folder'], ['Add members to a space', '#/spaces/securite/members?open=add-members&space=securite'], ['Delete a space', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Invite to the organization', '#/admin/members?open=invite'], ['Reset link', '#/admin/members?open=reset-link&for=hc']]],
         ['Administration', 'v0.1', [['General', '#/admin/general'], ['Members', '#/admin/members'], ['Security and sign-in', '#/admin/security'], ['Storage and import', '#/admin/storage'], ['Audit log', '#/admin/audit']]],
         ['Knowledge base', 'v0.2', [['Kanban of the articles', '#/knowledge'], ['Grid of the articles', '#/knowledge?view=grid'], ['Approved article', '#/knowledge/pg-role-manquant'], ['Article to approve', '#/knowledge/vpn-mtu'], ['New article', '#/knowledge/new']]],
         ['Insights and search', 'v0.2', [['Dashboard', '#/dashboard'], ['Search by keywords and meaning', `#/search?mode=semantic&q=${enc(D.semantic.question)}`]]],
@@ -1711,7 +1714,8 @@ pg_restore -U postgres -d billing_restore \\
     'version': () => { closeOverlay(); toast('Version imported: text extraction in progress'); },
     'access': () => { closeOverlay(); toast('Access updated'); },
     'status': () => { closeOverlay(); toast('Status updated'); },
-    'new-folder': () => { closeOverlay(); toast('Folder created'); }
+    'new-folder': () => { closeOverlay(); toast('Folder created'); },
+    'add-members': () => { closeOverlay(); toast('Members added to the space'); }
   };
 
   document.addEventListener('click', (e) => {

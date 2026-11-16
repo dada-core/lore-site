@@ -194,6 +194,12 @@ window.SL = (function () {
       { id: 'ck', role: 'Contributeur', added: '12 mars 2026' },
       { id: 'ey', role: 'Contributeur', added: '2 juin 2026' },
       { id: 'eb', role: 'Lecteur', added: '2 juin 2026' }
+    ],
+    securite: [
+      { id: 'as', role: 'Responsable', added: '5 févr. 2026' },
+      { id: 'ck', role: 'Contributeur', added: '18 mars 2026' },
+      { id: 'ey', role: 'Contributeur', added: '2 juin 2026' },
+      { id: 'eb', role: 'Lecteur', added: '9 sept. 2026' }
     ]
   };
 
@@ -202,8 +208,8 @@ window.SL = (function () {
     { id: 'as', role: 'Administrateur', spaces: 'Tous', state: 'Actif', last: 'Aujourd’hui' },
     { id: 'hc', role: 'Membre', spaces: 'Infrastructure, Projet Atlas', state: 'Actif', last: 'Aujourd’hui' },
     { id: 'ck', role: 'Membre', spaces: 'Infrastructure, Support N2, Sécurité', state: 'Actif', last: 'Hier' },
-    { id: 'ey', role: 'Membre', spaces: 'Infrastructure, Réseau, Support N2', state: 'Actif', last: '9 nov.' },
-    { id: 'eb', role: 'Membre', spaces: 'Infrastructure', state: 'Actif', last: 'Aujourd’hui' }
+    { id: 'ey', role: 'Membre', spaces: 'Infrastructure, Réseau, Support N2, Sécurité', state: 'Actif', last: '9 nov.' },
+    { id: 'eb', role: 'Membre', spaces: 'Infrastructure, Sécurité', state: 'Actif', last: 'Aujourd’hui' }
   ];
 
   var audit = [
