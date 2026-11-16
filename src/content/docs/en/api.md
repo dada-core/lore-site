@@ -1,6 +1,6 @@
 ---
 title: "API overview"
-description: "Lore’s interface runs entirely on a REST API, described in OpenAPI. Today it covers the setup, sign-in, the account and the administration of the organization."
+description: "Lore’s interface runs entirely on a REST API, described in OpenAPI. Today it covers the setup, sign-in, the account, the administration of the organization, spaces and documents."
 ---
 
 ## Base address
@@ -18,9 +18,11 @@ The complete OpenAPI description is served, without authentication, at `/api/v1/
 - **Invitations**: `POST /api/v1/invitations/inspect` and `POST /api/v1/invitations/accept`.
 - **Password reset**: `POST /api/v1/password-reset/inspect` and `POST /api/v1/password-reset/complete`.
 - **My account**: `/api/v1/account`, its address (`/email`), its password (`/password`) and its sessions (`/sessions`).
-- **Administration**: `/api/v1/admin/organization`, `/api/v1/admin/members` and `/api/v1/admin/invitations`, for owners and administrators only.
+- **Administration**: `/api/v1/admin/organization`, `/api/v1/admin/members`, `/api/v1/admin/invitations` and `/api/v1/admin/storage`, for owners and administrators only.
+- **Spaces**: `/api/v1/spaces`, and for each space its folders (`/{spaceId}/folders`) and its members (`/{spaceId}/members`).
+- **Documents**: `/api/v1/spaces/{spaceId}/documents`, `/api/v1/documents/{id}` and its actions, `/api/v1/imports/limits` and `/api/v1/imports/attention`. See [Documents](api-documents.md).
 
-Spaces, documents and search will be added with version 0.1.
+Search will be added with version 0.1.
 
 ## Authentication
 
@@ -60,8 +62,10 @@ Errors use the `application/problem+json` format, with a stable `code` field: re
 | --- | --- | --- |
 | 400 | `invalid_request` | Invalid request. The `errors` field lists the fields involved, each with its own code, for example `invalid_email` or `password_min_length` |
 | 401 | `unauthenticated`, `invalid_credentials` | No open session, or credentials refused |
-| 403 | `admin_only`, `owner_only`, `csrf` | Action reserved for another role, or CSRF token missing or expired |
+| 403 | `admin_only`, `owner_only`, `contributor_only`, `maintainer_only`, `maintainer_or_owner_only`, `csrf` | Action reserved for another role, or CSRF token missing or expired |
 | 404 | `not_found`, `invalid_link` | Not found, or an expired invitation or reset link |
-| 409 | `last_owner`, `own_account`, `setup_done` | The action conflicts with the current state, for example removing the last owner |
+| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `folder_not_empty`, `not_retryable` | The action conflicts with the current state, for example removing the last owner |
+| 413 | `file_too_large` | The file is over the maximum size, given in megabytes in `maxMegabytes` |
 | 415 | `unsupported_media_type` | The body must be JSON |
 | 429 | `login_locked` | Too many failed sign-ins: try again after the lockout |
+| 507 | `storage_full` | Less than 100 MB would be left free on the server’s disk |

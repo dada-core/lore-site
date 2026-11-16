@@ -4,7 +4,7 @@ description: "Trois façons d’installer Lore sur votre serveur : Docker Compos
 ---
 
 > [!NOTE]
-> **La version 0.1 n’est pas encore publiée.** Une préversion, [0.1.0-alpha.1](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.1), permet déjà d’essayer l’installation avec ce qui fonctionne aujourd’hui : la configuration initiale, la connexion, les invitations et l’administration de l’organisation. Pour l’installer, remplacez dans les commandes de cette page `latest/download` par `download/v0.1.0-alpha.1` (Docker Compose), et `0.1.0` par `0.1.0-alpha.1` (paquets et archive). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
+> **La version 0.1 n’est pas encore publiée.** Une préversion, [0.1.0-alpha.2](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.2), permet déjà d’essayer l’installation avec ce qui fonctionne aujourd’hui : la configuration initiale, la connexion, les invitations, l’administration de l’organisation, les espaces et l’import de documents. Pour l’installer, remplacez dans les commandes de cette page `latest/download` par `download/v0.1.0-alpha.2` (Docker Compose), et `0.1.0` par `0.1.0-alpha.2` (paquets et archive). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
 
 ## Choisir une méthode
 
@@ -14,7 +14,7 @@ description: "Trois façons d’installer Lore sur votre serveur : Docker Compos
 | [Paquet .deb ou .rpm](#paquets-deb-et-rpm) | Un serveur Linux administré comme les autres : service systemd, mises à jour par le gestionnaire de paquets | Une [distribution prise en charge](#distributions-prises-en-charge) et PostgreSQL 18 |
 | [Archive universelle](#archive-universelle) | Tout autre système, Windows et macOS compris | Java 21 ou plus récent et PostgreSQL 18 |
 
-Dans tous les cas, comptez 2 processeurs et 4 Go de mémoire pour une équipe (indicatif), 10 Go de disque plus le volume de vos documents, et le port 8080 ou un proxy inverse pour le HTTPS.
+Dans tous les cas, comptez 2 processeurs et 4 Go de mémoire pour une équipe (indicatif), dont environ 1,3 Go pour l’extraction du texte des documents importés (moins de 4 Go : une seule extraction à la fois, `LORE_EXTRACTION_WORKERS=1`), 10 Go de disque plus le volume de vos documents, et le port 8080 ou un proxy inverse pour le HTTPS.
 
 > [!TIP]
 > **Aucun mot de passe par défaut.** Le premier compte administrateur est créé dans le navigateur, lors de la [configuration initiale](initial-setup.md).
@@ -227,6 +227,7 @@ Avant de lancer Lore, indiquez dans `conf/lore.env` l’adresse de Lore et l’a
 | `bin/lore`, `bin/lore.cmd` | La commande `lore`, pour Linux et macOS, et pour Windows |
 | `lib/lore.jar` | Le programme |
 | `conf/lore.env.example` | Le modèle des réglages |
+| `data/files` | Les fichiers importés, créé au premier lancement |
 
 ## La commande lore
 
@@ -246,4 +247,4 @@ Faites d’abord une [sauvegarde](backup.md).
 | --- | --- | --- |
 | Docker Compose | `docker compose down` | Les volumes de la base et des fichiers. `docker compose down -v` les efface aussi. |
 | Paquets | `sudo apt remove lore` ou `sudo dnf remove lore` | `/var/lib/lore`, la base PostgreSQL et l’utilisateur `lore`. `sudo apt purge lore` efface aussi `/etc/lore`. |
-| Archive | Arrêtez Lore, puis supprimez le dossier | La base PostgreSQL. |
+| Archive | Arrêtez Lore, puis supprimez le dossier | La base PostgreSQL. Les fichiers importés, dans `data/files`, partent avec le dossier. |

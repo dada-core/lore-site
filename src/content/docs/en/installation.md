@@ -4,7 +4,7 @@ description: "Three ways to install Lore on your server: Docker Compose, a .deb 
 ---
 
 > [!NOTE]
-> **Version 0.1 is not released yet.** A preview, [0.1.0-alpha.1](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.1), already lets you try the installation with what works today: the initial setup, sign-in, invitations and the administration of the organization. To install it, replace in the commands of this page `latest/download` with `download/v0.1.0-alpha.1` (Docker Compose), and `0.1.0` with `0.1.0-alpha.1` (packages and archive). It is not meant for production: its data may not carry over to the next version.
+> **Version 0.1 is not released yet.** A preview, [0.1.0-alpha.2](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.2), already lets you try the installation with what works today: the initial setup, sign-in, invitations, the administration of the organization, spaces and document import. To install it, replace in the commands of this page `latest/download` with `download/v0.1.0-alpha.2` (Docker Compose), and `0.1.0` with `0.1.0-alpha.2` (packages and archive). It is not meant for production: its data may not carry over to the next version.
 
 ## Choose a method
 
@@ -14,7 +14,7 @@ description: "Three ways to install Lore on your server: Docker Compose, a .deb 
 | [.deb or .rpm package](#deb-and-rpm-packages) | A Linux server managed like the others: a systemd service, updates through the package manager | A [supported distribution](#supported-distributions) and PostgreSQL 18 |
 | [Universal archive](#universal-archive) | Any other system, Windows and macOS included | Java 21 or later and PostgreSQL 18 |
 
-In every case, plan for 2 CPUs and 4 GB of memory for a team (as a guide), 10 GB of disk plus the size of your documents, and port 8080 or a reverse proxy for HTTPS.
+In every case, plan for 2 CPUs and 4 GB of memory for a team (as a guide), including about 1.3 GB for extracting the text of imported documents (below 4 GB: one extraction at a time, `LORE_EXTRACTION_WORKERS=1`), 10 GB of disk plus the size of your documents, and port 8080 or a reverse proxy for HTTPS.
 
 > [!TIP]
 > **No default password.** The first administrator account is created in the browser, during the [initial setup](initial-setup.md).
@@ -227,6 +227,7 @@ Before you start Lore, set Lore’s address and the database access in `conf/lor
 | `bin/lore`, `bin/lore.cmd` | The `lore` command, for Linux and macOS, and for Windows |
 | `lib/lore.jar` | The program |
 | `conf/lore.env.example` | The settings template |
+| `data/files` | The imported files, in a folder created on the first start |
 
 ## The lore command
 
@@ -246,4 +247,4 @@ Make a [backup](backup.md) first.
 | --- | --- | --- |
 | Docker Compose | `docker compose down` | The database and files volumes. `docker compose down -v` deletes them too. |
 | Packages | `sudo apt remove lore` or `sudo dnf remove lore` | `/var/lib/lore`, the PostgreSQL database and the `lore` user. `sudo apt purge lore` also deletes `/etc/lore`. |
-| Archive | Stop Lore, then delete its folder | The PostgreSQL database. |
+| Archive | Stop Lore, then delete its folder | The PostgreSQL database. The imported files, in `data/files`, are deleted with the folder. |

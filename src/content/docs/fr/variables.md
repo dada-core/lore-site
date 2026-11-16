@@ -19,17 +19,17 @@ description: "Lore se configure par variables d’environnement : dans docker-co
 | `LORE_DB_NAME` | `lore` | Nom de la base |
 | `LORE_DB_USER` | `lore` | Utilisateur |
 
-## Import et extraction <span class="vb">v0.1</span>
-
-Ces variables arrivent avec l’import de documents : Lore ne les lit pas encore.
+## Import et extraction
 
 | Variable | Défaut | Description |
 | --- | --- | --- |
-| `LORE_MAX_UPLOAD_SIZE` | `50MB` | Taille maximale d’un fichier |
-| `LORE_FILES_PATH` | `/var/lib/lore/files` | Dossier des fichiers importés |
-| `LORE_EXTRACTION_WORKERS` | `2` | Processus d’extraction en parallèle |
-| `LORE_EXTRACTION_TIMEOUT` | `120s` | Durée maximale d’extraction d’un fichier |
-| `LORE_EXTERNAL_EXTRACTOR_URL` | vide | Adresse d’un extracteur externe facultatif |
+| `LORE_FILES_PATH` | `/var/lib/lore/files` (Docker et paquets), `data/files` à côté de `bin/` (archive) | Dossier des fichiers importés et de leurs fichiers temporaires (`tmp/`). Lore vérifie au démarrage qu’il peut y écrire. Avec les paquets, un dossier hors de `/var/lib/lore` doit aussi être ajouté à `ReadWritePaths`. |
+| `LORE_MAX_UPLOAD_SIZE` | `1GB` | Plafond de la taille d’un fichier, de `1MB` à `1GB`. La taille en vigueur se règle en dessous, dans *Administration › Stockage et import* : 50 Mo par défaut. |
+| `LORE_EXTRACTION_WORKERS` | `2` | Extractions du texte en parallèle, une par processus, de 1 à 8 |
+| `LORE_EXTRACTION_TIMEOUT` | `120s` | Durée maximale d’extraction d’un fichier, 10 secondes au moins |
+| `LORE_EXTRACTION_MEMORY` | `512MB` | Mémoire de chaque processus d’extraction, 128 Mo au moins |
+
+Voir [Stockage et extraction](storage.md).
 
 ## E-mails (facultatif) <span class="vb">Prévu</span>
 
@@ -51,7 +51,7 @@ L’envoi des invitations et des réinitialisations par e-mail est prévu : Lore
 | `LORE_SETUP_CODE` | vide | Code de configuration initiale imposé, pour une installation automatisée. Vide : un code tiré au hasard est écrit dans les journaux. Voir [Configuration initiale](initial-setup.md). |
 | `LORE_LOG_LEVEL` | `INFO` | Niveau de journalisation |
 | `LORE_PORT` | `8080` | Port de Lore, avec les paquets et l’archive. Avec Docker, changez plutôt le port publié. |
-| `LORE_JAVA_OPTS` | `-XX:MaxRAMPercentage=25` | Options de Java, avec les paquets et l’archive, par exemple `-Xmx2g` pour la mémoire |
+| `LORE_JAVA_OPTS` | `-XX:MaxRAMPercentage=25` | Options de Java de l’application, avec les paquets et l’archive, par exemple `-Xmx2g` pour la mémoire. Les processus d’extraction ont la leur : `LORE_EXTRACTION_MEMORY`. |
 
 ## Où les indiquer
 

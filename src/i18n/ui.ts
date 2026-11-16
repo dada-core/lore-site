@@ -37,7 +37,7 @@ const fr = {
   badge: { later: 'Plus tard', laterTitle: 'Prévu après la v0.3', planned: 'Prévu en ' },
   cta: {
     title: 'Lore arrive en version 0.1.',
-    text: 'Les comptes, les invitations et l’administration fonctionnent déjà. Les espaces, l’import, la recherche et les versions arrivent. Essayez la démo, et suivez le projet sur GitHub.'
+    text: 'Les comptes, les invitations, l’administration, les espaces et l’import fonctionnent déjà. Le lecteur, la recherche et les versions arrivent. Essayez la démo, et suivez le projet sur GitHub.'
   },
   footer: {
     about: 'L’environnement open source où les équipes techniques rassemblent et entretiennent leur documentation.',
@@ -95,7 +95,7 @@ const en: UI = {
   badge: { later: 'Later', laterTitle: 'Planned after v0.3', planned: 'Planned for ' },
   cta: {
     title: 'Lore is on its way to version 0.1.',
-    text: 'Accounts, invitations and administration already work. Spaces, import, search and versions are coming. Try the demo, and follow the project on GitHub.'
+    text: 'Accounts, invitations, administration, spaces and import already work. The viewer, search and versions are coming. Try the demo, and follow the project on GitHub.'
   },
   footer: {
     about: 'The open source workspace where technical teams gather and maintain their documentation.',

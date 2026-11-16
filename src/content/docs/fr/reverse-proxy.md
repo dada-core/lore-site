@@ -21,7 +21,7 @@ server {
     server_name lore.example.com;
     ssl_certificate     /etc/ssl/lore.example.com.crt;
     ssl_certificate_key /etc/ssl/lore.example.com.key;
-    client_max_body_size 50m;
+    client_max_body_size 51m;
 
     location / {
         proxy_pass http://127.0.0.1:8080;
@@ -45,4 +45,4 @@ services:
 Caddy obtient et renouvelle le certificat automatiquement. Avec Nginx, indiquez vos fichiers de certificat ; avec Traefik, le résolveur de certificats déclaré dans sa configuration.
 
 > [!WARNING]
-> **Taille des imports.** Avec l’import de documents, prévu en v0.1, alignez la limite de taille du proxy sur celle de Lore : sinon, les gros fichiers seront refusés par le proxy avant d’arriver à l’application.
+> **Taille des imports.** Réglez la limite de taille du proxy un peu au-dessus de la taille maximale d’un fichier, 50 Mo par défaut : la requête d’un import contient aussi quelques champs, et Lore accepte la taille réglée plus 1 Mo. Sinon, les gros fichiers sont refusés par le proxy avant d’arriver à l’application. Si vous relevez la taille maximale dans *Administration › Stockage et import*, relevez aussi celle du proxy. Voir [Stockage et extraction](storage.md#taille-des-fichiers).
