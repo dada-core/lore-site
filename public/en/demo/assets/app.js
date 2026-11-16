@@ -60,14 +60,14 @@
   const CAT = { 'Runbook': 'p-blue', 'Operating procedure': 'p-teal', 'Incident report': 'p-red', 'Security documentation': 'p-purple', 'Vendor documentation': 'p-yellow', 'Architecture documentation': 'p-cyan', 'Technical documentation': 'p-gray' };
   const ROLE = { 'Maintainer': 'p-purple', 'Contributor': 'p-blue', 'Reader': 'p-gray', 'Owner': 'p-orange', 'Administrator': 'p-purple', 'Member': 'p-gray' };
   const TECH = { 'PostgreSQL': 'p-blue', 'NFS': 'p-gray', 'IPsec': 'p-teal', 'Network': 'p-cyan', 'Kubernetes': 'p-purple', 'TLS': 'p-green', 'LDAP': 'p-orange' };
-  const AUDIT = { 'Permissions': 'p-purple', 'Import': 'p-blue', 'View': 'p-gray', 'Sign-in': 'p-red', 'Organization': 'p-orange', 'Members': 'p-teal', 'Status': 'p-yellow', 'Download': 'p-cyan' };
+  const AUDIT = { 'Permissions': 'p-purple', 'Import': 'p-blue', 'View': 'p-gray', 'Sign-in': 'p-red', 'Organization': 'p-orange', 'Members': 'p-teal', 'Status': 'p-yellow', 'Download': 'p-cyan', 'Deletion': 'p-pink' };
   const STATE = { 'Active': 'p-green', 'Invitation pending': 'p-yellow', 'Disabled': 'p-gray' };
   const catPill = (c) => pill(c, CAT[c]);
-  const LANG = { fr: 'French', en: 'English' };
+  const LANG = { fr: 'French', en: 'English', other: 'Other' };
 
   function indexPill(d) {
     if (d.flags && d.flags.indexing) return `<span class="pill p-blue">${ico('spinner', 'spin')}In progress</span>`;
-    if (d.flags && d.flags.scanned) return `<span class="pill p-yellow" title="Only the title and the metadata are searchable">${ico('scan')}Scanned</span>`;
+    if (d.flags && d.flags.scanned) return `<span class="pill p-yellow" title="Only the title and the description are searchable">${ico('scan')}Scanned</span>`;
     return `<span class="pill p-green">${ico('check')}Indexed</span>`;
   }
 
@@ -513,7 +513,7 @@
     return `<tr class="${d.status === 'obsolete' ? 'is-obsolete' : ''}"><td class="rn">${n}</td>
       <td class="primary"><div class="cell-title">${ico(fmtIco(d))}<a href="#/documents/${d.id}"${d.lang === 'fr' ? ' lang="fr"' : ''}>${esc(d.title)}</a>${d.restricted ? `<svg class="ico lock" role="img" aria-label="Restricted access"><use href="#i-lock"/></svg>` : ''}<a class="expand" href="#/documents/${d.id}" aria-label="Open the document">${ico('expand')}</a></div></td>
       <td>${status(d.status)}</td><td>${catPill(d.category)}</td><td>${who(d.owner)}</td><td>${esc(d.updated)}</td><td class="num">${d.version}</td>
-      <td>${indexPill(d)}</td><td>${d.lang === 'fr' ? '<span class="tag-lang">FR</span> French' : 'English'}</td><td>${esc(d.format)}</td></tr>`;
+      <td>${indexPill(d)}</td><td>${d.lang === 'fr' ? '<span class="tag-lang">FR</span> French' : LANG[d.lang]}</td><td>${esc(d.format)}</td></tr>`;
   }
 
   function screenLibrary(m, p) {
@@ -738,12 +738,12 @@ pg_restore -U postgres -d billing_restore \\
       const r = docById(d.replacedBy);
       banners.push(`<div class="callout callout-warn">${ico('alert')}<p>This document has been outdated since ${esc(d.obsoleteSince)}. Use <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a> instead.</p></div>`);
     }
-    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Scanned document: its content is not searchable. Only its title, description and metadata are.</p><button class="btn" type="button" data-mock="Adding a description: not simulated.">Add a description</button></div>`);
+    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Scanned document: its content is not searchable. Only its title and description are.</p><button class="btn" type="button" data-mock="Adding a description: not simulated.">Add a description</button></div>`);
     if (d.flags && d.flags.indexing) banners.push(`<div class="callout">${ico('spinner', 'spin')}<p>Text extraction in progress: this document will appear in search results in a few moments.</p></div>`);
 
     const members = D.spaceMembers[d.space] || [];
     const access = d.restricted
-      ? `<p class="access-note">Restricted access: only these people, the space maintainers and the administrators see this document.</p>${d.grants.map((g) => `<div class="grant">${avatar(g)}${esc(person(g).name)}</div>`).join('')}<button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}" style="margin-top:8px">${ico('lock')}Change access</button>`
+      ? `<p class="access-note">Restricted access: only these people, the document’s owner, the space maintainers and the administrators see this document.</p>${d.grants.map((g) => `<div class="grant">${avatar(g)}${esc(person(g).name)}</div>`).join('')}<button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}" style="margin-top:8px">${ico('lock')}Change access</button>`
       : `<p class="access-note">Visible to ${members.length ? 'the ' + members.length + ' members' : 'the members'} of the ${esc(s.name)} space.</p><button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Restrict access</button>`;
     const fmt = d.format === 'PDF' ? `PDF, ${d.pagesCount} pages, ${d.size}` : `${d.format}, ${d.size}`;
     const props = `<aside class="props" aria-label="Document properties">
@@ -941,13 +941,13 @@ pg_restore -U postgres -d billing_restore \\
         <div><h1 class="page-title">Members of ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} member${list.length > 1 ? 's' : ''}. The organization’s administrators can also access the whole space.</p>
           <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:680px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Member</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Role</span></th><th><span class="th">${ico('calendar')}Added on</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
           <section style="margin-top:28px"><h2 class="section-title">Restricted documents in this space <span class="muted">${restricted.length}</span></h2>
-            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible to ${d.grants.map((g) => esc(person(g).name)).join(' and ')}, as well as the space maintainers and the administrators</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">No restricted documents.</p>'}
+            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible to ${d.grants.map((g) => esc(person(g).name)).join(' and ')}, as well as the document’s owner, the space maintainers and the administrators</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">No restricted documents.</p>'}
           </section>
         </div>
         <section style="margin-top:28px"><h2 class="section-title">What each role can do</h2>
           <dl class="roles">
             <div><dt>${pill('Reader', ROLE.Reader)}</dt><dd>Reads, searches and downloads the documents of the space.</dd></div>
-            <div><dt>${pill('Contributor', ROLE.Contributor)}</dt><dd>Imports documents, edits them and creates new versions.</dd></div>
+            <div><dt>${pill('Contributor', ROLE.Contributor)}</dt><dd>Imports documents, edits them, moves them and creates new versions. Deletes what they imported as long as it has a single version.</dd></div>
             <div><dt>${pill('Maintainer', ROLE.Maintainer)}</dt><dd>Also manages the members, archives and deletes. Sees the restricted documents of the space.</dd></div>
           </dl>
           <p class="help" style="margin-top:10px">To keep a document from the space maintainers too, put it in a dedicated space with hand-picked members.</p>
@@ -1083,19 +1083,19 @@ pg_restore -U postgres -d billing_restore \\
         <section class="set-sec"><h2>Usage</h2><div class="set-box">
           ${row('Stored volume', 'No quota when self-hosted.', `<strong class="num">${D.org.storage}</strong>`)}
           ${row('Documents', `In ${D.spaces.length} spaces.`, `<strong class="num">${D.org.docs}</strong>`)}
-          ${row('Scanned documents', 'Content not searchable: only the title and the metadata are.', `<strong class="num">${D.org.scanned}</strong><a class="btn" href="#/documents/schema-cablage">See an example</a>`)}
+          ${row('Scanned documents', 'Content not searchable: only the title and the description are.', `<strong class="num">${D.org.scanned}</strong><a class="btn" href="#/documents/schema-cablage">See an example</a>`)}
         </div></section>
         <form class="set-sec" data-form="save"><h2>Import</h2><div class="set-box">
-          ${row('Maximum file size', 'Above it, the import is refused with a clear message.', '<input class="input" type="number" value="50" aria-label="Maximum size in megabytes" style="width:90px"> MB')}
+          ${row('Maximum file size', '50 MB by default. Ceiling set by <code>LORE_MAX_UPLOAD_SIZE</code> on the server: 1,024 MB. Above it, the import is refused with a clear message.', '<input class="input" type="number" value="50" min="1" max="1024" aria-label="Maximum size in megabytes" style="width:90px"> MB')}
           ${row('Accepted formats', '', 'PDF, Word (DOCX), text and Markdown')}
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save</button></div></form>
         <section class="set-sec"><h2>Text extraction</h2><div class="set-box">
           ${row('Apache Tika', 'Built in. Runs in an isolated process: a malicious file cannot bring the application down.', pill('Active', 'p-green'))}
-          ${row('External extractor', 'Optional service, for example for OCR or complex PDF files. Its installation and license are up to your organization.', `<button class="btn" type="button" data-mock="Adding an external extractor: not simulated.">${ico('plus')}Add</button>`)}
+          ${row('External extractor', 'Optional service, for example for OCR of scanned PDF files. Its installation and license will be up to your organization.', pill('Not available', 'p-gray'), vb('After v0.1'))}
           ${row('Text recognition (OCR)', 'Not in v0.1: PDF files without text are detected and reported.', pill('Not available', 'p-gray'))}
         </div></section>
         <section class="set-sec"><h2>Files</h2><div class="set-box">
-          ${row('Location', 'Local volume of the container.', '<code style="font-size:12.5px">/var/lib/lore/files</code>')}
+          ${row('Location', 'Local volume of the container, set by <code>LORE_FILES_PATH</code>.', '<code style="font-size:12.5px">/var/lib/lore/files</code>')}
           ${row('S3-compatible storage', '', sw(false, true, 'S3-compatible storage'), vb('Later'))}
         </div></section>`);
     }
@@ -1109,7 +1109,7 @@ pg_restore -U postgres -d billing_restore \\
           <span style="flex:1"></span><button class="btn" type="button" data-mock="CSV export: not simulated.">${ico('download')}Export as CSV</button>
         </div>
         <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:820px"><thead><tr><th><span class="th">${ico('clock')}Date</span></th><th><span class="th">${ico('user')}Person</span></th><th><span class="th">${ico('tag')}Action</span></th><th><span class="th">${ico('text')}Detail</span></th></tr></thead><tbody id="audit-rows"></tbody></table></div></div>
-        <p class="help" style="margin-top:10px">Views, imports, downloads, changes of status, permissions and members, sign-ins. Kept for 1 year.</p>`,
+        <p class="help" style="margin-top:10px">Views, imports, deletions, downloads, changes of status, permissions and members, sign-ins. Kept for 1 year.</p>`,
         { wide: true, intro: 'The sensitive operations of the whole organization.', after: renderAudit });
     }
     if (k === 'assistant') {
@@ -1379,20 +1379,28 @@ pg_restore -U postgres -d billing_restore \\
   const OVERLAYS = {
     'import': () => {
       const s = spaceById('infrastructure');
+      const members = D.spaceMembers[s.id] || [];
       const file = (icon, name, size, st) => `<div class="file">${ico(icon)}<span class="file-name">${name}</span><span class="file-size">${size}</span>${st}</div>`;
+      /* The space maintainers and yourself are ticked from the start: they always see a restricted document. */
+      const pick = (x) => { const fixed = x.role === 'Maintainer' || x.id === 'as'; return `<label><input type="checkbox"${fixed ? ' checked disabled' : ''}>${avatar(x.id)}${esc(person(x.id).name)}${x.id === 'as' ? ' <span class="help">(you)</span>' : ''}<span class="role">${pill(x.role, ROLE[x.role])}</span></label>`; };
       return modal('Import documents', `
         <div class="target-chips"><span class="pill p-gray">${spaceIco(s)}${esc(s.name)}</span><span class="muted">›</span>
-          <select class="select select-sm" aria-label="Folder">${D.folders.infrastructure.map((f) => `<option>${esc(f.name)}</option>`).join('')}</select>
+          <select class="select select-sm" aria-label="Folder"><option>No folder</option>${D.folders.infrastructure.map((f) => `<option${f.id === 'procedures' ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</select>
           <select class="select select-sm" aria-label="Status on import"><option>Draft</option><option>Published</option></select>
-          <select class="select select-sm" aria-label="Category">${Object.keys(CAT).map((c) => `<option>${esc(c)}</option>`).join('')}</select></div>
+          <select class="select select-sm" aria-label="Category"><option>No category</option>${Object.keys(CAT).map((c) => `<option${c === 'Operating procedure' ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
         <div class="drop">${ico('upload')}<p>Drop your files here, or <button class="link" type="button" data-mock="File picker: not simulated.">choose them on your computer</button>.</p><p class="help">PDF, Word (DOCX), text and Markdown. 50 MB per file at most.</p></div>
-        <label class="check"><input type="checkbox">Restrict access to some people</label>
-        <div><div class="row-between"><strong style="font-size:13.5px">5 files dropped</strong><span class="help">Imported as soon as they are dropped</span></div>
-          ${file('file-text', 'recovery-plan-2026.docx', '1.2 MB', `<span class="file-state is-ok">${ico('check')}Indexed: 14 sections</span>`)}
-          ${file('file-text', 'runbook-redis.md', '14 KB', `<span class="file-state is-busy">${ico('spinner', 'spin')}Text extraction in progress</span><span class="progress" aria-hidden="true"><span></span></span>`)}
-          ${file('file', 'room-b-cabling-diagram.pdf', '8.7 MB', `<span class="file-state is-warn">${ico('scan')}Scanned document: imported, but only its title and metadata are searchable.</span>`)}
+        <label class="check"><input type="checkbox" id="import-restrict" aria-controls="import-people">Restrict access to some people</label>
+        <div id="import-people" hidden>
+          <div class="people-pick" role="group" aria-label="People who will see these documents">${members.map(pick).join('')}</div>
+          <p class="help" style="margin-top:6px">The space maintainers and the administrators always see these documents, as do you, their owner.</p>
+        </div>
+        <div><div class="row-between"><strong style="font-size:13.5px">6 files dropped</strong><span class="help">Uploaded five at a time</span></div>
+          ${file('file-text', 'recovery-plan-2026.docx', '1.2 MB', `<span class="file-state is-busy">${ico('spinner', 'spin')}Text extraction in progress</span>`)}
+          ${file('file-text', 'runbook-redis.md', '14 KB', `<span class="file-state is-ok">${ico('check')}Indexed: 5 sections</span>`)}
+          ${file('file', 'rack-inventory-2026.pdf', '18.4 MB', `<span class="file-state is-busy">${ico('upload')}Uploading… 42%</span><span class="progress" aria-hidden="true"><span style="width:42%"></span></span>`)}
+          ${file('file', 'room-b-cabling-diagram.pdf', '8.7 MB', `<span class="file-state is-warn">${ico('scan')}Scanned document: imported, but only its title and description are searchable.</span>`)}
           ${file('file', 'logs-export-october.pdf', '72 MB', `<span class="file-state is-err">${ico('alert')}Not imported: the file is 72 MB, the limit is 50 MB.</span>`)}
-          ${file('file-text', 'vpn-procedure.docx', '340 KB', `<span class="file-state is-err" id="retry-state">${ico('alert')}Extraction failed: the file is password protected. <button class="link" type="button" data-action="retry">Retry</button></span>`)}
+          ${file('file-text', 'vpn-procedure.docx', '340 KB', `<span class="file-state is-err">${ico('alert')}Extraction failed: the file is password protected. Remove the protection, then import it again.</span>`)}
         </div>`,
         `<span class="left">Shortcut: I key</span><button class="btn btn-primary" type="button" data-action="close">Done</button>`, { size: 'modal-lg' });
     },
@@ -1413,8 +1421,8 @@ pg_restore -U postgres -d billing_restore \\
         <p class="help" style="margin-top:-4px">${esc(d.title)}</p>
         <label class="radio-card"><input type="radio" name="access" value="all"${d.restricted ? '' : ' checked'}><span><strong>${ico('users')}All the members of the space</strong><span class="help">${members.length} people</span></span></label>
         <label class="radio-card"><input type="radio" name="access" value="restricted"${d.restricted ? ' checked' : ''}><span><strong>${ico('lock')}Only some people</strong><span class="help">The other members never see the document: not in the lists, not in search.</span></span></label>
-        <div class="people-pick" id="people-pick"${d.restricted ? '' : ' aria-disabled="true" style="opacity:.5;pointer-events:none"'}>${members.map((x) => `<label><input type="checkbox"${grants.indexOf(x.id) >= 0 || x.role === 'Maintainer' ? ' checked' : ''}${x.role === 'Maintainer' ? ' disabled' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role">${pill(x.role, ROLE[x.role])}</span></label>`).join('')}</div>
-        <p class="help">The space maintainers and the organization’s administrators always keep access.</p>`,
+        <div class="people-pick" id="people-pick"${d.restricted ? '' : ' aria-disabled="true" style="opacity:.5;pointer-events:none"'}>${members.map((x) => { const fixed = x.role === 'Maintainer' || x.id === d.owner; return `<label><input type="checkbox"${grants.indexOf(x.id) >= 0 || fixed ? ' checked' : ''}${fixed ? ' disabled' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role">${x.id === d.owner ? '<span class="help">Document owner</span> ' : ''}${pill(x.role, ROLE[x.role])}</span></label>`; }).join('')}</div>
+        <p class="help">The space maintainers, the document’s owner and the organization’s administrators always keep access.</p>`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Save</button>`, { form: 'access' });
     },
     'status': (p) => {
@@ -1673,17 +1681,6 @@ pg_restore -U postgres -d billing_restore \\
       const fail = () => { input.select(); toast('Select the link, then copy it.'); };
       try { navigator.clipboard.writeText(input.value).then(done, fail); } catch (err) { fail(); }
     },
-    'retry': () => {
-      const st = $('#retry-state');
-      if (!st) return;
-      st.className = 'file-state is-busy';
-      st.innerHTML = fr(`${ico('spinner', 'spin')}Extraction restarted`);
-      setTimeout(() => {
-        if (!document.contains(st)) return;
-        st.className = 'file-state is-err';
-        st.innerHTML = fr(`${ico('alert')}Extraction failed: the file is still password protected. Remove the protection, then import a new version.`);
-      }, 1500);
-    },
     'set-role': (el) => {
       const menu = el.closest('.menu');
       const btn = menu.querySelector(':scope > [data-action="menu"]');
@@ -1761,6 +1758,8 @@ pg_restore -U postgres -d billing_restore \\
       renderAudit();
     } else if (t.matches('[data-theme-select]')) {
       setTheme(t.value);
+    } else if (t.id === 'import-restrict') {
+      $('#import-people').hidden = !t.checked;
     } else if (t.name === 'access') {
       const pick = $('#people-pick');
       const on = t.value === 'restricted';

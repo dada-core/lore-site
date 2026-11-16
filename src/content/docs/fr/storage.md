@@ -1,23 +1,98 @@
 ---
 title: "Stockage et extraction"
-description: "Où sont rangés les fichiers, comment leur texte est extrait, et comment ajouter un extracteur externe."
+description: "Où Lore range les fichiers importés, comment il en extrait le texte, et ce qu’il faut prévoir sur le serveur : disque, mémoire et réglages."
 ---
 
 ## Fichiers
 
-Les fichiers importés sont rangés dans le volume `/var/lib/lore/files`, nommés d’après leur empreinte. Un même fichier importé deux fois dans une organisation n’est stocké qu’une fois.
+Les fichiers importés sont rangés dans le dossier indiqué par `LORE_FILES_PATH` :
 
-## Taille et quotas
+| Installation | Dossier par défaut |
+| --- | --- |
+| Docker Compose | `/var/lib/lore/files`, dans le volume des fichiers |
+| Paquets | `/var/lib/lore/files` |
+| Archive | `data/files`, à côté de `bin/` |
 
-50 Mo par fichier par défaut. Aucun quota : le volume stocké par organisation est affiché dans *Administration › Stockage et import*.
+- Chaque fichier est rangé dans le dossier de son organisation, sous son empreinte SHA-256, sans son nom ni son extension : `<organisation>/ab/cd/<empreinte>`. Son nom d’origine, son type et sa taille sont gardés dans la base.
+- Un fichier n’est jamais modifié après son import.
+- Un même contenu importé plusieurs fois dans une organisation n’est stocké qu’une fois. Chaque import crée tout de même son propre document.
+- Un fichier est effacé quand plus aucun document de l’organisation ne l’utilise : après la suppression d’un document, ou d’un espace avec ses documents.
+
+### Le dossier tmp
+
+Un fichier reçu est d’abord écrit une fois dans `tmp/`, à l’intérieur de `LORE_FILES_PATH`. Lore le relit pour calculer son empreinte et sa taille, puis le déplace d’un coup à sa place. Les processus d’extraction travaillent dans `tmp/extraction/`. À chaque démarrage, Lore y efface ce qui est resté là plus d’une heure : ces dossiers n’ont pas besoin d’être sauvegardés. Ne placez pas `tmp/` sur un autre disque que le reste du dossier : le déplacement d’un fichier à sa place doit se faire d’un seul coup.
+
+### Au démarrage
+
+Lore vérifie que le dossier existe, ou qu’il peut le créer, et qu’il peut y écrire. Sinon, il s’arrête avec un message qui nomme `LORE_FILES_PATH`.
+
+Avec les paquets, le service ne peut écrire que dans `/var/lib/lore`. Pour un dossier ailleurs, ajoutez-le à `ReadWritePaths` par une surcharge du service :
+
+```sh title="Terminal"
+sudo systemctl edit lore
+```
+
+```ini title="Surcharge du service"
+[Service]
+ReadWritePaths=/srv/lore/files
+```
+
+Puis redémarrez Lore : `sudo systemctl restart lore`.
+
+## Taille des fichiers
+
+| Limite | Valeur | Qui la règle |
+| --- | --- | --- |
+| Taille maximale d’un fichier | 50 Mo par défaut, de 1 Mo jusqu’au plafond | Les propriétaires et les administrateurs, dans *Administration › Stockage et import* |
+| Plafond | 1 Go par défaut et au maximum | La personne qui exploite le serveur, avec `LORE_MAX_UPLOAD_SIZE` |
+
+Si le plafond est plus bas que la taille choisie, c’est lui qui s’applique. Un fichier vide est refusé.
+
+Lore refuse aussi un import s’il resterait moins de 100 Mo libres sur le disque des fichiers.
+
+Il n’y a aucun quota : le volume stocké par l’organisation, chaque contenu compté une fois, est affiché dans *Administration › Stockage et import*, avec le nombre de documents, de documents numérisés, d’échecs et d’extractions en cours.
+
+Derrière un proxy inverse, réglez sa limite de taille un peu au-dessus de celle de Lore : la requête d’un import contient le fichier et quelques champs. Voir [HTTPS et proxy inverse](reverse-proxy.md).
 
 ## Extraction du texte
 
-L’extraction est assurée par Apache Tika, dans un processus séparé de l’application : un fichier piégé ou trop lourd fait échouer son extraction, sans jamais faire tomber Lore. Chaque extraction est limitée en durée et en taille de texte.
+Après l’import, le texte de chaque fichier est extrait en arrière-plan, avec Apache Tika pour les PDF et les documents Word, dans des processus séparés de l’application. Un fichier piégé ou trop lourd fait échouer sa propre extraction, sans jamais faire tomber Lore.
 
-## Extracteur externe
+- **Des processus lancés par Lore.** Lore les démarre lui-même, avec le même Java et le même programme : il n’y a rien d’autre à installer. Un processus démarre au premier fichier à traiter, s’arrête après 5 minutes sans travail, et est remplacé tous les 200 fichiers.
+- **Sans accès à la base.** Ces processus ne reçoivent que quelques variables du système (`PATH`, `HOME`, dossiers temporaires, langue) : ni le mot de passe de la base, ni aucune variable `LORE_*`, ni les options de Java de l’application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). Ils lisent le fichier, écrivent le texte extrait dans `tmp/extraction/`, et Lore enregistre le résultat.
+- **En parallèle.** `LORE_EXTRACTION_WORKERS` extractions à la fois, une par processus : 2 par défaut, de 1 à 8.
+- **Limités en mémoire.** Chaque processus dispose de `LORE_EXTRACTION_MEMORY`, 512 Mo par défaut. S’il en manque, il s’arrête, et l’extraction est retentée.
+- **Limités en durée.** Une extraction qui dépasse `LORE_EXTRACTION_TIMEOUT`, 120 secondes par défaut, est arrêtée avec son processus, puis retentée.
+- **Limités en texte.** Lore garde jusqu’à 10 millions de caractères par document ; au-delà, le texte est tronqué, et le document le signale.
+- **Repris après un arrêt.** Les extractions à faire sont gardées dans la base : après un redémarrage, ou un arrêt brutal du serveur, elles reprennent d’elles-mêmes.
 
-Pour la reconnaissance de texte (OCR) ou les PDF à mise en page complexe, vous pouvez brancher un service d’extraction externe, dans un conteneur à part. Indiquez son adresse dans `LORE_EXTERNAL_EXTRACTOR_URL`.
+Les pièces jointes et les objets incorporés aux documents ne sont pas lus.
+
+### Échecs et nouvelles tentatives
+
+| Cause | Code de l’API | Ce que fait Lore |
+| --- | --- | --- |
+| Délai dépassé | `timeout` | Nouvelle tentative après 1 minute, puis après 5 minutes. Après trois essais, le document passe en échec, et un contributeur peut le relancer. |
+| Processus d’extraction arrêté, ou erreur du disque du serveur pendant l’extraction | `extractor_crashed` | De même. |
+| Fichier introuvable sur le disque | `file_missing` | De même. |
+| Fichier protégé par un mot de passe | `encrypted` | Échec aussitôt. |
+| Fichier endommagé, ou construit pour épuiser l’extraction | `corrupt` | Échec aussitôt. |
+| Contenu qui n’est pas du format annoncé | `unsupported_content` | Échec aussitôt. |
+
+L’extraction n’est pas inscrite au journal d’audit. L’état de *Apache Tika*, actif ou la cause d’une panne au démarrage d’un processus, est affiché dans *Administration › Stockage et import*.
+
+## Mémoire à prévoir
+
+Par défaut, comptez la mémoire de l’application, plus environ 2 × 650 Mo pendant les extractions : pour chaque processus, `LORE_EXTRACTION_MEMORY` (512 Mo) et environ 150 Mo pour Java autour.
+
+- **Docker.** L’application prend au plus la moitié de la mémoire du conteneur, pour laisser le reste aux processus d’extraction.
+- **Paquets et archive.** La mémoire de l’application se règle avec `LORE_JAVA_OPTS` ; celle des processus d’extraction s’y ajoute.
+
+Avec moins de 4 Go de mémoire, passez `LORE_EXTRACTION_WORKERS` à 1. Si vous augmentez `LORE_EXTRACTION_WORKERS` ou `LORE_EXTRACTION_MEMORY`, prévoyez la mémoire en conséquence. Voir [Variables d’environnement](variables.md).
+
+## Extracteur externe <span class="vb">Après v0.1</span>
+
+Apache Tika, intégré à Lore, est le seul extracteur de la version 0.1. Brancher un service d’extraction externe, par exemple pour la reconnaissance de texte (OCR) des PDF numérisés, est prévu après la version 0.1.
 
 > [!WARNING]
-> **Licence de l’extracteur.** Lore n’inclut que des composants sous licence libre utilisables par tous. La licence d’un extracteur externe relève de votre organisation : certains modèles d’OCR interdisent par exemple l’usage commercial au-delà d’un certain chiffre d’affaires.
+> **Licence de l’extracteur.** Lore n’inclut que des composants sous licence libre utilisables par tous. La licence d’un extracteur externe relèvera de votre organisation : certains modèles d’OCR interdisent par exemple l’usage commercial au-delà d’un certain chiffre d’affaires.
