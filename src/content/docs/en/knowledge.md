@@ -18,7 +18,7 @@ release: v0.2
 
 ## Review cycle
 
-An article goes from *Draft* to *Awaiting review*, then to *Approved* once a space owner approves it. Only approved articles are ranked first in search.
+An article goes from *Draft* to *Awaiting review*, then to *Approved* once a space maintainer approves it. Only approved articles are ranked first in search.
 
 ## Create an article
 

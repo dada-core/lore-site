@@ -9,7 +9,7 @@ description: "Lore is an open source workspace where technical teams gather, sea
 - **Search** <span class="vb">v0.1</span>: full-text search that finds technical identifiers exactly as written and opens each document at the right passage.
 - **Versions and statuses** <span class="vb">v0.1</span>: every import creates a version; every document has a status and an owner.
 - **Permissions** <span class="vb">v0.1</span>: roles per space and restricted documents, enforced everywhere, search included.
-- **Knowledge base** <span class="vb">v0.2</span>: problem and solution articles, approved by the space owners.
+- **Knowledge base** <span class="vb">v0.2</span>: problem and solution articles, approved by the space maintainers.
 - **Assistant** <span class="vb">v0.3</span>: optional answers in natural language, with their sources.
 
 ## Where Lore stands
