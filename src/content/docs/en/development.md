@@ -4,7 +4,7 @@ description: "Run Lore from source, to contribute to the code."
 ---
 
 > [!NOTE]
-> **Lore is under development.** Accounts, the initial setup, sign-in and the administration of the organization work; spaces, import and search come next.
+> **Lore is under development.** Accounts, the initial setup, sign-in, the administration of the organization, spaces and document import work; the viewer and search come next.
 
 ## Requirements
 
@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`: the interface forwards API calls to the server. In development, the initial setup code is set in `src/main/resources/application-dev.yml`.
+Open `http://localhost:5173`: the interface forwards API calls to the server. In development, the initial setup code is set in `src/main/resources/application-dev.yml`. Imported files go to `data/files`, ignored by Git: delete it together with the database to start over.
 
 ## Build the image
 
@@ -79,10 +79,14 @@ Lore is a single application split into modules, one per Java package. An automa
 | Module | Role |
 | --- | --- |
 | `identity` | Organization, accounts, sign-in, sessions, invitations, settings |
+| `access` | Who sees and does what: roles in spaces, restricted documents |
+| `library` | Spaces, folders and documents |
+| `storage` | Imported files on disk |
+| `ingestion` | Text extraction from the files, in separate processes |
 | `audit` | Log of sensitive operations |
 | `web` | Serving the interface, API errors, OpenAPI description |
 
-`access`, `library`, `storage`, `ingestion` and `search` will follow. The interface, in React and TypeScript, lives in `web/`.
+`search` will follow. The interface, in React and TypeScript, lives in `web/`.
 
 Every address is in English, whatever the interface language: `/login`, `/admin/members`.
 

@@ -14,7 +14,7 @@ description: "Les propriétaires et les administrateurs invitent les membres par
 ## Inviter
 
 1. **Créer un lien**
-   Cliquez sur *Inviter des personnes* dans la barre latérale, ou sur *Inviter* dans *Administration › Membres*, puis choisissez le rôle. L’adresse e-mail de la personne est facultative : elle réserve le lien à cette adresse, et elle est indispensable pour faire revenir un ancien membre avec son compte.
+   Cliquez sur *Inviter des personnes* dans la barre latérale, ou sur *Inviter* dans *Administration › Membres*, puis choisissez le rôle. L’adresse e-mail de la personne est facultative : elle réserve le lien à cette adresse, et elle est indispensable pour faire revenir un ancien membre avec son compte. Sous *Espaces à rejoindre*, choisissez aussi, si besoin, des espaces et un rôle dans chacun : la personne en devient membre dès son arrivée. Voir [Rôles et permissions](permissions.md).
 2. **Transmettre le lien**
    Par messagerie ou par e-mail. Il ne sert qu’une fois et n’est affiché qu’à sa création. Il expire au bout de 7 jours par défaut, une durée réglable dans *Administration › Sécurité et connexion*.
 3. **La personne crée son compte**
@@ -32,4 +32,4 @@ Le menu d’un membre permet aussi de :
 
 - **changer son rôle** ;
 - **désactiver son compte** : la personne ne peut plus se connecter et ses sessions ouvertes sont fermées. Vous pouvez réactiver le compte à tout moment ;
-- **la retirer de l’organisation** : elle perd l’accès à Lore. Pour la faire revenir, invitez-la avec la même adresse e-mail.
+- **la retirer de l’organisation** : elle perd l’accès à Lore, à ses espaces et aux documents restreints pour lesquels elle était choisie ; les documents qu’elle a importés restent. Pour la faire revenir, invitez-la avec la même adresse e-mail.

@@ -16,6 +16,23 @@ Première version : un environnement complet, sans intelligence artificielle.
 - Journal d’audit
 - Installation avec Docker Compose, des paquets .deb et .rpm ou une archive universelle
 
+## Version 0.1.0-alpha.2 <span class="vb">Préversion</span>
+
+Publiée le 16 novembre 2026, pour essayer les espaces et l’import de documents avant la version 0.1. Elle reprend les données d’une installation 0.1.0-alpha.1 : la mise à jour n’ajoute que des migrations. Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
+
+- Espaces, dossiers sur un niveau et rôles dans les espaces : lecteur, contributeur, responsable
+- Espaces à rejoindre, choisis dans un lien d’invitation
+- Import de fichiers PDF, Word (DOCX), Markdown et texte, cinq envois à la fois, jusqu’à 50 Mo par fichier par défaut
+- Extraction du texte en arrière-plan, dans des processus séparés lancés par Lore (Apache Tika), avec détection des PDF numérisés
+- Documents restreints à quelques personnes
+- *Administration › Stockage et import* : taille maximale d’un fichier, jusqu’au plafond `LORE_MAX_UPLOAD_SIZE` (1 Go par défaut), volume stocké et état de l’extraction
+- Vos imports encore en cours ou en échec, rappelés sur l’accueil
+- Nouvelles variables `LORE_FILES_PATH`, `LORE_MAX_UPLOAD_SIZE`, `LORE_EXTRACTION_WORKERS`, `LORE_EXTRACTION_TIMEOUT` et `LORE_EXTRACTION_MEMORY` ; l’image Docker laisse la moitié de la mémoire du conteneur aux processus d’extraction
+
+Derrière un proxy inverse, réglez sa limite de taille un peu au-dessus de la taille maximale d’un fichier : voir [HTTPS et proxy inverse](reverse-proxy.md). Le lecteur, la recherche, les versions et les statuts, et l’écran du journal d’audit arrivent avec la version 0.1.
+
+Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.2).
+
 ## Version 0.1.0-alpha.1 <span class="vb">Préversion</span>
 
 Publiée le 13 novembre 2026, pour essayer l’installation avant la version 0.1. Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.

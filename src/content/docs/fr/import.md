@@ -18,7 +18,7 @@ Lore reconnaît le format d’un fichier d’après son extension **et** d’apr
 - Un fichier texte ou Markdown peut être en UTF-8, en UTF-16 avec sa marque d’ordre des octets, ou en Windows-1252 : Lore reconnaît l’encodage seul. Dans un fichier UTF-8, quelques caractères invalides sont remplacés, sans changer la lecture du reste.
 - Les pièces jointes et les objets incorporés à un PDF ou à un document Word ne sont pas lus.
 
-Chaque passage garde sa place dans le document : sa page, ou son titre et les titres qui le contiennent. C’est ce qui permet d’ouvrir un document directement au bon endroit.
+Chaque passage garde sa place dans le document : sa page, ou son titre et les titres qui le contiennent. C’est ce qui permettra, avec le lecteur prévu en version 0.1, d’ouvrir un document directement au bon endroit.
 
 ## Importer
 
@@ -77,7 +77,7 @@ Un fichier refusé n’est pas importé : aucun document n’est créé, et rien
 
 L’état de chaque document s’affiche dans la fenêtre d’import, dans la liste des documents de l’espace et sur la page du document. Vos propres imports encore en cours ou en échec sont aussi rappelés sur l’accueil.
 
-**Document numérisé.** Une page compte comme sans texte en dessous de 20 caractères visibles. Le document est importé, son nombre de pages est connu et le texte de ses autres pages est gardé ; il reste trouvable par son titre et sa description.
+**Document numérisé.** Une page compte comme sans texte en dessous de 20 caractères visibles. Le document est importé, son nombre de pages est connu et le texte de ses autres pages est gardé ; avec la recherche, prévue en version 0.1, il sera trouvable par son titre et sa description.
 
 **Texte tronqué.** Lore garde jusqu’à 10 millions de caractères de texte par document. Au-delà, la suite est laissée de côté, et la page du document le signale.
 

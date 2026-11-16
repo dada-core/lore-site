@@ -14,7 +14,7 @@ description: "Owners and administrators invite members with a link, choose their
 ## Invite
 
 1. **Create a link**
-   Click *Invite people* in the sidebar, or *Invite* in *Administration › Members*, then choose the role. The person’s email address is optional: it reserves the link for that address, and it is required to bring a former member back with their account.
+   Click *Invite people* in the sidebar, or *Invite* in *Administration › Members*, then choose the role. The person’s email address is optional: it reserves the link for that address, and it is required to bring a former member back with their account. Under *Spaces to join*, you can also choose spaces and a role in each: the person becomes a member of them on arrival. See [Roles and permissions](permissions.md).
 2. **Send the link**
    By chat or by email. It works only once and is only shown when it is created. It expires after 7 days by default, a duration you can change in *Administration › Security and sign-in*.
 3. **The person creates their account**
@@ -32,4 +32,4 @@ A member’s menu also lets you:
 
 - **change their role**;
 - **disable their account**: the person can no longer sign in and their open sessions are closed. You can enable the account again at any time;
-- **remove them from the organization**: they lose access to Lore. To bring them back, invite them with the same email address.
+- **remove them from the organization**: they lose access to Lore, to their spaces and to the restricted documents they were chosen for; the documents they imported stay. To bring them back, invite them with the same email address.

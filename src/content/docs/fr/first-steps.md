@@ -16,4 +16,4 @@ description: "Après la configuration initiale : inviter votre équipe, régler 
 
 ## Ensuite
 
-Les espaces, l’import de documents, le lecteur, la recherche et les versions arrivent avec la version 0.1 : voir les [notes de version](release-notes.md). Pour découvrir ces écrans dès maintenant, ouvrez la [démo](https://lore.dada-core.com/demo/#/), qui contient des données fictives.
+Créez un espace, puis importez vos documents : voir [Espaces et dossiers](spaces.md) et [Importer des documents](import.md). Le lecteur, la recherche et les versions arrivent avec la version 0.1 : voir les [notes de version](release-notes.md). Pour découvrir ces écrans dès maintenant, ouvrez la [démo](https://lore.dada-core.com/demo/#/), qui contient des données fictives.
