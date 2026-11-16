@@ -149,7 +149,7 @@ window.SL = (function () {
     {
       id: 'schema-cablage', title: 'Schéma de câblage de la salle serveurs B', space: 'infrastructure', folder: 'constructeur',
       format: 'PDF', size: '8,7 Mo', pagesCount: 4, category: 'Documentation technique', status: 'published', owner: 'ey',
-      updated: '14 oct.', updatedRel: 'le 14 oct. 2026', age: 28, version: 1, lang: 'fr', body: 'scan', flags: { scanned: true },
+      updated: '14 oct.', updatedRel: 'le 14 oct. 2026', age: 28, version: 1, lang: 'other', body: 'scan', flags: { scanned: true },
       review: 'Aucune',
       versions: [{ n: 1, date: '14 oct. 2026', short: '14 oct.', by: 'ey', note: 'Numérisation du schéma papier.', w: 50 }],
       passages: []
@@ -221,6 +221,7 @@ window.SL = (function () {
     { when: 'Hier, 18 h 04', who: 'as', type: 'Import', text: 'a importé la version 4 de « Restaurer une base PostgreSQL depuis une sauvegarde ».' },
     { when: 'Hier, 16 h 20', who: 'as', type: 'Membres', text: 'a changé le rôle d’Eli Brou dans Infrastructure : Lecteur, auparavant Contributeur.' },
     { when: 'Hier, 15 h 12', who: 'hc', type: 'Statut', text: 'a marqué « Sauvegardes nocturnes avec Barman » comme obsolète.' },
+    { when: 'Hier, 11 h 05', who: 'ck', type: 'Suppression', text: 'a supprimé « Procédure VPN (copie) » (1 version).' },
     { when: '9 nov., 8 h 15', who: 'ey', type: 'Téléchargement', text: 'a téléchargé l’original de « Schéma de câblage de la salle serveurs B ».' },
     { when: '8 nov., 17 h 40', who: 'as', type: 'Membres', text: 'a créé un lien d’invitation pour l’espace Infrastructure (rôle Contributeur).' }
   ];

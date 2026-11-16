@@ -1,6 +1,6 @@
 ---
 title: "Spaces and folders"
-description: "A space brings together a team or a domain, with its members and their roles. Folders organize its content."
+description: "A space brings together a team or a domain, with its members, their roles and its documents. Folders organize its content."
 ---
 
 ## Organization, spaces and folders
@@ -10,6 +10,7 @@ description: "A space brings together a team or a domain, with its members and t
 | Organization | Groups the accounts and spaces. | DadaGroup |
 | Space | A team or a domain, with its members and their roles. | Infrastructure |
 | Folder | A way to organize content within a space. | On-call procedures |
+| Document | An imported file, kept in a folder or at the root of the space. | Disaster recovery plan 2026 |
 
 A member only sees the spaces they belong to. The organization’s owners and administrators see every space, with the rights of a maintainer, without having to be members. See [Roles and permissions](permissions.md).
 
@@ -41,7 +42,9 @@ Each space has an address such as `/spaces/infrastructure`.
 
 - **The sidebar** lists your active spaces. The open space unfolds its pages: *Documents*, *Members* and, for its maintainers, *Settings*. The sidebar folds with <kbd>[</kbd>.
 - **The home page** shows your spaces as tiles, with your role and the number of members.
-- **The *Spaces* page** shows them as a table: description, members, your role and last activity. The *Archived* tab gathers the archived spaces you can still see.
+- **The *Spaces* page** shows them as a table: description, documents, members, your role and last activity. The *Archived* tab gathers the archived spaces you can still see.
+
+The number of documents of a space only counts the ones you can see. Its last activity takes into account the changes to the space, its folders and its documents.
 
 ## Folders
 
@@ -50,6 +53,11 @@ Folders are managed from the space’s *Documents* page.
 - Contributors and maintainers create them (*New folder*), rename and delete them. Readers browse them.
 - There is a single level of folders, without subfolders, in the order they were created.
 - Two folders of the same space cannot have the same name, even with different capitalization.
+- A document does not have to be in a folder: it can stay at the root of the space, under *No folder*. A new space has no folders at all.
+- A folder that holds at least one document cannot be deleted: first move its documents to another folder, or to the root of the space. See [Importing documents](import.md#after-the-import).
+
+> [!NOTE]
+> **Known limit.** A folder that only holds restricted documents you cannot see cannot be deleted either: you thus learn that it is not empty, without learning anything about these documents. The space’s maintainers, who see all its documents, can empty it.
 
 ## Archive, make active again, delete
 
@@ -57,10 +65,10 @@ These actions are reserved for the space’s maintainers and for the organizatio
 
 | Action | Effect |
 | --- | --- |
-| Archive | The space disappears for its readers and contributors. Its maintainers, the owners and the administrators still see it, in the *Archived* tab. It can no longer be changed: not its settings, its members or its folders. |
+| Archive | The space disappears for its readers and contributors. Its maintainers, the owners and the administrators still see it, in the *Archived* tab. It can no longer be changed: not its settings, its members, its folders or its documents, and nothing more can be imported into it. |
 | Make active again | The space reappears for all its members and can be changed again. |
-| Delete | Once the name of the space is typed to confirm, its folders are permanently deleted and its members lose access. |
+| Delete | Once the name of the space is typed to confirm, its folders, its documents and their versions are permanently deleted, and its members lose access. The files of its documents are then erased from the server, except those that a document of another space of the organization also uses. |
 
-Creating, changing, archiving, reactivating and deleting a space are recorded in the audit log, as are the arrival, role changes and departure of its members, and the changes to its folders.
+Creating, changing, archiving, reactivating and deleting a space are recorded in the audit log, as are the arrival, role changes and departure of its members, and the changes to its folders and documents. The deletion of a space records its number of documents.
 
 [See a space in the demo](https://lore.dada-core.com/en/demo/#/spaces/infrastructure)

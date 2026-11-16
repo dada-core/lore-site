@@ -151,7 +151,7 @@ window.SL = (function () {
     {
       id: 'schema-cablage', title: 'Server room B cabling diagram', space: 'infrastructure', folder: 'constructeur',
       format: 'PDF', size: '8.7 MB', pagesCount: 4, category: 'Technical documentation', status: 'published', owner: 'ey',
-      updated: 'Oct 14', updatedRel: 'on Oct 14, 2026', age: 28, version: 1, lang: 'en', body: 'scan', flags: { scanned: true },
+      updated: 'Oct 14', updatedRel: 'on Oct 14, 2026', age: 28, version: 1, lang: 'other', body: 'scan', flags: { scanned: true },
       review: 'None',
       versions: [{ n: 1, date: 'Oct 14, 2026', short: 'Oct 14', by: 'ey', note: 'Scan of the paper diagram.', w: 50 }],
       passages: []
@@ -223,6 +223,7 @@ window.SL = (function () {
     { when: 'Yesterday, 6:04 PM', who: 'as', type: 'Import', text: 'imported version 4 of “Restore a PostgreSQL database from a backup”.' },
     { when: 'Yesterday, 4:20 PM', who: 'as', type: 'Members', text: 'changed the role of Eli Brou in Infrastructure: Reader, previously Contributor.' },
     { when: 'Yesterday, 3:12 PM', who: 'hc', type: 'Status', text: 'marked “Nightly backups with Barman” as outdated.' },
+    { when: 'Yesterday, 11:05 AM', who: 'ck', type: 'Deletion', text: 'deleted “VPN procedure (copy)” (1 version).' },
     { when: 'Nov 9, 8:15 AM', who: 'ey', type: 'Download', text: 'downloaded the original of “Server room B cabling diagram”.' },
     { when: 'Nov 8, 5:40 PM', who: 'as', type: 'Members', text: 'created an invitation link for the Infrastructure space (Contributor role).' }
   ];
