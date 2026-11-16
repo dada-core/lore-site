@@ -1,0 +1,26 @@
+# Weekly update proposals for the dependencies, grouped to keep the number of pull requests low.
+# They target develop, like any change; a pull request from develop to deploy then publishes them.
+# Security updates are proposed at once, whatever this schedule, on the default branch (develop).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    groups:
+      site:
+        update-types: [minor, patch]
+    ignore:
+      # Major versions chosen by hand: the type checker of Astro (@astrojs/check) only accepts some of them.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
