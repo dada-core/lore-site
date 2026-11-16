@@ -19,17 +19,17 @@ description: "Lore is configured with environment variables: in docker-compose.y
 | `LORE_DB_NAME` | `lore` | Database name |
 | `LORE_DB_USER` | `lore` | User |
 
-## Import and extraction <span class="vb">v0.1</span>
-
-These variables come with document import: Lore does not read them yet.
+## Import and extraction
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `LORE_MAX_UPLOAD_SIZE` | `50MB` | Maximum size of a file |
-| `LORE_FILES_PATH` | `/var/lib/lore/files` | Folder of imported files |
-| `LORE_EXTRACTION_WORKERS` | `2` | Extraction processes running in parallel |
-| `LORE_EXTRACTION_TIMEOUT` | `120s` | Maximum extraction time for a file |
-| `LORE_EXTERNAL_EXTRACTOR_URL` | empty | Address of an optional external extractor |
+| `LORE_FILES_PATH` | `/var/lib/lore/files` (Docker and packages), `data/files` next to `bin/` (archive) | Folder of the imported files and of their temporary files (`tmp/`). Lore checks at startup that it can write to it. With the packages, a folder outside `/var/lib/lore` must also be added to `ReadWritePaths`. |
+| `LORE_MAX_UPLOAD_SIZE` | `1GB` | Ceiling of the size of a file, from `1MB` to `1GB`. The size in force is set below it, in *Administration › Storage and import*: 50 MB by default. |
+| `LORE_EXTRACTION_WORKERS` | `2` | Text extractions running in parallel, one per process, from 1 to 8 |
+| `LORE_EXTRACTION_TIMEOUT` | `120s` | Maximum extraction time for a file, at least 10 seconds |
+| `LORE_EXTRACTION_MEMORY` | `512MB` | Memory of each extraction process, at least 128 MB |
+
+See [Storage and extraction](storage.md).
 
 ## Emails (optional) <span class="vb">Planned</span>
 
@@ -51,7 +51,7 @@ Sending invitations and resets by email is planned: Lore does not read these var
 | `LORE_SETUP_CODE` | empty | A fixed initial setup code, for automated installations. When empty, a random code is written to the logs. See [Initial setup](initial-setup.md). |
 | `LORE_LOG_LEVEL` | `INFO` | Logging level |
 | `LORE_PORT` | `8080` | Lore’s port, with the packages and the archive. With Docker, change the published port instead. |
-| `LORE_JAVA_OPTS` | `-XX:MaxRAMPercentage=25` | Java options, with the packages and the archive, for example `-Xmx2g` for the memory |
+| `LORE_JAVA_OPTS` | `-XX:MaxRAMPercentage=25` | Java options of the application, with the packages and the archive, for example `-Xmx2g` for the memory. The extraction processes have their own: `LORE_EXTRACTION_MEMORY`. |
 
 ## Where to set them
 

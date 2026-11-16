@@ -18,7 +18,7 @@ Lore recognizes the format of a file from its extension **and** from its content
 - A text or Markdown file can be in UTF-8, in UTF-16 with its byte order mark, or in Windows-1252: Lore recognizes the encoding on its own. In a UTF-8 file, a few invalid characters are replaced, without changing how the rest is read.
 - Attachments and objects embedded in a PDF or a Word document are not read.
 
-Each passage keeps its place in the document: its page, or its heading and the headings above it. This is what lets a document open right at the relevant spot.
+Each passage keeps its place in the document: its page, or its heading and the headings above it. This is what will let a document open right at the relevant spot, with the viewer planned for version 0.1.
 
 ## Import
 
@@ -77,7 +77,7 @@ A refused file is not imported: no document is created, and nothing is left on t
 
 The state of each document is shown in the import window, in the list of documents of the space and on the document’s page. Your own imports still in progress or failed are also listed on the home page.
 
-**Scanned document.** A page counts as having no text below 20 visible characters. The document is imported, its number of pages is known and the text of its other pages is kept; it can still be found by its title and description.
+**Scanned document.** A page counts as having no text below 20 visible characters. The document is imported, its number of pages is known and the text of its other pages is kept; with search, planned for version 0.1, it will be found by its title and description.
 
 **Truncated text.** Lore keeps up to 10 million characters of text per document. Beyond that, the rest is left out, and the document’s page says so.
 

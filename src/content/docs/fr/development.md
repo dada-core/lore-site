@@ -4,7 +4,7 @@ description: "Lancer Lore depuis les sources, pour contribuer au code."
 ---
 
 > [!NOTE]
-> **Lore est en cours de développement.** Les comptes, la configuration initiale, la connexion et l’administration de l’organisation fonctionnent ; les espaces, l’import et la recherche arrivent ensuite.
+> **Lore est en cours de développement.** Les comptes, la configuration initiale, la connexion, l’administration de l’organisation, les espaces et l’import de documents fonctionnent ; le lecteur et la recherche arrivent ensuite.
 
 ## Prérequis
 
@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Ouvrez `http://localhost:5173` : l’interface transmet les appels de l’API au serveur. En développement, le code de configuration initiale est fixé dans `src/main/resources/application-dev.yml`.
+Ouvrez `http://localhost:5173` : l’interface transmet les appels de l’API au serveur. En développement, le code de configuration initiale est fixé dans `src/main/resources/application-dev.yml`. Les fichiers importés vont dans `data/files`, ignoré par Git : supprimez-le avec la base pour repartir de zéro.
 
 ## Construire l’image
 
@@ -79,10 +79,14 @@ Lore est une seule application découpée en modules, un par paquet Java. Un tes
 | Module | Rôle |
 | --- | --- |
 | `identity` | Organisation, comptes, connexion, sessions, invitations, réglages |
+| `access` | Qui voit et fait quoi : rôles dans les espaces, documents restreints |
+| `library` | Espaces, dossiers et documents |
+| `storage` | Fichiers importés sur le disque |
+| `ingestion` | Extraction du texte des fichiers, dans des processus séparés |
 | `audit` | Journal des opérations sensibles |
 | `web` | Service de l’interface, erreurs de l’API, description OpenAPI |
 
-Suivront `access`, `library`, `storage`, `ingestion` et `search`. L’interface, en React et TypeScript, se trouve dans `web/`.
+Suivra `search`. L’interface, en React et TypeScript, se trouve dans `web/`.
 
 Toutes les adresses sont en anglais, quelle que soit la langue de l’interface : `/login`, `/admin/members`.
 

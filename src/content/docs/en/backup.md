@@ -19,10 +19,12 @@ docker run --rm -v lore_files:/data -v "$PWD":/backup alpine \
 sudo -u postgres pg_dump -Fc lore > lore-$(date +%F).dump
 
 # Imported files
-sudo tar czf files-$(date +%F).tar.gz -C /var/lib/lore/files .
+sudo tar czf files-$(date +%F).tar.gz --exclude=./tmp -C /var/lib/lore/files .
 ```
 
 With Docker, the volume name depends on the Docker Compose project folder: check it with `docker volume ls`. If PostgreSQL runs on another server, add the `-h` (host) and `-U lore` options to `pg_dump`.
+
+The `tmp/` folder of the imported files does not need to be backed up: at each start, Lore deletes from it what was left there for more than an hour. With the archive, the imported files are in `data/files`, next to `bin/`, unless `LORE_FILES_PATH` names another folder.
 
 ## Restore
 
