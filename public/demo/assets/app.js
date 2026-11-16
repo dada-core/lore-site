@@ -522,8 +522,8 @@
     const actions = `<button class="btn" type="button" data-action="open" data-overlay="new-folder">${ico('folder-plus')}<span class="btn-label">Nouveau dossier</span></button><button class="btn btn-primary" type="button" data-action="open" data-overlay="import">${ico('upload')}<span class="btn-label">Importer</span></button>`;
     const base = { nav: 'space:' + s.id + ':docs', title: s.name, crumbs: spaceCrumbs(s), actions };
     if (s.empty) {
-      base.html = `<div class="empty">${spaceIco(s, true)}<h1 class="page-title">${esc(s.name)} est vide</h1><p>Importez vos premiers documents ou invitez des collègues. Les PDF, fichiers Word, textes et Markdown sont indexés dès leur import.</p>
-        <div class="actions"><button class="btn btn-primary btn-lg" type="button" data-action="open" data-overlay="import">${ico('upload')}Importer des documents</button><a class="btn btn-lg" href="#/spaces/${s.id}/members">${ico('users')}Inviter des membres</a></div>
+      base.html = `<div class="empty">${spaceIco(s, true)}<h1 class="page-title">${esc(s.name)} est vide</h1><p>Importez vos premiers documents ou ajoutez des membres. Les PDF, fichiers Word, textes et Markdown sont indexés dès leur import.</p>
+        <div class="actions"><button class="btn btn-primary btn-lg" type="button" data-action="open" data-overlay="import">${ico('upload')}Importer des documents</button><a class="btn btn-lg" href="#/spaces/${s.id}/members?open=add-members&space=${s.id}">${ico('users')}Ajouter des membres</a></div>
         <p class="help">Astuce : créez des dossiers (Runbooks, Procédures, Rapports d’incident…) pour que chacun s’y retrouve.</p></div>`;
       return base;
     }
@@ -926,14 +926,6 @@ pg_restore -U postgres -d facturation_restore \\
     return `<div class="menu"><button class="pill ${ROLE[role]}" type="button" data-action="menu" aria-expanded="false" style="border:0;cursor:pointer">${esc(role)}${ico('chevron')}</button><div class="popover" hidden>${roles.map((r) => `<button class="menu-item" type="button" data-action="set-role" data-role="${r}">${pill(r, ROLE[r])}</button>`).join('')}</div></div>`;
   }
 
-  function invitePanel(roles, def) {
-    return `<div class="set-box" id="invite-panel" hidden style="margin:0 0 16px;padding:16px">
-      <h3 style="font-size:14px">Inviter par lien</h3><p class="help" style="margin:2px 0 12px">Créez un lien et transmettez-le vous-même, par messagerie ou par e-mail. Aucun serveur de messagerie n’est nécessaire.</p>
-      <div class="target-chips"><label class="help" for="inv-role">Rôle</label><select class="select select-sm" id="inv-role">${roles.map((r) => `<option${r === def ? ' selected' : ''}>${r}</option>`).join('')}</select><button class="btn" type="button" data-action="invite-create">${ico('link')}Créer le lien</button></div>
-      <div id="invite-result" hidden style="margin-top:12px"><div class="target-chips"><label class="sr-only" for="inv-url">Lien d’invitation</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#K7q2-vX9m-4TzR" style="flex:1;min-width:220px"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copier</button></div><p class="help" style="margin-top:6px">Ce lien ne sert qu’une fois et expire dans 7 jours.</p></div>
-    </div>`;
-  }
-
   function screenSpaceMembers(m) {
     const s = spaceById(m[1]);
     if (!s) return screen404();
@@ -944,10 +936,9 @@ pg_restore -U postgres -d facturation_restore \\
     return {
       nav: 'space:' + s.id + ':members', title: s.name + ' : membres',
       crumbs: spaceCrumbs(s, 'Membres'),
-      actions: `<button class="btn btn-primary" type="button" data-action="toggle" data-target="invite-panel" aria-expanded="false">${ico('plus')}<span class="btn-label">Inviter</span></button>`,
+      actions: `<button class="btn btn-primary" type="button" data-action="open" data-overlay="add-members" data-params="space=${s.id}">${ico('plus')}<span class="btn-label">Ajouter des membres</span></button>`,
       html: `<div class="pad"><div class="stack" style="max-width:1040px;gap:0">
-        <div><h1 class="page-title">Membres de ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} membres. Les administrateurs de l’organisation ont aussi accès à tout l’espace.</p>
-          ${invitePanel(roles, 'Contributeur')}
+        <div><h1 class="page-title">Membres de ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} membre${list.length > 1 ? 's' : ''}. Les administrateurs de l’organisation ont aussi accès à tout l’espace.</p>
           <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:680px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Membre</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Rôle</span></th><th><span class="th">${ico('calendar')}Ajouté le</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
           <section style="margin-top:28px"><h2 class="section-title">Documents restreints de cet espace <span class="muted">${restricted.length}</span></h2>
             ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible par ${d.grants.map((g) => esc(person(g).name)).join(' et ')}, ainsi que par les responsables et les administrateurs</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">Aucun document restreint.</p>'}
@@ -980,7 +971,7 @@ pg_restore -U postgres -d facturation_restore \\
           <div class="set-row"><div class="lbl"><strong>Couleur</strong></div><div class="ctl">${spaceIco(s, true)}<button class="btn" type="button" data-mock="Choix de la couleur : non simulé.">Changer</button></div></div>
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Enregistrer</button></div></form>
         <section class="set-sec"><h2>Zone sensible</h2><div class="set-box danger-box">
-          <div class="set-row"><div class="lbl"><strong>Archiver l’espace</strong><p class="help">Les documents restent consultables par les responsables, mais disparaissent de la navigation et de la recherche.</p></div><div class="ctl"><button class="btn" type="button" data-mock="Archivage : non simulé.">${ico('archive')}Archiver</button></div></div>
+          <div class="set-row"><div class="lbl"><strong>Archiver l’espace</strong><p class="help">Il disparaît de la navigation et de la recherche pour ses lecteurs et ses contributeurs ; ses responsables et les administrateurs le voient encore. Il ne peut plus être modifié jusqu’à sa réactivation.</p></div><div class="ctl"><button class="btn" type="button" data-mock="Archivage : non simulé.">${ico('archive')}Archiver</button></div></div>
           <div class="set-row"><div class="lbl"><strong>Supprimer l’espace</strong><p class="help">Supprime définitivement ses ${s.docs} documents, leurs versions et leurs fichiers.</p></div><div class="ctl"><button class="btn btn-danger" type="button" data-action="open" data-overlay="delete-space" data-params="space=${s.id}">${ico('trash')}Supprimer</button></div></div>
         </div></section>
       </div></div>`
@@ -1446,7 +1437,7 @@ pg_restore -U postgres -d facturation_restore \\
         <div class="field"><label for="cs-desc">Description</label><input class="input" id="cs-desc" value="Documentation des applications internes."></div>
         <div class="field"><label for="cs-slug">Adresse</label><input class="input input-mono" id="cs-slug" value="applications"><span class="help">${D.org.url}/spaces/applications</span></div>
         <div class="field"><span class="field-label">Couleur</span><div class="target-chips">${colors.map((c, i) => `<label style="cursor:pointer"><input class="sr-only" type="radio" name="cs-color"${i === 5 ? ' checked' : ''}><span class="space-ico space-ico-lg" style="--c:${c};width:28px;height:28px;border-radius:7px${i === 5 ? ';box-shadow:0 0 0 2px var(--bg-raised),0 0 0 4px ' + c : ''}"></span></label>`).join('')}</div></div>
-        <p class="help">Vous en serez responsable. Vous pourrez inviter des membres ensuite.</p>`,
+        <p class="help">Vous en serez responsable. Vous pourrez ajouter des membres ensuite.</p>`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Créer l’espace</button>`, { form: 'create-space' });
     },
     'delete-space': (p) => {
@@ -1458,6 +1449,18 @@ pg_restore -U postgres -d facturation_restore \\
     },
     'new-folder': () => modal('Nouveau dossier', `<div class="field"><label for="nf">Nom du dossier</label><input class="input" id="nf" placeholder="Exemple : Procédures d’astreinte"></div><p class="help">Dans l’espace Infrastructure.</p>`,
       `${cancelBtn}<button class="btn btn-primary" type="submit">Créer le dossier</button>`, { form: 'new-folder' }),
+    'add-members': (p) => {
+      const s = spaceById(p.get('space') || 'infrastructure');
+      const inSpace = (D.spaceMembers[s.id] || [{ id: 'as', role: 'Responsable' }]).map((x) => x.id);
+      const candidates = D.orgMembers.filter((x) => inSpace.indexOf(x.id) < 0);
+      return modal('Ajouter des membres', `
+        <p class="help" style="margin-top:-4px">Membres de l’organisation qui ne font pas encore partie de l’espace ${esc(s.name)}.</p>
+        <div class="search-box" style="height:34px">${ico('search')}<input placeholder="Rechercher par nom ou adresse e-mail" aria-label="Rechercher par nom ou adresse e-mail"></div>
+        ${candidates.length ? `<div class="people-pick" role="group" aria-label="Personnes">${candidates.map((x, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role help">${esc(person(x.id).email)}</span></label>`).join('')}</div>` : '<p class="help">Toutes les personnes de l’organisation font déjà partie de l’espace.</p>'}
+        <div class="field"><label for="am-role">Rôle dans l’espace</label><select class="select" id="am-role"><option>Lecteur</option><option selected>Contributeur</option><option>Responsable</option></select></div>
+        <p class="help">Pour faire entrer une nouvelle personne dans l’organisation, un administrateur crée une invitation.</p>`,
+        `${cancelBtn}<button class="btn btn-primary" type="submit">${ico('plus')}Ajouter</button>`, { form: 'add-members' });
+    },
     'invite': () => modal('Inviter dans l’organisation', `
       <p class="help" style="margin-top:-4px">Créez un lien et transmettez-le vous-même. Aucun serveur de messagerie n’est nécessaire.</p>
       <div class="form-2"><div class="field"><label for="io-role">Rôle dans l’organisation</label><select class="select" id="io-role"><option>Membre</option><option>Administrateur</option></select></div>
@@ -1480,7 +1483,7 @@ pg_restore -U postgres -d facturation_restore \\
         ['Environnement', 'v0.1', [['Accueil', '#/'], ['Tous les espaces', '#/spaces'], ['Bibliothèque, vue grille', '#/spaces/infrastructure'], ['Bibliothèque, vue kanban', '#/spaces/infrastructure?view=kanban'], ['Bibliothèque filtrée sur un dossier', '#/spaces/infrastructure?folder=runbooks'], ['Espace vide', '#/spaces/applications'], ['Membres de l’espace', '#/spaces/infrastructure/members'], ['Paramètres de l’espace', '#/spaces/infrastructure/settings'], ['Mon compte', '#/account'], ['Page introuvable', '#/not-found']]],
         ['Documents', 'v0.1', [['Markdown', '#/documents/restaurer-pg'], ['Word converti', '#/documents/inc-2291'], ['PDF', '#/documents/guide-baie'], ['PDF numérisé', '#/documents/schema-cablage'], ['Accès restreint', '#/documents/rotation-tls'], ['Obsolète', '#/documents/barman'], ['Extraction en cours', '#/documents/plan-reprise'], ['Ouvert depuis la recherche', `#/documents/restaurer-pg?from=search&q=${enc2}&anchor=s-4-2`], ['PDF ouvert à la page trouvée', '#/documents/guide-baie?from=search&q=snapshot%20restore&anchor=page-112']]],
         ['Recherche', 'v0.1', [['Page de recherche', '#/search'], ['Résultats et filtres', `#/search?q=${enc2}`], ['Aucun résultat', '#/search?q=quota%20ceph'], ['Palette de commandes (Ctrl K)', 'palette']]],
-        ['Fenêtres', 'v0.1', [['Importer des documents', '#/spaces/infrastructure?open=import'], ['Nouvelle version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Accès au document', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Changer le statut', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Créer un espace', '#/spaces?open=create-space'], ['Nouveau dossier', '#/spaces/infrastructure?open=new-folder'], ['Supprimer un espace', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Inviter dans l’organisation', '#/admin/members?open=invite'], ['Lien de réinitialisation', '#/admin/members?open=reset-link&for=hc']]],
+        ['Fenêtres', 'v0.1', [['Importer des documents', '#/spaces/infrastructure?open=import'], ['Nouvelle version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Accès au document', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Changer le statut', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Créer un espace', '#/spaces?open=create-space'], ['Nouveau dossier', '#/spaces/infrastructure?open=new-folder'], ['Ajouter des membres à un espace', '#/spaces/securite/members?open=add-members&space=securite'], ['Supprimer un espace', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Inviter dans l’organisation', '#/admin/members?open=invite'], ['Lien de réinitialisation', '#/admin/members?open=reset-link&for=hc']]],
         ['Administration', 'v0.1', [['Général', '#/admin/general'], ['Membres', '#/admin/members'], ['Sécurité et connexion', '#/admin/security'], ['Stockage et import', '#/admin/storage'], ['Journal d’audit', '#/admin/audit']]],
         ['Base de connaissances', 'v0.2', [['Kanban des fiches', '#/knowledge'], ['Grille des fiches', '#/knowledge?view=grid'], ['Fiche validée', '#/knowledge/pg-role-manquant'], ['Fiche à valider', '#/knowledge/vpn-mtu'], ['Nouvelle fiche', '#/knowledge/new']]],
         ['Pilotage et recherche', 'v0.2', [['Tableau de bord', '#/dashboard'], ['Recherche par mots-clés et sens', `#/search?mode=semantic&q=${enc(D.semantic.question)}`]]],
@@ -1711,7 +1714,8 @@ pg_restore -U postgres -d facturation_restore \\
     'version': () => { closeOverlay(); toast('Version importée : extraction du texte en cours'); },
     'access': () => { closeOverlay(); toast('Accès mis à jour'); },
     'status': () => { closeOverlay(); toast('Statut mis à jour'); },
-    'new-folder': () => { closeOverlay(); toast('Dossier créé'); }
+    'new-folder': () => { closeOverlay(); toast('Dossier créé'); },
+    'add-members': () => { closeOverlay(); toast('Membres ajoutés à l’espace'); }
   };
 
   document.addEventListener('click', (e) => {

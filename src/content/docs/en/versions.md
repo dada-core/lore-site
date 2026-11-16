@@ -12,10 +12,10 @@ Each import of a file creates a new version. Previous versions remain available 
 | Status | Meaning |
 | --- | --- |
 | Draft | Visible to the space members, flagged as unfinished. |
-| Awaiting review <span class="vb">v0.2</span> | Submitted to the space owners before publication. |
+| Awaiting review <span class="vb">v0.2</span> | Submitted to the space maintainers before publication. |
 | Published | The reference version. |
 | Outdated | Still readable and searchable, ranked last, with the document that replaces it. The assistant never uses it. |
-| Archived | Removed from lists and search, readable by the space owners. |
+| Archived | Removed from lists and search, readable by the space maintainers. |
 
 ## Mark a document as outdated
 
