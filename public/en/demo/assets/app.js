@@ -721,10 +721,22 @@ pg_restore -U postgres -d billing_restore \\
     return `<section class="activity"><h2 class="section-title">Activity</h2><ol>${items.join('')}</ol></section>`;
   }
 
-  /* When a heading is hovered or has the focus, a # copies the link of its section. */
+  /* The text of a heading, without its tags: read character by character, then escaped. */
+  function plainText(html) {
+    let text = '';
+    let inTag = false;
+    for (const c of html) {
+      if (c === '<') inTag = true;
+      else if (c === '>') inTag = false;
+      else if (!inTag) text += c;
+    }
+    return text;
+  }
+
+  /* When a heading is hovered, a # appears beside it and copies the link of its section. */
   function sectionLinks(html) {
     return html.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, attrs, inner) =>
-      `<${tag}${attrs}>${inner}<button class="section-link" type="button" data-mock="Link of the section copied." aria-label="Copy the link of the section “${inner.replace(/<[^>]*>/g, '')}”">#</button></${tag}>`);
+      `<div class="heading-row"><${tag}${attrs}>${inner}</${tag}><button class="section-link" type="button" data-mock="Link of the section copied." aria-label="Copy the link of the section “${esc(plainText(inner))}”">#</button></div>`);
   }
 
   function screenDocument(m, p) {

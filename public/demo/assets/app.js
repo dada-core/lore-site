@@ -721,10 +721,22 @@ pg_restore -U postgres -d facturation_restore \\
     return `<section class="activity"><h2 class="section-title">Activité</h2><ol>${items.join('')}</ol></section>`;
   }
 
-  /* Au survol ou au focus d’un titre, un # copie le lien de sa section. */
+  /* Le texte d’un titre, sans ses balises : lu caractère par caractère, puis échappé. */
+  function plainText(html) {
+    let text = '';
+    let inTag = false;
+    for (const c of html) {
+      if (c === '<') inTag = true;
+      else if (c === '>') inTag = false;
+      else if (!inTag) text += c;
+    }
+    return text;
+  }
+
+  /* Au survol d’un titre, un # apparaît à côté de lui et copie le lien de sa section. */
   function sectionLinks(html) {
     return html.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, attrs, inner) =>
-      `<${tag}${attrs}>${inner}<button class="section-link" type="button" data-mock="Lien de la section copié." aria-label="Copier le lien de la section « ${inner.replace(/<[^>]*>/g, '')} »">#</button></${tag}>`);
+      `<div class="heading-row"><${tag}${attrs}>${inner}</${tag}><button class="section-link" type="button" data-mock="Lien de la section copié." aria-label="Copier le lien de la section « ${esc(plainText(inner))} »">#</button></div>`);
   }
 
   function screenDocument(m, p) {
