@@ -17,6 +17,7 @@ Imported files are kept in the folder set by `LORE_FILES_PATH`:
 - A file is never changed after it is imported.
 - The same content imported several times in an organization is stored only once. Each import still creates its own document.
 - A file is erased once no document of the organization uses it any more: after a document is deleted, or a space with its documents.
+- If a file is missing from the disk, for example after a database was restored without its files, the page of the document says so and no longer offers to download it. Lore writes it in its logs, with the organization and the hash of the file.
 
 ### The tmp folder
 
@@ -67,6 +68,10 @@ After the import, the text of each file is extracted in the background, with Apa
 - **Resumed after a stop.** The extractions to run are kept in the database: after a restart, or a crash of the server, they resume on their own.
 
 Attachments and objects embedded in documents are not read.
+
+### Laid-out content
+
+For a Markdown, Word or text document, the extraction also produces, in the same reading, the laid-out content that the page of the document shows. Lore cleans it, then keeps it in the database with the extracted text, never in the files folder: it takes about as much room as the text, and `pg_dump` backs it up with the rest. A PDF has none: its page shows it from its file. See [Backup and restore](backup.md).
 
 ### Failures and new attempts
 

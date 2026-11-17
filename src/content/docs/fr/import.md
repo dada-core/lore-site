@@ -10,7 +10,7 @@ description: "Lore importe les fichiers PDF, Word, Markdown et texte, en extrait
 | PDF | `.pdf` | Le texte de chaque page | Par page |
 | Word | `.docx` | Le texte et les titres | Par titre |
 | Markdown | `.md`, `.markdown` | Le texte, les titres et les blocs de code | Par titre |
-| Texte | `.txt` | Le texte | Par taille |
+| Texte | `.txt` | Le texte | Par taille, entre deux lignes |
 
 Lore reconnaît le format d’un fichier d’après son extension **et** d’après son contenu : un fichier renommé en `.pdf` qui n’est pas un PDF est refusé. Le type annoncé par le navigateur n’est jamais utilisé.
 
@@ -18,7 +18,7 @@ Lore reconnaît le format d’un fichier d’après son extension **et** d’apr
 - Un fichier texte ou Markdown peut être en UTF-8, en UTF-16 avec sa marque d’ordre des octets, ou en Windows-1252 : Lore reconnaît l’encodage seul. Dans un fichier UTF-8, quelques caractères invalides sont remplacés, sans changer la lecture du reste.
 - Les pièces jointes et les objets incorporés à un PDF ou à un document Word ne sont pas lus.
 
-Chaque passage garde sa place dans le document : sa page, ou son titre et les titres qui le contiennent. C’est ce qui permettra, avec le lecteur prévu en version 0.1, d’ouvrir un document directement au bon endroit.
+Chaque passage garde sa place dans le document : sa page, ou son titre et les titres qui le contiennent. C’est ce qui permet d’ouvrir un document directement au bon endroit, depuis le lien d’une section ou d’une page. Pour un document Markdown, Word ou texte, l’extraction produit aussi le contenu mis en forme qu’affiche la page du document : voir [Lire un document](reader.md).
 
 ## Importer
 
@@ -102,6 +102,7 @@ L’état de chaque document s’affiche dans la fenêtre d’import, dans la li
 | Changer le titre, la description ou la catégorie | Contributeurs et responsables de l’espace | Titre de 200 caractères au plus, description de 2 000. |
 | Déplacer vers un autre dossier | Contributeurs et responsables de l’espace | Vers un dossier du même espace, ou à sa racine. |
 | Restreindre l’accès, ou le rouvrir à l’espace | Responsables de l’espace, responsable du document | Voir [Documents restreints](permissions.md#documents-restreints). |
+| Changer le responsable | Responsables de l’espace, responsable du document | Vers un membre actif de l’espace, au moins contributeur. Le nouveau responsable voit le document, même restreint. Voir [Changer le responsable](reader.md#changer-le-responsable). |
 | Supprimer | Responsables de l’espace ; la personne qui l’a importé, tant qu’il n’a qu’une version | Après confirmation, définitivement : il n’y a pas de corbeille. Son fichier est effacé si aucun autre document ne l’utilise. |
 
 Les propriétaires et les administrateurs de l’organisation ont les droits d’un responsable. Dans un espace archivé, aucune de ces actions n’est possible.

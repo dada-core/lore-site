@@ -4,7 +4,7 @@ description: "Lancer Lore depuis les sources, pour contribuer au code."
 ---
 
 > [!NOTE]
-> **Lore est en cours de développement.** Les comptes, la configuration initiale, la connexion, l’administration de l’organisation, les espaces et l’import de documents fonctionnent ; le lecteur et la recherche arrivent ensuite.
+> **Lore est en cours de développement.** Les comptes, la configuration initiale, la connexion, l’administration de l’organisation, les espaces, l’import de documents et leur lecture fonctionnent ; la recherche arrive ensuite.
 
 ## Prérequis
 

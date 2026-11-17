@@ -16,4 +16,4 @@ At the end of the [initial setup](initial-setup.md), Lore suggests these four st
 
 ## Next
 
-Create a space, then import your documents: see [Spaces and folders](spaces.md) and [Importing documents](import.md). The viewer, search and versions come with version 0.1: see the [release notes](release-notes.md). To discover these screens right now, open the [demo](https://lore.dada-core.com/en/demo/#/), filled with sample data.
+Create a space, then import your documents: see [Spaces and folders](spaces.md) and [Importing documents](import.md). Then open a document to read it: see [Reading a document](reader.md). Search and versions come with version 0.1: see the [release notes](release-notes.md). To discover these screens right now, open the [demo](https://lore.dada-core.com/en/demo/#/), filled with sample data.

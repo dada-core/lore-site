@@ -41,8 +41,9 @@ Chaque espace a une adresse de la forme `/spaces/infrastructure`.
 ## Se repérer
 
 - **La barre latérale** liste vos espaces actifs. L’espace ouvert déplie ses pages : *Documents*, *Membres* et, pour ses responsables, *Paramètres*. Elle se replie avec <kbd>[</kbd>.
-- **L’accueil** présente vos espaces en tuiles, avec votre rôle et le nombre de membres.
+- **L’accueil** présente vos espaces en tuiles, avec votre rôle et le nombre de membres. Au-dessus, *Reprendre* rappelle les trois derniers documents que vous avez ouverts.
 - **La page *Espaces*** les présente en tableau : description, documents, membres, votre rôle et dernière activité. L’onglet *Archivés* regroupe les espaces archivés que vous voyez encore.
+- **La page *Documents*** d’un espace liste ses documents, regroupés par dossier. *Trier* les classe par date de mise à jour, titre, catégorie, statut ou taille, en ordre croissant ou décroissant ; *Masquer des colonnes* allège le tableau. Ces choix sont gardés dans le navigateur.
 
 Le nombre de documents d’un espace ne compte que ceux que vous voyez. Sa dernière activité tient compte des changements de l’espace, de ses dossiers et de ses documents.
 

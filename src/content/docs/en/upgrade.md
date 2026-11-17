@@ -49,6 +49,12 @@ description: "An upgrade means installing the new version and restarting. Databa
    sudo journalctl -u lore -f
    ```
 
+## From the 0.1.0-alpha.2 preview
+
+The 0.1.0-alpha.3 preview, which brings the document reader, extracts again, at its first start, the current version of each Markdown, Word and text document already indexed: this is how it receives the laid-out content its page shows. These documents show *In progress* during their extraction, a few moments each, then go back to *Indexed*. PDFs and failed documents do not change.
+
+This content is kept in the database: count about the size of the text of these documents on top, which `pg_dump` backs up with the rest. See [Storage and extraction](storage.md#laid-out-content).
+
 ## Roll back
 
 Database migrations cannot be undone. To go back to a previous version, restore the backup made before the upgrade, then reinstall the older version: the older image, or the older package with `sudo apt install --allow-downgrades` or `sudo dnf downgrade`.

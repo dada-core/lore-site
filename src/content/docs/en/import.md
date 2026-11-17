@@ -10,7 +10,7 @@ description: "Lore imports PDF, Word, Markdown and text files, extracts their te
 | PDF | `.pdf` | The text of each page | By page |
 | Word | `.docx` | The text and headings | By heading |
 | Markdown | `.md`, `.markdown` | The text, headings and code blocks | By heading |
-| Text | `.txt` | The text | By size |
+| Text | `.txt` | The text | By size, between two lines |
 
 Lore recognizes the format of a file from its extension **and** from its content: a file renamed to `.pdf` that is not a PDF is refused. The type announced by the browser is never used.
 
@@ -18,7 +18,7 @@ Lore recognizes the format of a file from its extension **and** from its content
 - A text or Markdown file can be in UTF-8, in UTF-16 with its byte order mark, or in Windows-1252: Lore recognizes the encoding on its own. In a UTF-8 file, a few invalid characters are replaced, without changing how the rest is read.
 - Attachments and objects embedded in a PDF or a Word document are not read.
 
-Each passage keeps its place in the document: its page, or its heading and the headings above it. This is what will let a document open right at the relevant spot, with the viewer planned for version 0.1.
+Each passage keeps its place in the document: its page, or its heading and the headings above it. This is what lets a document open right at the relevant spot, from the link of a section or a page. For a Markdown, Word or text document, the extraction also produces the laid-out content that the page of the document shows: see [Reading a document](reader.md).
 
 ## Import
 
@@ -102,6 +102,7 @@ The state of each document is shown in the import window, in the list of documen
 | Change the title, description or category | The space’s contributors and maintainers | Title of 200 characters at most, description of 2,000. |
 | Move to another folder | The space’s contributors and maintainers | To a folder of the same space, or to its root. |
 | Restrict access, or open it to the space again | The space’s maintainers, the document’s owner | See [Restricted documents](permissions.md#restricted-documents). |
+| Change the owner | The space’s maintainers, the document’s owner | To an active member of the space, at least a contributor. The new owner sees the document, even a restricted one. See [Change the owner](reader.md#change-the-owner). |
 | Delete | The space’s maintainers; the person who imported it, as long as it has a single version | After confirmation, permanently: there is no trash. Its file is erased if no other document uses it. |
 
 The organization’s owners and administrators have the rights of a maintainer. In an archived space, none of these actions is possible.
