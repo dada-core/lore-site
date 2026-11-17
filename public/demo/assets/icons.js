@@ -84,6 +84,7 @@
     '<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol>' +
     '<symbol id="i-language" viewBox="0 0 24 24"><path d="M4 5h8M8 3v2M6 5c0 4 2 7 6 9M10 5c-.5 3-2.5 6-6 8M12.5 20l3.5-9 3.5 9M13.7 17h4.6"/></symbol>' +
     '<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>' +
+    '<symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M7 14h10v6H7z"/></symbol>' +
     '</defs></svg>';
   document.body.insertAdjacentHTML('afterbegin', sprite);
 })();

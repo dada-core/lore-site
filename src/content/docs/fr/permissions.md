@@ -20,10 +20,12 @@ Voir [Membres et invitations](members.md).
 | Voir l’espace, ses dossiers et ses membres | Oui | Oui | Oui |
 | Voir les documents ouverts à tout l’espace | Oui | Oui | Oui |
 | Voir un document restreint | S’il fait partie des personnes choisies, ou s’il est responsable du document | S’il fait partie des personnes choisies, ou s’il est responsable du document | Oui |
+| Lire et télécharger les documents qu’il voit | Oui | Oui | Oui |
 | Importer des documents | Non | Oui | Oui |
 | Modifier le titre, la description et la catégorie d’un document, le déplacer d’un dossier à l’autre | Non | Oui | Oui |
 | Relancer une extraction en échec | Non | Oui | Oui |
 | Restreindre un document, ou le rouvrir à tout l’espace | Non | Ceux dont il est responsable | Oui |
+| Changer le responsable d’un document | Non | Ceux dont il est responsable | Oui |
 | Supprimer un document | Non | Ceux qu’il a importés, tant qu’ils n’ont qu’une version | Oui |
 | Créer et renommer des dossiers, supprimer un dossier vide | Non | Oui | Oui |
 | Ajouter des membres, changer leur rôle, les retirer | Non | Non | Oui |
@@ -34,7 +36,7 @@ Voir [Membres et invitations](members.md).
 
 La page *Membres* de chaque espace rappelle ce que permet chaque rôle. Dans un espace archivé, plus rien ne se modifie : ni ses membres, ni ses dossiers, ni ses documents.
 
-Le responsable d’un document est d’abord la personne qui l’a importé.
+Le responsable d’un document est d’abord la personne qui l’a importé. Les responsables de l’espace, et le responsable du document s’il est au moins contributeur, peuvent le confier à un autre membre actif de l’espace, qui a au moins le rôle Contributeur. Un document dont le responsable a quitté l’organisation ne peut être repris que par un responsable de l’espace.
 
 ## Ajouter des membres à un espace
 
@@ -63,7 +65,8 @@ Pour tous les autres, il n’apparaît nulle part : ni dans la liste des documen
 - **À l’import.** Dans la fenêtre d’import, cochez *Restreindre l’accès à certaines personnes* : la liste des membres de l’espace s’ouvre, les responsables et vous-même déjà cochés. Les documents sont restreints dès leur création : ils ne sont jamais visibles des autres, pas même un instant. Voir [Importer des documents](import.md#importer).
 - **Ensuite.** Depuis le document, dans *Accès au document*, on le restreint, on change les personnes choisies, ou on le rouvre à tout l’espace, ce qui retire les personnes choisies. C’est réservé aux responsables de l’espace et au responsable du document, s’il est au moins contributeur.
 - **Seuls des membres de l’espace** peuvent être choisis. Retirer quelqu’un de l’espace, ou de l’organisation, lui retire l’accès à ses documents restreints ; l’ajouter de nouveau à l’espace ne le lui rend pas : il faut le choisir encore.
-- **Être choisi donne la lecture.** Ce qu’une personne peut faire d’un document restreint dépend de son rôle dans l’espace : un lecteur choisi le consulte, sans le modifier.
+- **Changer le responsable** d’un document restreint le donne à voir au nouveau responsable. L’ancien ne le voit plus, sauf s’il fait partie des personnes choisies ou s’il est responsable de l’espace.
+- **Être choisi donne la lecture.** Ce qu’une personne peut faire d’un document restreint dépend de son rôle dans l’espace : un lecteur choisi le consulte et en télécharge l’original, sans le modifier. Voir [Lire un document](reader.md).
 
 Sur la page *Membres* de l’espace, ses responsables retrouvent la liste de ses documents restreints.
 

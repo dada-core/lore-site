@@ -49,6 +49,12 @@ description: "Une mise à jour consiste à installer la nouvelle version et à r
    sudo journalctl -u lore -f
    ```
 
+## Depuis la préversion 0.1.0-alpha.2
+
+La préversion 0.1.0-alpha.3, qui apporte le lecteur de documents, extrait de nouveau, à son premier démarrage, la version actuelle de chaque document Markdown, Word et texte déjà indexé : il reçoit ainsi le contenu mis en forme qu’affiche sa page. Ces documents passent *En cours* le temps de leur extraction, quelques instants chacun, puis reviennent à *Indexé*. Les PDF et les documents en échec ne changent pas.
+
+Ce contenu est gardé dans la base de données : comptez à peu près la taille du texte de ces documents en plus, que `pg_dump` sauvegarde avec le reste. Voir [Stockage et extraction](storage.md#contenu-mis-en-forme).
+
 ## Revenir en arrière
 
 Les migrations de la base ne sont pas réversibles. Pour revenir à une version précédente, restaurez la sauvegarde faite avant la mise à jour, puis réinstallez l’ancienne version : l’ancienne image, ou l’ancien paquet avec `sudo apt install --allow-downgrades` ou `sudo dnf downgrade`.

@@ -4,7 +4,7 @@ description: "Trois façons d’installer Lore sur votre serveur : Docker Compos
 ---
 
 > [!NOTE]
-> **La version 0.1 n’est pas encore publiée.** Une préversion, [0.1.0-alpha.2](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.2), permet déjà d’essayer l’installation avec ce qui fonctionne aujourd’hui : la configuration initiale, la connexion, les invitations, l’administration de l’organisation, les espaces et l’import de documents. Pour l’installer, remplacez dans les commandes de cette page `latest/download` par `download/v0.1.0-alpha.2` (Docker Compose), et `0.1.0` par `0.1.0-alpha.2` (paquets et archive). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
+> **La version 0.1 n’est pas encore publiée.** Une préversion, [0.1.0-alpha.3](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.3), permet déjà d’essayer l’installation avec ce qui fonctionne aujourd’hui : la configuration initiale, la connexion, les invitations, l’administration de l’organisation, les espaces, l’import de documents et leur lecture. Pour l’installer, remplacez dans les commandes de cette page `latest/download` par `download/v0.1.0-alpha.3` (Docker Compose), et `0.1.0` par `0.1.0-alpha.3` (paquets et archive). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
 
 ## Choisir une méthode
 

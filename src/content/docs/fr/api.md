@@ -20,7 +20,7 @@ La description OpenAPI complète est servie, sans authentification, à l’adres
 - **Mon compte** : `/api/v1/account`, son adresse (`/email`), son mot de passe (`/password`) et ses sessions (`/sessions`).
 - **Administration** : `/api/v1/admin/organization`, `/api/v1/admin/members`, `/api/v1/admin/invitations` et `/api/v1/admin/storage`, réservées aux propriétaires et aux administrateurs.
 - **Espaces** : `/api/v1/spaces`, et pour chaque espace ses dossiers (`/{spaceId}/folders`) et ses membres (`/{spaceId}/members`).
-- **Documents** : `/api/v1/spaces/{spaceId}/documents`, `/api/v1/documents/{id}` et ses actions, `/api/v1/imports/limits` et `/api/v1/imports/attention`. Voir [Documents](api-documents.md).
+- **Documents** : `/api/v1/spaces/{spaceId}/documents`, `/api/v1/documents/{id}` et ses actions, le contenu et le fichier de chaque version (`/versions/{number}/rendering` et `/versions/{number}/file`), `/api/v1/documents/recent`, `/api/v1/imports/limits` et `/api/v1/imports/attention`. Voir [Documents](api-documents.md).
 
 La recherche s’y ajoutera avec la version 0.1.
 
@@ -64,8 +64,11 @@ Les erreurs suivent le format `application/problem+json`, avec un champ `code` s
 | 401 | `unauthenticated`, `invalid_credentials` | Pas de session ouverte, ou identifiants refusés |
 | 403 | `admin_only`, `owner_only`, `contributor_only`, `maintainer_only`, `maintainer_or_owner_only`, `csrf` | Action réservée à un autre rôle, ou jeton CSRF absent ou périmé |
 | 404 | `not_found`, `invalid_link` | Introuvable, ou lien d’invitation ou de réinitialisation périmé |
-| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `folder_not_empty`, `not_retryable` | L’action contredit l’état actuel, par exemple retirer le dernier propriétaire |
+| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `folder_not_empty`, `not_retryable`, `extraction_pending`, `no_rendering` | L’action contredit l’état actuel, par exemple retirer le dernier propriétaire, ou lire le contenu d’un document encore en cours d’extraction |
+| 410 | `file_missing` | Le fichier d’un document est introuvable sur le disque du serveur |
 | 413 | `file_too_large` | Le fichier dépasse la taille maximale, indiquée en mégaoctets dans `maxMegabytes` |
 | 415 | `unsupported_media_type` | Le corps doit être en JSON |
 | 429 | `login_locked` | Trop d’échecs de connexion : réessayez après le blocage |
 | 507 | `storage_full` | Il resterait moins de 100 Mo libres sur le disque du serveur |
+
+Le téléchargement d’un fichier répond aussi `206` pour une partie du fichier, `304` quand le navigateur l’a déjà, et `416` pour une plage hors du fichier, sans corps d’erreur. Voir [Télécharger l’original](api-documents.md#télécharger-loriginal).

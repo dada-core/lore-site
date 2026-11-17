@@ -1,6 +1,6 @@
 ---
 title: "Documents"
-description: "Lister, importer, consulter, modifier, déplacer, restreindre et supprimer des documents par l’API, et suivre l’extraction de leur texte."
+description: "Lister, importer, consulter, lire, télécharger, modifier, déplacer, restreindre et supprimer des documents par l’API, changer leur responsable et suivre l’extraction de leur texte."
 ---
 
 Ces routes suivent les règles décrites dans la [présentation de l’API](api.md) : la session et le jeton CSRF de l’interface, les erreurs au format `application/problem+json`.
@@ -13,13 +13,15 @@ Ces routes suivent les règles décrites dans la [présentation de l’API](api.
 
 `GET /api/v1/spaces/{spaceId}/documents`
 
-Renvoie une page des documents de l’espace que vous voyez, regroupés par dossier (ceux sans dossier d’abord), puis du plus récent au plus ancien.
+Renvoie une page des documents de l’espace que vous voyez, regroupés par dossier (ceux sans dossier d’abord), puis dans l’ordre demandé : par défaut, du plus récent au plus ancien.
 
 | Paramètre | Description |
 | --- | --- |
 | `folder` | L’identifiant d’un dossier, ou `none` pour les documents sans dossier |
 | `restricted` | `true` pour les seuls documents restreints, `false` pour les autres |
 | `ids` | Des documents précis, 100 au plus, par exemple pour suivre leur extraction |
+| `sort` | L’ordre dans chaque dossier : `updated` (date de mise à jour, par défaut), `title`, `category`, `status` ou `size` (taille du fichier) |
+| `direction` | `asc` ou `desc` ; par défaut, `desc` pour `updated` et `asc` pour les autres |
 | `page`, `size` | Pagination : 50 par page par défaut, 200 au plus |
 
 ```json title="Réponse 200"
@@ -50,6 +52,8 @@ Renvoie une page des documents de l’espace que vous voyez, regroupés par doss
   "total": 9
 }
 ```
+
+Erreurs de champ : `sort` et `direction` (`invalid_value`), `ids` (`too_many`).
 
 ## Compter les documents d’un espace
 
@@ -158,9 +162,11 @@ Renvoie le document, sa version actuelle et ce que vous pouvez en faire (`action
     "textTruncated": false,
     "extractedAt": "2026-11-16T09:12:52Z",
     "createdAt": "2026-11-16T09:12:40Z",
-    "author": { "id": "…", "displayName": "Amenan Souaga" }
+    "author": { "id": "…", "displayName": "Amenan Souaga" },
+    "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    "fileAvailable": true
   },
-  "actions": { "edit": true, "delete": true, "manageAccess": true, "retry": false },
+  "actions": { "edit": true, "delete": true, "manageAccess": true, "retry": false, "changeOwner": true },
   "duplicateOf": null
 }
 ```
@@ -174,6 +180,109 @@ Renvoie le document, sa version actuelle et ce que vous pouvez en faire (`action
 | `sectionCount` | Le nombre de passages découpés |
 | `textTruncated` | `true` si le texte dépassait 10 millions de caractères et a été coupé |
 | `owner`, `author` | `null` pour une personne qui a quitté l’organisation |
+| `sha256` | L’empreinte SHA-256 du fichier, pour le comparer à une copie |
+| `fileAvailable` | `false` si le fichier est introuvable sur le disque du serveur : son téléchargement répond alors `410 file_missing` |
+| `actions` | Ce que vous pouvez faire : `edit`, `delete`, `manageAccess`, `retry` et `changeOwner` |
+
+Chaque appel inscrit une consultation au journal d’audit, une fois par heure au plus pour une même personne et un même document, jamais pour une réponse `404`.
+
+## Lire le contenu d’une version
+
+`GET /api/v1/documents/{id}/versions/{number}/rendering`
+
+Renvoie le contenu d’un document Markdown, Word ou texte, mis en forme et nettoyé, tel que l’affiche la page du document. Un document très long est découpé en parties d’environ 500 000 caractères : la réponse en donne une à la fois.
+
+| Paramètre | Description |
+| --- | --- |
+| `part` | La partie voulue, à partir de 1 |
+| `anchor` | Une ancre, comme `h-7` ou `part-3` : la réponse donne la partie qui la contient. Une ancre que le document n’a pas donne la première partie. |
+| `outline` | `false` pour ne pas recevoir le sommaire ; `true` par défaut |
+
+Sans `part` ni `anchor`, la réponse donne la première partie.
+
+```json title="Réponse 200"
+{
+  "number": 1,
+  "renderer": 1,
+  "part": 1,
+  "partCount": 1,
+  "truncated": false,
+  "outline": [
+    { "anchor": "h-1", "level": 1, "title": "Restaurer une base PostgreSQL depuis une sauvegarde", "part": 1 },
+    { "anchor": "h-5", "level": 2, "title": "4. Vérifier la restauration", "part": 1 },
+    { "anchor": "h-6", "level": 3, "title": "4.1 Contrôles", "part": 1 },
+    { "anchor": "h-7", "level": 3, "title": "4.2 Erreurs fréquentes", "part": 1 }
+  ],
+  "html": "<section id=\"h-1\"><h2>Restaurer une base PostgreSQL depuis une sauvegarde</h2>…"
+}
+```
+
+| Champ | Valeurs |
+| --- | --- |
+| `number` | Le numéro de la version |
+| `renderer` | Le numéro des règles de rendu |
+| `part`, `partCount` | La partie renvoyée, et le nombre de parties du document |
+| `truncated` | `true` si le contenu s’arrête avant la fin du document |
+| `outline` | Les titres de tout le document : ancre, niveau de 1 à 6, texte et partie qui le contient ; `null` avec `outline=false` |
+| `html` | La partie, en HTML nettoyé : une `section` par titre (`h-7`) ou par partie d’un texte (`part-3`) |
+
+La réponse porte un `ETag` et `Cache-Control: private, no-cache` : un contenu déjà reçu n’est pas renvoyé (`304`), mais les droits sont vérifiés à chaque requête.
+
+| Code HTTP | `code` | Cause |
+| --- | --- | --- |
+| 400 | `invalid_request` | `part` (`out_of_range`, avec `min` et `max`) |
+| 404 | `not_found` | Le document, ou cette version, n’existe pas pour vous |
+| 409 | `extraction_pending` | Le texte de la version est en cours d’extraction |
+| 409 | `no_rendering` | Un PDF, qui s’affiche à partir de son fichier, ou une extraction en échec |
+
+## Télécharger l’original
+
+`GET /api/v1/documents/{id}/versions/{number}/file`
+
+Renvoie le fichier de la version tel qu’il a été importé, à toute personne qui voit le document, lecteurs compris. `HEAD` donne les mêmes en-têtes, sans le fichier.
+
+| Paramètre | Description |
+| --- | --- |
+| `disposition` | `attachment` (par défaut) pour l’enregistrer, ou `inline` pour l’afficher, accepté pour un PDF seulement |
+
+```http title="Réponse 200"
+HTTP/1.1 200
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+Content-Length: 1258291
+Content-Disposition: attachment; filename="Plan de reprise d_activite 2026.docx"; filename*=UTF-8''Plan%20de%20reprise%20d%E2%80%99activit%C3%A9%202026.docx
+ETag: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+Last-Modified: Mon, 16 Nov 2026 09:12:40 GMT
+Cache-Control: private, no-cache
+Accept-Ranges: bytes
+X-Content-Type-Options: nosniff
+Content-Security-Policy: default-src 'none'; sandbox
+```
+
+- **Nom.** Le nom d’origine, sous deux formes : `filename` en ASCII, accents retirés et autres caractères remplacés par `_`, et `filename*` en UTF-8.
+- **Type.** Celui établi par Lore à l’import, jamais celui annoncé par le navigateur.
+- **`ETag`.** L’empreinte SHA-256 du fichier, la même que `currentVersion.sha256`.
+- **Cache.** Le navigateur peut garder le fichier, mais redemande à chaque ouverture : un accès retiré répond `404`, jamais `304`.
+- **Plages.** `Range` et `If-Range` sont respectés : une plage n’est servie que si `If-Range` désigne le même fichier, sinon le fichier part en entier. Il n’est jamais compressé, même un fichier texte.
+
+| Code HTTP | `code` | Cause |
+| --- | --- | --- |
+| 200 | | Le fichier entier |
+| 206 | | La ou les plages demandées par `Range` |
+| 304 | | Le navigateur a déjà ce fichier (`If-None-Match`) |
+| 400 | `invalid_request` | `disposition` (`invalid_value`), aussi pour `inline` sur un autre format qu’un PDF |
+| 404 | `not_found` | Le document, ou cette version, n’existe pas pour vous |
+| 410 | `file_missing` | Le fichier est introuvable sur le disque du serveur |
+| 416 | | Une plage hors du fichier, avec `Content-Range: bytes */<taille>` |
+
+Chaque téléchargement inscrit un événement au journal d’audit, avec le nom et la taille du fichier. Une requête `HEAD`, une plage qui ne commence pas au premier octet (la reprise d’un téléchargement) et `disposition=inline` n’en inscrivent pas.
+
+## Documents récents
+
+`GET /api/v1/documents/recent`
+
+Les documents que vous avez ouverts en dernier et que vous voyez encore, du plus récent au plus ancien : 3 par défaut, jusqu’à 10 avec `size`. Chacun avec `id`, `title`, `space` (`id`, `name`, `slug`, `color`), `folder` (`id` et `name`, ou `null`), `status` et `viewedAt`, le moment de la consultation. Un document supprimé, ou que vous ne voyez plus, n’y figure pas.
+
+Erreur de champ : `size` (`out_of_range`, avec `min` et `max`).
 
 ## Modifier un document
 
@@ -242,6 +351,20 @@ Restreint le document aux personnes choisies, membres de l’espace, ou le rouvr
 ```
 
 Erreur de champ : `userIds` (`not_space_member`).
+
+## Changer le responsable
+
+`PUT /api/v1/documents/{id}/owner`
+
+Confie le document à un autre membre actif de l’espace, qui a au moins le rôle Contributeur. Réservé aux responsables de l’espace et au responsable du document, s’il est au moins contributeur (`403 maintainer_or_owner_only` sinon). Renvoie le document.
+
+```json title="Corps de la requête"
+{ "userId": "…" }
+```
+
+Pour un document restreint, le nouveau responsable le voit. L’ancien ne le voit plus, sauf s’il fait partie des personnes choisies ou s’il est responsable de l’espace : la réponse a alors toutes ses `actions` à `false`, et le document répond ensuite `404`.
+
+Erreur de champ : `userId` (`required` ; `not_space_member`, aussi pour un compte désactivé ; `not_contributor`).
 
 ## Limites de l’import
 

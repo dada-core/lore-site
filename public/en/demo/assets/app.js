@@ -682,13 +682,14 @@ pg_restore -U postgres -d billing_restore \\
       inner = `<div class="pdf-page" id="page-${page}"><div class="skel" style="width:45%;height:12px;margin-bottom:18px"></div>${lines}<div class="pdf-foot">${page}</div></div>`;
     }
     return `<div class="pdf" id="pdf-viewer"><div class="pdf-bar">
-        <div class="pager"><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="-1" aria-label="Previous page"${page <= 1 ? ' disabled' : ''}>${ico('chevron-left')}</button><span>Page <b class="num">${page}</b> of ${d.pagesCount}</span><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="1" aria-label="Next page"${page >= d.pagesCount ? ' disabled' : ''}>${ico('chevron-right')}</button></div>
+        <div class="pager"><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="-1" aria-label="Previous page"${page <= 1 ? ' disabled' : ''}>${ico('chevron-left')}</button><span>Page <b class="num">${page}</b> of ${d.pagesCount}</span><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="1" aria-label="Next page"${page >= d.pagesCount ? ' disabled' : ''}>${ico('chevron-right')}</button>
+          <form class="pdf-goto" data-form="pdf-goto" data-doc="${d.id}"><label class="sr-only" for="pdf-goto">Go to page</label><input class="input" id="pdf-goto" name="page" inputmode="numeric" autocomplete="off" placeholder="Go to page"></form></div>
         <div class="pager"><button class="icon-btn" type="button" data-mock="Zoom: not simulated." aria-label="Zoom out">−</button><span>100%</span><button class="icon-btn" type="button" data-mock="Zoom: not simulated." aria-label="Zoom in">+</button></div>
       </div><div class="pdf-stage">${inner}</div></div>`;
   }
   function scanViewer() {
     const racks = [0, 1, 2, 3, 4, 5].map((i) => `<rect x="${70 + i * 78}" y="150" width="58" height="150" fill="none" stroke="#27324A" stroke-width="2.2" rx="2"/><text x="${99 + i * 78}" y="322" font-size="15" text-anchor="middle" fill="#27324A" font-family="Comic Sans MS, Segoe Print, cursive">B${i + 1}</text><path d="M${99 + i * 78} 150 L${99 + i * 78} 112 L300 112" fill="none" stroke="#27324A" stroke-width="1.6"/>`).join('');
-    return `<div class="pdf"><div class="pdf-bar"><div class="pager"><button class="icon-btn" type="button" disabled aria-label="Previous page">${ico('chevron-left')}</button><span>Page <b class="num">1</b> of 4</span><button class="icon-btn" type="button" data-mock="Next pages: not simulated." aria-label="Next page">${ico('chevron-right')}</button></div><span>Scanned image, no text layer</span></div>
+    return `<div class="pdf"><div class="pdf-bar"><div class="pager"><button class="icon-btn" type="button" disabled aria-label="Previous page">${ico('chevron-left')}</button><span>Page <b class="num">1</b> of 4</span><button class="icon-btn" type="button" data-mock="Next pages: not simulated." aria-label="Next page">${ico('chevron-right')}</button></div><span>Scanned image, without a text layer</span></div>
       <div class="pdf-stage"><div class="scan-page"><svg viewBox="0 0 600 424" role="img" aria-label="Scanned handwritten diagram: six racks linked to the network core">
         <text x="40" y="52" font-size="22" fill="#27324A" font-family="Comic Sans MS, Segoe Print, cursive">Room B, racks and cabling</text>
         <rect x="250" y="70" width="100" height="40" fill="none" stroke="#27324A" stroke-width="2.2" rx="3"/><text x="300" y="95" font-size="13" text-anchor="middle" fill="#27324A" font-family="Comic Sans MS, Segoe Print, cursive">Network core</text>
@@ -712,12 +713,18 @@ pg_restore -U postgres -d billing_restore \\
     return bodyGeneric(d);
   }
 
+  /* Views never show here: they only go to the audit log. */
   function docActivity(d) {
     const items = d.versions.map((v) => `<li>${avatar(v.by)}<span><b>${esc(person(v.by).name)}</b> imported version ${v.n}<time>${esc(v.date)}</time></span></li>`);
     if (d.status === 'obsolete') items.unshift(`<li>${avatar('hc')}<span><b>Hervé Coulibaly</b> marked the document as outdated<time>${esc(d.obsoleteSince)}</time></span></li>`);
     if (d.restricted) items.unshift(`<li>${avatar('as')}<span><b>Amenan Souaga</b> restricted access to 2 people<time>Nov 11, 2026</time></span></li>`);
-    if (d.id === 'restaurer-pg') items.unshift(`<li>${avatar('eb')}<span><b>Eli Brou</b> viewed the document<time>Today</time></span></li>`);
     return `<section class="activity"><h2 class="section-title">Activity</h2><ol>${items.join('')}</ol></section>`;
+  }
+
+  /* When a heading is hovered or has the focus, a # copies the link of its section. */
+  function sectionLinks(html) {
+    return html.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, attrs, inner) =>
+      `<${tag}${attrs}>${inner}<button class="section-link" type="button" data-mock="Link of the section copied." aria-label="Copy the link of the section “${inner.replace(/<[^>]*>/g, '')}”">#</button></${tag}>`);
   }
 
   function screenDocument(m, p) {
@@ -728,6 +735,8 @@ pg_restore -U postgres -d billing_restore \\
     const q = p.get('q') || '';
     const anchor = p.get('anchor') || '';
     const body = renderBody(d, p);
+    const content = body.toc ? sectionLinks(body.html) : body.html;
+    const pdf = d.format === 'PDF';
     const passage = d.passages.find((x) => x.anchor === anchor);
     const banners = [];
     if ((from === 'search' || from === 'assistant') && anchor) {
@@ -768,8 +777,12 @@ pg_restore -U postgres -d billing_restore \\
         <button class="menu-item" type="button" data-action="open" data-overlay="status" data-params="doc=${d.id}">${stIcon(d.status)}Change the status</button>
         <button class="menu-item" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Manage access</button>
         <button class="menu-item" type="button" data-mock="Moving: not simulated.">${ico('folder')}Move</button>
+        <button class="menu-item" type="button" data-mock="Changing the owner: not simulated.">${ico('user')}Change the owner</button>
         <a class="menu-item" href="#/knowledge/new?from=document&doc=${d.id}">${ico('book')}Create an article from the document ${vb('v0.2')}</a>
+        <div class="menu-sep"></div>
         <button class="menu-item" type="button" data-mock="Link copied.">${ico('link')}Copy the link</button>
+        ${pdf ? `<button class="menu-item" type="button" data-mock="The PDF opens in a new tab, with the browser’s viewer. Not simulated in the demo.">${ico('external')}Open in the browser</button>` : ''}
+        <button class="menu-item" type="button" data-mock="${pdf ? 'The PDF opens in a new tab, where the browser prints it. Not simulated in the demo.' : 'Printing of the content only, with the title, status, version and date at the top: not simulated in the demo.'}">${ico('print')}Print</button>
         <div class="menu-sep"></div>
         <button class="menu-item" type="button" data-mock="Archiving: not simulated.">${ico('archive')}Archive</button>
         <button class="menu-item danger" type="button" data-mock="Deleting: not simulated.">${ico('trash')}Delete</button>
@@ -783,7 +796,8 @@ pg_restore -U postgres -d billing_restore \\
           ${banners.join('')}
           <h1 class="doc-title"${d.lang === 'fr' ? ' lang="fr"' : ''}>${esc(d.title)}</h1>
           <div class="doc-sub">${status(d.status)}<span>Version ${d.version}</span><span>Updated ${esc(d.updatedRel)} by ${esc(person(d.versions[0].by).name)}</span>${d.restricted ? `<span class="status">${ico('lock')}Restricted access</span>` : ''}${d.lang === 'fr' ? '<span class="tag-lang">FR</span>' : ''}</div>
-          <div style="margin-top:10px">${body.html}</div>
+          ${d.format === 'Word' && !(d.flags && d.flags.indexing) ? '<p class="doc-note">Simplified view of the Word document: images and layout are not reproduced. <button class="link" type="button" data-mock="Downloading the original: not simulated.">Download the original</button></p>' : ''}
+          <div style="margin-top:10px">${content}</div>
           ${docActivity(d)}
         </div></div>${props}</div>`,
       after() {
@@ -1712,7 +1726,14 @@ pg_restore -U postgres -d billing_restore \\
     'access': () => { closeOverlay(); toast('Access updated'); },
     'status': () => { closeOverlay(); toast('Status updated'); },
     'new-folder': () => { closeOverlay(); toast('Folder created'); },
-    'add-members': () => { closeOverlay(); toast('Members added to the space'); }
+    'add-members': () => { closeOverlay(); toast('Members added to the space'); },
+    'pdf-goto': (f) => {
+      const d = docById(f.dataset.doc);
+      const n = parseInt(f.elements.page.value, 10);
+      if (!d || !n) return;
+      state.pdfPage[d.id] = Math.min(d.pagesCount, Math.max(1, n));
+      $('#pdf-viewer').outerHTML = fr(pdfViewer(d, state.pdfPage[d.id]));
+    }
   };
 
   document.addEventListener('click', (e) => {

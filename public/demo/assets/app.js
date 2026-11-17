@@ -682,7 +682,8 @@ pg_restore -U postgres -d facturation_restore \\
       inner = `<div class="pdf-page" id="page-${page}"><div class="skel" style="width:45%;height:12px;margin-bottom:18px"></div>${lines}<div class="pdf-foot">${page}</div></div>`;
     }
     return `<div class="pdf" id="pdf-viewer"><div class="pdf-bar">
-        <div class="pager"><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="-1" aria-label="Page précédente"${page <= 1 ? ' disabled' : ''}>${ico('chevron-left')}</button><span>Page <b class="num">${page}</b> sur ${d.pagesCount}</span><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="1" aria-label="Page suivante"${page >= d.pagesCount ? ' disabled' : ''}>${ico('chevron-right')}</button></div>
+        <div class="pager"><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="-1" aria-label="Page précédente"${page <= 1 ? ' disabled' : ''}>${ico('chevron-left')}</button><span>Page <b class="num">${page}</b> sur ${d.pagesCount}</span><button class="icon-btn" type="button" data-action="pdf-page" data-doc="${d.id}" data-delta="1" aria-label="Page suivante"${page >= d.pagesCount ? ' disabled' : ''}>${ico('chevron-right')}</button>
+          <form class="pdf-goto" data-form="pdf-goto" data-doc="${d.id}"><label class="sr-only" for="pdf-goto">Aller à la page</label><input class="input" id="pdf-goto" name="page" inputmode="numeric" autocomplete="off" placeholder="Aller à la page"></form></div>
         <div class="pager"><button class="icon-btn" type="button" data-mock="Zoom : non simulé." aria-label="Réduire">−</button><span>100 %</span><button class="icon-btn" type="button" data-mock="Zoom : non simulé." aria-label="Agrandir">+</button></div>
       </div><div class="pdf-stage">${inner}</div></div>`;
   }
@@ -712,12 +713,18 @@ pg_restore -U postgres -d facturation_restore \\
     return bodyGeneric(d);
   }
 
+  /* Les consultations n’y figurent jamais : elles ne vont qu’au journal d’audit. */
   function docActivity(d) {
     const items = d.versions.map((v) => `<li>${avatar(v.by)}<span><b>${esc(person(v.by).name)}</b> a importé la version ${v.n}<time>${esc(v.date)}</time></span></li>`);
     if (d.status === 'obsolete') items.unshift(`<li>${avatar('hc')}<span><b>Hervé Coulibaly</b> a marqué le document comme obsolète<time>${esc(d.obsoleteSince)}</time></span></li>`);
     if (d.restricted) items.unshift(`<li>${avatar('as')}<span><b>Amenan Souaga</b> a restreint l’accès à 2 personnes<time>11 nov. 2026</time></span></li>`);
-    if (d.id === 'restaurer-pg') items.unshift(`<li>${avatar('eb')}<span><b>Eli Brou</b> a consulté le document<time>aujourd’hui</time></span></li>`);
     return `<section class="activity"><h2 class="section-title">Activité</h2><ol>${items.join('')}</ol></section>`;
+  }
+
+  /* Au survol ou au focus d’un titre, un # copie le lien de sa section. */
+  function sectionLinks(html) {
+    return html.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, attrs, inner) =>
+      `<${tag}${attrs}>${inner}<button class="section-link" type="button" data-mock="Lien de la section copié." aria-label="Copier le lien de la section « ${inner.replace(/<[^>]*>/g, '')} »">#</button></${tag}>`);
   }
 
   function screenDocument(m, p) {
@@ -728,6 +735,8 @@ pg_restore -U postgres -d facturation_restore \\
     const q = p.get('q') || '';
     const anchor = p.get('anchor') || '';
     const body = renderBody(d, p);
+    const content = body.toc ? sectionLinks(body.html) : body.html;
+    const pdf = d.format === 'PDF';
     const passage = d.passages.find((x) => x.anchor === anchor);
     const banners = [];
     if ((from === 'search' || from === 'assistant') && anchor) {
@@ -768,8 +777,12 @@ pg_restore -U postgres -d facturation_restore \\
         <button class="menu-item" type="button" data-action="open" data-overlay="status" data-params="doc=${d.id}">${stIcon(d.status)}Changer le statut</button>
         <button class="menu-item" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Gérer l’accès</button>
         <button class="menu-item" type="button" data-mock="Déplacement : non simulé.">${ico('folder')}Déplacer</button>
+        <button class="menu-item" type="button" data-mock="Changement de responsable : non simulé.">${ico('user')}Changer le responsable</button>
         <a class="menu-item" href="#/knowledge/new?from=document&doc=${d.id}">${ico('book')}Créer une fiche à partir du document ${vb('v0.2')}</a>
+        <div class="menu-sep"></div>
         <button class="menu-item" type="button" data-mock="Lien copié.">${ico('link')}Copier le lien</button>
+        ${pdf ? `<button class="menu-item" type="button" data-mock="Le PDF s’ouvre dans un nouvel onglet, avec le lecteur du navigateur. Non simulé dans la démo.">${ico('external')}Ouvrir dans le navigateur</button>` : ''}
+        <button class="menu-item" type="button" data-mock="${pdf ? 'Le PDF s’ouvre dans un nouvel onglet, où le navigateur l’imprime. Non simulé dans la démo.' : 'Impression du contenu seul, précédé du titre, du statut, de la version et de la date : non simulée dans la démo.'}">${ico('print')}Imprimer</button>
         <div class="menu-sep"></div>
         <button class="menu-item" type="button" data-mock="Archivage : non simulé.">${ico('archive')}Archiver</button>
         <button class="menu-item danger" type="button" data-mock="Suppression : non simulée.">${ico('trash')}Supprimer</button>
@@ -783,7 +796,8 @@ pg_restore -U postgres -d facturation_restore \\
           ${banners.join('')}
           <h1 class="doc-title"${d.lang === 'en' ? ' lang="en"' : ''}>${esc(d.title)}</h1>
           <div class="doc-sub">${status(d.status)}<span>Version ${d.version}</span><span>Mis à jour ${esc(d.updatedRel)} par ${esc(person(d.versions[0].by).name)}</span>${d.restricted ? `<span class="status">${ico('lock')}Accès restreint</span>` : ''}${d.lang === 'en' ? '<span class="tag-lang">EN</span>' : ''}</div>
-          <div style="margin-top:10px">${body.html}</div>
+          ${d.format === 'Word' && !(d.flags && d.flags.indexing) ? '<p class="doc-note">Affichage simplifié du document Word : images et mise en page ne sont pas reproduites. <button class="link" type="button" data-mock="Téléchargement de l’original : non simulé.">Télécharger l’original</button></p>' : ''}
+          <div style="margin-top:10px">${content}</div>
           ${docActivity(d)}
         </div></div>${props}</div>`,
       after() {
@@ -1712,7 +1726,14 @@ pg_restore -U postgres -d facturation_restore \\
     'access': () => { closeOverlay(); toast('Accès mis à jour'); },
     'status': () => { closeOverlay(); toast('Statut mis à jour'); },
     'new-folder': () => { closeOverlay(); toast('Dossier créé'); },
-    'add-members': () => { closeOverlay(); toast('Membres ajoutés à l’espace'); }
+    'add-members': () => { closeOverlay(); toast('Membres ajoutés à l’espace'); },
+    'pdf-goto': (f) => {
+      const d = docById(f.dataset.doc);
+      const n = parseInt(f.elements.page.value, 10);
+      if (!d || !n) return;
+      state.pdfPage[d.id] = Math.min(d.pagesCount, Math.max(1, n));
+      $('#pdf-viewer').outerHTML = fr(pdfViewer(d, state.pdfPage[d.id]));
+    }
   };
 
   document.addEventListener('click', (e) => {

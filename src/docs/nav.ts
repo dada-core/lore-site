@@ -16,6 +16,7 @@ const PAGES = [
   ['first-steps', 'first-steps'],
   ['spaces', 'spaces'],
   ['import', 'import'],
+  ['reader', 'reader'],
   ['search', 'search'],
   ['versions', 'versions'],
   ['permissions', 'permissions'],
@@ -42,7 +43,7 @@ export type DocKey = (typeof PAGES)[number][0];
 
 const SECTIONS: { title: Record<DocLang, string>; pages: DocKey[] }[] = [
   { title: { fr: 'Démarrage', en: 'Getting started' }, pages: ['introduction', 'installation', 'initial-setup', 'first-steps'] },
-  { title: { fr: 'Utiliser Lore', en: 'Using Lore' }, pages: ['spaces', 'import', 'search', 'versions', 'permissions', 'shortcuts', 'knowledge', 'assistant'] },
+  { title: { fr: 'Utiliser Lore', en: 'Using Lore' }, pages: ['spaces', 'import', 'reader', 'search', 'versions', 'permissions', 'shortcuts', 'knowledge', 'assistant'] },
   { title: { fr: 'Administration', en: 'Administration' }, pages: ['members', 'security', 'storage', 'audit'] },
   { title: { fr: 'Exploitation', en: 'Operations' }, pages: ['variables', 'reverse-proxy', 'backup', 'upgrade'] },
   { title: { fr: 'Référence de l’API', en: 'API reference' }, pages: ['api', 'api-documents', 'api-search'] },

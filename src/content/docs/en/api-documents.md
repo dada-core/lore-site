@@ -1,6 +1,6 @@
 ---
 title: "Documents"
-description: "List, import, read, update, move, restrict and delete documents through the API, and follow the extraction of their text."
+description: "List, import, read, download, update, move, restrict and delete documents through the API, change their owner and follow the extraction of their text."
 ---
 
 These routes follow the rules described in the [API overview](api.md): the session and CSRF token of the interface, and errors in the `application/problem+json` format.
@@ -13,13 +13,15 @@ These routes follow the rules described in the [API overview](api.md): the sessi
 
 `GET /api/v1/spaces/{spaceId}/documents`
 
-Returns a page of the documents of the space that you can see, grouped by folder (those without a folder first), then from the most recent to the oldest.
+Returns a page of the documents of the space that you can see, grouped by folder (those without a folder first), then in the order asked: by default, from the most recent to the oldest.
 
 | Parameter | Description |
 | --- | --- |
 | `folder` | A folder’s identifier, or `none` for the documents without a folder |
 | `restricted` | `true` for restricted documents only, `false` for the others |
 | `ids` | Given documents, 100 at most, for instance to follow their extraction |
+| `sort` | The order within each folder: `updated` (date of the last update, the default), `title`, `category`, `status` or `size` (size of the file) |
+| `direction` | `asc` or `desc`; by default, `desc` for `updated` and `asc` for the others |
 | `page`, `size` | Pagination: 50 per page by default, 200 at most |
 
 ```json title="Response 200"
@@ -50,6 +52,8 @@ Returns a page of the documents of the space that you can see, grouped by folder
   "total": 9
 }
 ```
+
+Field errors: `sort` and `direction` (`invalid_value`), `ids` (`too_many`).
 
 ## Count the documents of a space
 
@@ -158,9 +162,11 @@ Returns the document, its current version and what you may do with it (`actions`
     "textTruncated": false,
     "extractedAt": "2026-11-16T09:12:52Z",
     "createdAt": "2026-11-16T09:12:40Z",
-    "author": { "id": "…", "displayName": "Amenan Souaga" }
+    "author": { "id": "…", "displayName": "Amenan Souaga" },
+    "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    "fileAvailable": true
   },
-  "actions": { "edit": true, "delete": true, "manageAccess": true, "retry": false },
+  "actions": { "edit": true, "delete": true, "manageAccess": true, "retry": false, "changeOwner": true },
   "duplicateOf": null
 }
 ```
@@ -174,6 +180,109 @@ Returns the document, its current version and what you may do with it (`actions`
 | `sectionCount` | The number of passages the text was split into |
 | `textTruncated` | `true` if the text was over 10 million characters and was cut |
 | `owner`, `author` | `null` for someone who left the organization |
+| `sha256` | The SHA-256 fingerprint of the file, to compare it with a copy |
+| `fileAvailable` | `false` if the file cannot be found on the server’s disk: its download then answers `410 file_missing` |
+| `actions` | What you may do: `edit`, `delete`, `manageAccess`, `retry` and `changeOwner` |
+
+Each call records a view in the audit log, once an hour at most for the same person and the same document, never for a `404` response.
+
+## Read the content of a version
+
+`GET /api/v1/documents/{id}/versions/{number}/rendering`
+
+Returns the content of a Markdown, Word or text document, laid out and cleaned, as the page of the document shows it. A very long document is split into parts of about 500,000 characters: the response gives one at a time.
+
+| Parameter | Description |
+| --- | --- |
+| `part` | The part wanted, from 1 |
+| `anchor` | An anchor, such as `h-7` or `part-3`: the response gives the part that holds it. An anchor the document does not have gives the first part. |
+| `outline` | `false` not to receive the outline; `true` by default |
+
+Without `part` or `anchor`, the response gives the first part.
+
+```json title="Response 200"
+{
+  "number": 1,
+  "renderer": 1,
+  "part": 1,
+  "partCount": 1,
+  "truncated": false,
+  "outline": [
+    { "anchor": "h-1", "level": 1, "title": "Restore a PostgreSQL database from a backup", "part": 1 },
+    { "anchor": "h-5", "level": 2, "title": "4. Check the restore", "part": 1 },
+    { "anchor": "h-6", "level": 3, "title": "4.1 Checks", "part": 1 },
+    { "anchor": "h-7", "level": 3, "title": "4.2 Common errors", "part": 1 }
+  ],
+  "html": "<section id=\"h-1\"><h2>Restore a PostgreSQL database from a backup</h2>…"
+}
+```
+
+| Field | Values |
+| --- | --- |
+| `number` | The number of the version |
+| `renderer` | The number of the rendering rules |
+| `part`, `partCount` | The part returned, and the number of parts of the document |
+| `truncated` | `true` if the content stops before the end of the document |
+| `outline` | The headings of the whole document: anchor, level from 1 to 6, text and the part that holds it; `null` with `outline=false` |
+| `html` | The part, as cleaned HTML: one `section` per heading (`h-7`) or per part of a text (`part-3`) |
+
+The response carries an `ETag` and `Cache-Control: private, no-cache`: content already received is not sent again (`304`), but access is checked at each request.
+
+| HTTP status | `code` | Cause |
+| --- | --- | --- |
+| 400 | `invalid_request` | `part` (`out_of_range`, with `min` and `max`) |
+| 404 | `not_found` | The document, or this version, does not exist for you |
+| 409 | `extraction_pending` | The text of the version is being extracted |
+| 409 | `no_rendering` | A PDF, which shows from its file, or a failed extraction |
+
+## Download the original
+
+`GET /api/v1/documents/{id}/versions/{number}/file`
+
+Returns the file of the version as it was imported, to everyone who sees the document, readers included. `HEAD` gives the same headers, without the file.
+
+| Parameter | Description |
+| --- | --- |
+| `disposition` | `attachment` (the default) to save it, or `inline` to show it, accepted for a PDF only |
+
+```http title="Response 200"
+HTTP/1.1 200
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+Content-Length: 1258291
+Content-Disposition: attachment; filename="Disaster recovery plan 2026.docx"; filename*=UTF-8''Disaster%20recovery%20plan%202026.docx
+ETag: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+Last-Modified: Mon, 16 Nov 2026 09:12:40 GMT
+Cache-Control: private, no-cache
+Accept-Ranges: bytes
+X-Content-Type-Options: nosniff
+Content-Security-Policy: default-src 'none'; sandbox
+```
+
+- **Name.** The original name, in two forms: `filename` in ASCII, accents removed and other characters replaced with `_`, and `filename*` in UTF-8.
+- **Type.** The one Lore established at import, never the one announced by the browser.
+- **`ETag`.** The SHA-256 fingerprint of the file, the same as `currentVersion.sha256`.
+- **Cache.** The browser may keep the file, but asks again at each opening: access that was withdrawn answers `404`, never `304`.
+- **Ranges.** `Range` and `If-Range` are honored: a range is served only if `If-Range` names the same file, otherwise the whole file is sent. It is never compressed, not even a text file.
+
+| HTTP status | `code` | Cause |
+| --- | --- | --- |
+| 200 | | The whole file |
+| 206 | | The range or ranges asked by `Range` |
+| 304 | | The browser already has this file (`If-None-Match`) |
+| 400 | `invalid_request` | `disposition` (`invalid_value`), also for `inline` on a format other than PDF |
+| 404 | `not_found` | The document, or this version, does not exist for you |
+| 410 | `file_missing` | The file cannot be found on the server’s disk |
+| 416 | | A range outside the file, with `Content-Range: bytes */<size>` |
+
+Each download records an event in the audit log, with the name and size of the file. A `HEAD` request, a range that does not start at the first byte (the resumption of a download) and `disposition=inline` record none.
+
+## Recent documents
+
+`GET /api/v1/documents/recent`
+
+The documents you opened last and still see, from the most recent to the oldest: 3 by default, up to 10 with `size`. Each with `id`, `title`, `space` (`id`, `name`, `slug`, `color`), `folder` (`id` and `name`, or `null`), `status` and `viewedAt`, the time of the view. A document deleted, or one you no longer see, is not listed.
+
+Field error: `size` (`out_of_range`, with `min` and `max`).
 
 ## Update a document
 
@@ -242,6 +351,20 @@ Restricts the document to the people chosen, members of the space, or opens it t
 ```
 
 Field error: `userIds` (`not_space_member`).
+
+## Change the owner
+
+`PUT /api/v1/documents/{id}/owner`
+
+Hands the document over to another active member of the space who has at least the Contributor role. Reserved for the space’s maintainers and the document’s owner, if they are at least a contributor (`403 maintainer_or_owner_only` otherwise). Returns the document.
+
+```json title="Request body"
+{ "userId": "…" }
+```
+
+For a restricted document, the new owner sees it. The former owner no longer sees it, unless they are among the people chosen or a maintainer of the space: the response then has all its `actions` set to `false`, and the document answers `404` afterwards.
+
+Field error: `userId` (`required`; `not_space_member`, also for a deactivated account; `not_contributor`).
 
 ## Import limits
 
