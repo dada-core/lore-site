@@ -1,6 +1,6 @@
 ---
 title: "Raccourcis clavier"
-description: "Lore se pilote au clavier : recherche, import, panneaux et fenêtres."
+description: "Lore se pilote au clavier : recherche, import, panneaux, fenêtres et lecteur PDF."
 ---
 
 ## Dans l’application
@@ -17,6 +17,17 @@ description: "Lore se pilote au clavier : recherche, import, panneaux et fenêtr
 | <kbd>Ctrl Entrée</kbd> | Envoyer une question à l’assistant <span class="vb">v0.3</span> |
 
 Sur macOS, <kbd>Ctrl</kbd> est remplacé par <kbd>⌘</kbd>.
+
+## Dans le lecteur PDF
+
+Une fois le lecteur sélectionné, d’un clic ou avec <kbd>Tab</kbd> :
+
+| Raccourci | Action |
+| --- | --- |
+| <kbd>←</kbd> <kbd>→</kbd> | Page précédente, page suivante |
+| <kbd>+</kbd> <kbd>-</kbd> | Agrandir, réduire |
+
+Ces touches n’agissent pas pendant une saisie. Dans un document Markdown, Word ou texte, <kbd>Ctrl F</kbd> cherche dans le contenu affiché, et <kbd>Ctrl P</kbd> l’imprime. Voir [Lire un document](reader.md#le-lecteur-pdf).
 
 ## Dans cette documentation
 

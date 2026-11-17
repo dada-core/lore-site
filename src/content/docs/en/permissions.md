@@ -20,10 +20,12 @@ See [Members and invitations](members.md).
 | See the space, its folders and its members | Yes | Yes | Yes |
 | See the documents open to the whole space | Yes | Yes | Yes |
 | See a restricted document | If they are among the people chosen, or the document’s owner | If they are among the people chosen, or the document’s owner | Yes |
+| Read and download the documents they see | Yes | Yes | Yes |
 | Import documents | No | Yes | Yes |
 | Change the title, description and category of a document, move it from one folder to another | No | Yes | Yes |
 | Retry a failed extraction | No | Yes | Yes |
 | Restrict a document, or open it to the whole space again | No | The ones they own | Yes |
+| Change the owner of a document | No | The ones they own | Yes |
 | Delete a document | No | The ones they imported, as long as they have a single version | Yes |
 | Create and rename folders, delete an empty folder | No | Yes | Yes |
 | Add members, change their role, remove them | No | No | Yes |
@@ -34,7 +36,7 @@ See [Members and invitations](members.md).
 
 The *Members* page of each space shows what each role allows. In an archived space, nothing can be changed any more: not its members, its folders or its documents.
 
-The owner of a document is first the person who imported it.
+The owner of a document is first the person who imported it. The space’s maintainers, and the document’s owner if they are at least a contributor, can hand it over to another active member of the space who has at least the Contributor role. A document whose owner left the organization can only be taken over by a maintainer of the space.
 
 ## Add members to a space
 
@@ -63,7 +65,8 @@ For everyone else, it appears nowhere: not in the list of documents, not in the 
 - **At import.** In the import window, tick *Restrict access to some people*: the list of the space’s members opens, with the maintainers and yourself already ticked. The documents are restricted as soon as they are created: they are never visible to the others, not even for a moment. See [Importing documents](import.md#import).
 - **Later.** From the document, in *Document access*, you restrict it, change the people chosen, or open it to the whole space again, which removes the people chosen. This is reserved for the space’s maintainers and the document’s owner, if they are at least a contributor.
 - **Only members of the space** can be chosen. Removing someone from the space, or from the organization, removes their access to its restricted documents; adding them to the space again does not give it back: they must be chosen again.
-- **Being chosen gives read access.** What a person can do with a restricted document depends on their role in the space: a reader who is chosen can read it, not change it.
+- **Changing the owner** of a restricted document lets the new owner see it. The former owner no longer sees it, unless they are among the people chosen, a maintainer of the space, or an owner or administrator of the organization.
+- **Being chosen gives read access.** What a person can do with a restricted document depends on their role in the space: a reader who is chosen can read it and download its original, not change it. See [Reading a document](reader.md).
 
 On the space’s *Members* page, its maintainers find the list of its restricted documents.
 

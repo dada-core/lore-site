@@ -17,6 +17,7 @@ Les fichiers importés sont rangés dans le dossier indiqué par `LORE_FILES_PAT
 - Un fichier n’est jamais modifié après son import.
 - Un même contenu importé plusieurs fois dans une organisation n’est stocké qu’une fois. Chaque import crée tout de même son propre document.
 - Un fichier est effacé quand plus aucun document de l’organisation ne l’utilise : après la suppression d’un document, ou d’un espace avec ses documents.
+- Si un fichier manque sur le disque, par exemple après la restauration d’une base sans ses fichiers, la page du document l’annonce et ne propose plus de le télécharger. Lore l’écrit dans ses journaux, avec l’organisation et l’empreinte du fichier.
 
 ### Le dossier tmp
 
@@ -67,6 +68,10 @@ Après l’import, le texte de chaque fichier est extrait en arrière-plan, avec
 - **Repris après un arrêt.** Les extractions à faire sont gardées dans la base : après un redémarrage, ou un arrêt brutal du serveur, elles reprennent d’elles-mêmes.
 
 Les pièces jointes et les objets incorporés aux documents ne sont pas lus.
+
+### Contenu mis en forme
+
+Pour un document Markdown, Word ou texte, l’extraction produit aussi, dans la même lecture, le contenu mis en forme qu’affiche la page du document. Lore le nettoie, puis le garde dans la base de données avec le texte extrait, jamais dans le dossier des fichiers : il occupe à peu près la place du texte, et `pg_dump` le sauvegarde avec le reste. Un PDF n’en a pas : sa page l’affiche à partir de son fichier. Voir [Sauvegarde et restauration](backup.md).
 
 ### Échecs et nouvelles tentatives
 

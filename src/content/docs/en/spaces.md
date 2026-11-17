@@ -41,8 +41,9 @@ Each space has an address such as `/spaces/infrastructure`.
 ## Finding your way
 
 - **The sidebar** lists your active spaces. The open space unfolds its pages: *Documents*, *Members* and, for its maintainers, *Settings*. The sidebar folds with <kbd>[</kbd>.
-- **The home page** shows your spaces as tiles, with your role and the number of members.
+- **The home page** shows your spaces as tiles, with your role and the number of members. Above them, *Resume* lists the last three documents you opened.
 - **The *Spaces* page** shows them as a table: description, documents, members, your role and last activity. The *Archived* tab gathers the archived spaces you can still see.
+- **The *Documents* page** of a space lists its documents, grouped by folder. *Sort* orders them by last update, title, category, status or size, ascending or descending; *Hide columns* lightens the table. These choices are kept in the browser.
 
 The number of documents of a space only counts the ones you can see. Its last activity takes into account the changes to the space, its folders and its documents.
 

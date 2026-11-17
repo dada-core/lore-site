@@ -16,6 +16,22 @@ Première version : un environnement complet, sans intelligence artificielle.
 - Journal d’audit
 - Installation avec Docker Compose, des paquets .deb et .rpm ou une archive universelle
 
+## Version 0.1.0-alpha.3 <span class="vb">Préversion</span>
+
+Publiée le 17 novembre 2026, pour essayer le lecteur de documents avant la version 0.1. Elle reprend les données d’une installation 0.1.0-alpha.2 : la mise à jour n’ajoute qu’une migration, et relance l’extraction des documents Markdown, Word et texte pour leur contenu mis en forme (voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-alpha2)). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
+
+- Documents Markdown, Word et texte affichés mis en forme, après un nettoyage par Lore
+- PDF lus dans la page avec pdf.js, sans être téléchargés en entier, et ouverts à la page demandée
+- Liens vers une section ou une page, et sommaire qui suit la lecture
+- Téléchargement de l’original sous son nom d’origine, pour toute personne qui voit le document
+- Propriétés du document, avec son empreinte SHA-256, et changement de son responsable
+- *Reprendre* sur l’accueil, tri et colonnes de la liste des documents
+- Consultations et téléchargements inscrits au journal d’audit, dont les événements sont effacés au bout d’un an
+
+Voir [Lire un document](reader.md). La recherche, les versions et les statuts, et l’écran du journal d’audit arrivent avec la version 0.1.
+
+Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.3).
+
 ## Version 0.1.0-alpha.2 <span class="vb">Préversion</span>
 
 Publiée le 16 novembre 2026, pour essayer les espaces et l’import de documents avant la version 0.1. Elle reprend les données d’une installation 0.1.0-alpha.1 : la mise à jour n’ajoute que des migrations. Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.

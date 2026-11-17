@@ -4,7 +4,7 @@ description: "Run Lore from source, to contribute to the code."
 ---
 
 > [!NOTE]
-> **Lore is under development.** Accounts, the initial setup, sign-in, the administration of the organization, spaces and document import work; the viewer and search come next.
+> **Lore is under development.** Accounts, the initial setup, sign-in, the administration of the organization, spaces, document import and reading work; search comes next.
 
 ## Requirements
 

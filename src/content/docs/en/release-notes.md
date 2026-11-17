@@ -16,6 +16,22 @@ First version: a complete workspace, without artificial intelligence.
 - Audit log
 - Installation with Docker Compose, .deb and .rpm packages or a universal archive
 
+## Version 0.1.0-alpha.3 <span class="vb">Preview</span>
+
+Released on November 17, 2026, to try the document reader before version 0.1. It keeps the data of a 0.1.0-alpha.2 installation: the upgrade only adds a migration, and extracts Markdown, Word and text documents again for their laid-out content (see [Upgrading](upgrade.md#from-the-010-alpha2-preview)). It is not meant for production: its data may not carry over to the next version.
+
+- Markdown, Word and text documents shown laid out, after Lore cleans them
+- PDF files read in the page with pdf.js, without downloading them whole, and opened at the page asked
+- Links to a section or a page, and an outline that follows the reading
+- Download of the original under its original name, for anyone who sees the document
+- Properties of the document, with its SHA-256 fingerprint, and change of its owner
+- *Resume* on the home page, sorting and columns of the list of documents
+- Views and downloads recorded in the audit log, whose events are deleted after a year
+
+See [Reading a document](reader.md). Search, versions and statuses, and the audit log screen come with version 0.1.
+
+Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.3).
+
 ## Version 0.1.0-alpha.2 <span class="vb">Preview</span>
 
 Released on November 16, 2026, to try spaces and document import before version 0.1. It keeps the data of a 0.1.0-alpha.1 installation: the upgrade only adds migrations. It is not meant for production: its data may not carry over to the next version.
