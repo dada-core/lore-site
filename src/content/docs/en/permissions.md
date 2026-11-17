@@ -65,7 +65,7 @@ For everyone else, it appears nowhere: not in the list of documents, not in the 
 - **At import.** In the import window, tick *Restrict access to some people*: the list of the space’s members opens, with the maintainers and yourself already ticked. The documents are restricted as soon as they are created: they are never visible to the others, not even for a moment. See [Importing documents](import.md#import).
 - **Later.** From the document, in *Document access*, you restrict it, change the people chosen, or open it to the whole space again, which removes the people chosen. This is reserved for the space’s maintainers and the document’s owner, if they are at least a contributor.
 - **Only members of the space** can be chosen. Removing someone from the space, or from the organization, removes their access to its restricted documents; adding them to the space again does not give it back: they must be chosen again.
-- **Changing the owner** of a restricted document lets the new owner see it. The former owner no longer sees it, unless they are among the people chosen or a maintainer of the space.
+- **Changing the owner** of a restricted document lets the new owner see it. The former owner no longer sees it, unless they are among the people chosen, a maintainer of the space, or an owner or administrator of the organization.
 - **Being chosen gives read access.** What a person can do with a restricted document depends on their role in the space: a reader who is chosen can read it and download its original, not change it. See [Reading a document](reader.md).
 
 On the space’s *Members* page, its maintainers find the list of its restricted documents.

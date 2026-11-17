@@ -65,7 +65,7 @@ Pour tous les autres, il n’apparaît nulle part : ni dans la liste des documen
 - **À l’import.** Dans la fenêtre d’import, cochez *Restreindre l’accès à certaines personnes* : la liste des membres de l’espace s’ouvre, les responsables et vous-même déjà cochés. Les documents sont restreints dès leur création : ils ne sont jamais visibles des autres, pas même un instant. Voir [Importer des documents](import.md#importer).
 - **Ensuite.** Depuis le document, dans *Accès au document*, on le restreint, on change les personnes choisies, ou on le rouvre à tout l’espace, ce qui retire les personnes choisies. C’est réservé aux responsables de l’espace et au responsable du document, s’il est au moins contributeur.
 - **Seuls des membres de l’espace** peuvent être choisis. Retirer quelqu’un de l’espace, ou de l’organisation, lui retire l’accès à ses documents restreints ; l’ajouter de nouveau à l’espace ne le lui rend pas : il faut le choisir encore.
-- **Changer le responsable** d’un document restreint le donne à voir au nouveau responsable. L’ancien ne le voit plus, sauf s’il fait partie des personnes choisies ou s’il est responsable de l’espace.
+- **Changer le responsable** d’un document restreint le donne à voir au nouveau responsable. L’ancien ne le voit plus, sauf s’il fait partie des personnes choisies, s’il est responsable de l’espace, ou propriétaire ou administrateur de l’organisation.
 - **Être choisi donne la lecture.** Ce qu’une personne peut faire d’un document restreint dépend de son rôle dans l’espace : un lecteur choisi le consulte et en télécharge l’original, sans le modifier. Voir [Lire un document](reader.md).
 
 Sur la page *Membres* de l’espace, ses responsables retrouvent la liste de ses documents restreints.

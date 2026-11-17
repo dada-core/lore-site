@@ -14,7 +14,7 @@ description: "Lore affiche chaque document dans la page : un PDF tel quel, un do
 
 Un document Markdown, Word ou texte s’affiche à partir d’un rendu produit par l’extraction, en même temps que son texte, puis nettoyé avant d’être enregistré : il ne garde que des éléments de mise en forme, sans script ni style. Chaque bloc de code porte un bouton *Copier*. Voir [Sécurité et connexion](security.md#lecture-des-documents).
 
-Pendant l’extraction, un PDF s’affiche aussitôt ; pour les autres formats, la page indique « Le contenu s’affichera dès la fin de l’extraction. » et se met à jour d’elle-même. Après un échec, seul le bandeau qui en donne la cause s’affiche : le fichier reste téléchargeable. Voir [En cas d’échec](import.md#en-cas-déchec).
+Pendant l’extraction, un PDF s’affiche aussitôt ; pour les autres formats, la page indique « Le contenu s’affichera dès la fin de l’extraction. » et se met à jour d’elle-même. Après un échec, seul le bandeau qui en donne la cause s’affiche : le fichier reste téléchargeable. Voir [En cas d’échec](import.md#en-cas-déchec). Plus rarement, un document indexé n’a pas de contenu mis en forme, par exemple un document Word dont la mise en forme n’a pas pu être lue : la page indique « Le contenu de ce document ne peut pas être affiché. Téléchargez l’original pour le lire. »
 
 ### Markdown
 

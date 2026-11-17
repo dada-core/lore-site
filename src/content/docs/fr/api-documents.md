@@ -233,7 +233,7 @@ La réponse porte un `ETag` et `Cache-Control: private, no-cache` : un contenu d
 | 400 | `invalid_request` | `part` (`out_of_range`, avec `min` et `max`) |
 | 404 | `not_found` | Le document, ou cette version, n’existe pas pour vous |
 | 409 | `extraction_pending` | Le texte de la version est en cours d’extraction |
-| 409 | `no_rendering` | Un PDF, qui s’affiche à partir de son fichier, ou une extraction en échec |
+| 409 | `no_rendering` | Un PDF, qui s’affiche à partir de son fichier, une extraction en échec, ou une version sans contenu mis en forme, par exemple un document Word dont la mise en forme n’a pas pu être lue |
 
 ## Télécharger l’original
 
@@ -362,7 +362,7 @@ Confie le document à un autre membre actif de l’espace, qui a au moins le rô
 { "userId": "…" }
 ```
 
-Pour un document restreint, le nouveau responsable le voit. L’ancien ne le voit plus, sauf s’il fait partie des personnes choisies ou s’il est responsable de l’espace : la réponse a alors toutes ses `actions` à `false`, et le document répond ensuite `404`.
+Pour un document restreint, le nouveau responsable le voit. L’ancien ne le voit plus, sauf s’il fait partie des personnes choisies, s’il est responsable de l’espace, ou propriétaire ou administrateur de l’organisation : sinon, la réponse a alors toutes ses `actions` à `false`, et le document répond ensuite `404`.
 
 Erreur de champ : `userId` (`required` ; `not_space_member`, aussi pour un compte désactivé ; `not_contributor`).
 

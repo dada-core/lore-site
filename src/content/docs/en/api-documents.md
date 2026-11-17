@@ -233,7 +233,7 @@ The response carries an `ETag` and `Cache-Control: private, no-cache`: content a
 | 400 | `invalid_request` | `part` (`out_of_range`, with `min` and `max`) |
 | 404 | `not_found` | The document, or this version, does not exist for you |
 | 409 | `extraction_pending` | The text of the version is being extracted |
-| 409 | `no_rendering` | A PDF, which shows from its file, or a failed extraction |
+| 409 | `no_rendering` | A PDF, which shows from its file, a failed extraction, or a version without laid-out content, for example a Word document whose layout could not be read |
 
 ## Download the original
 
@@ -362,7 +362,7 @@ Hands the document over to another active member of the space who has at least t
 { "userId": "…" }
 ```
 
-For a restricted document, the new owner sees it. The former owner no longer sees it, unless they are among the people chosen or a maintainer of the space: the response then has all its `actions` set to `false`, and the document answers `404` afterwards.
+For a restricted document, the new owner sees it. The former owner no longer sees it, unless they are among the people chosen, a maintainer of the space, or an owner or administrator of the organization: otherwise, the response then has all its `actions` set to `false`, and the document answers `404` afterwards.
 
 Field error: `userId` (`required`; `not_space_member`, also for a deactivated account; `not_contributor`).
 

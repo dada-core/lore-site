@@ -14,7 +14,7 @@ description: "Lore shows each document in the page: a PDF as it is, a Markdown, 
 
 A Markdown, Word or text document is shown from a rendering produced by the extraction, together with its text, then cleaned before it is saved: it keeps only layout elements, without any script or style. Each code block has a *Copy* button. See [Security and sign-in](security.md#reading-documents).
 
-During the extraction, a PDF shows at once; for the other formats, the page says “The content will show as soon as the extraction ends.” and updates by itself. After a failure, only the banner that gives its cause is shown: the file can still be downloaded. See [When extraction fails](import.md#when-extraction-fails).
+During the extraction, a PDF shows at once; for the other formats, the page says “The content will show as soon as the extraction ends.” and updates by itself. After a failure, only the banner that gives its cause is shown: the file can still be downloaded. See [When extraction fails](import.md#when-extraction-fails). More rarely, an indexed document has no laid-out content, for example a Word document whose layout could not be read: the page says “The content of this document cannot be shown. Download the original to read it.”
 
 ### Markdown
 
