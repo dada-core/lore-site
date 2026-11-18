@@ -86,7 +86,12 @@ On opening, the document scrolls to the passage and frames it. In a Markdown or 
 https://lore.example.com/documents/0193a7c2-…?from=search&q=pg_restore%20role&v=1#h-7-2
 ```
 
-The words of `q` are highlighted in the section or page pointed to only, regardless of accents and case; a phrase between straight quotes stays whole. With `from=search`, a banner says so: “Passage found for “pg_restore role”, section 4.2 Common errors. It is highlighted below.” This is the form of the links that search, planned for version 0.1, will give.
+The words of `q` are highlighted in the section or page pointed to only, regardless of accents and case; a phrase between straight quotes stays whole, and neither `or` nor the words left out, such as `-barman`, are highlighted. With `from=search`, a banner says so: “Passage found for “pg_restore role”, section 4.2 Common errors. It is highlighted below.”
+
+**From a search result.** The link of a result has this form, with the current version at the time of the search. A document found by its title or its description opens at the top, without a banner.
+
+- **Forms found.** The reader also highlights the words that search found in another form, such as “serveur” for “serveurs”, twenty at most. A copied link only carries `q`: only the words written in `q` are highlighted.
+- **Back to the results.** The banner offers *Back to the results*. From the results page, it leads back there, with its filters; from a copied link or a new tab, it runs the search of `q` again.
 
 | Case | What is shown |
 | --- | --- |
@@ -116,7 +121,7 @@ The right panel, shown or hidden with <kbd>]</kbd>, tells everything about the d
 | Category | Its pill, or *No category* | The space’s contributors and maintainers |
 | Space | A link to its documents | Nobody |
 | Folder | Its name, or *No folder* | The space’s contributors and maintainers, with *Move* |
-| Language | French, English or other, detected at extraction | Nobody: it will be corrected with search, planned for version 0.1 |
+| Language | French, English or other, detected at extraction | The space’s contributors and maintainers, see [Change the language](#change-the-language) |
 | Format | The format, the number of pages or sections and the size, for example “PDF, 312 pages, 24.8 MB” | Nobody |
 | Indexing | The state of the extraction and its date | *Retry*, after a passing failure |
 
@@ -133,6 +138,21 @@ The owner makes sure the document stays up to date, and may manage its access. C
 - **For a restricted document**, the new owner sees it. If you are neither among the people chosen, nor a maintainer of the space, nor an administrator, you will no longer see it; the window warns you: “Christ Koffi will see this document. You will no longer see it: you are not among the people chosen.”
 
 The organization’s owners and administrators have the rights of a maintainer of the space. The change is recorded in the audit log.
+
+### Change the language
+
+The language decides how search reads the document: in French or in English, it recognizes the forms of words, such as “serveur” for “serveurs”; in another language, it searches the words as written. If the detection was wrong, for example for a guide in English detected as French:
+
+1. **Choose the language**
+   Click the language, in the right panel, then choose *French*, *English* or *Other*.
+2. **Confirm**
+   The *Change the language of the document?* window says so: “Changing the language indexes the document again, so that search takes the new language into account.” Click *Change the language*.
+
+The document is indexed again at once: “Language updated: the document is indexed again.” The language chosen is kept if the same version is extracted again.
+
+- **Who changes it.** The space’s contributors and maintainers, as well as the organization’s owners and administrators.
+- **When.** Not while the text is being extracted, nor in an archived space.
+- **Audit log.** The change is recorded there, with the former language.
 
 ## Download the original
 

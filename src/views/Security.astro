@@ -22,15 +22,19 @@ type PlannedCard = [icon: string, title: string, text: string, release: Release]
 const T = {
   fr: {
     title: 'Sécurité',
-    description: 'Comptes protégés, journal d’audit, données chez vous, code ouvert, et les protections prévues pour les documents : la sécurité de Lore.',
+    description: 'Comptes protégés, droits appliqués dans chaque requête, fichiers non fiables isolés, journal d’audit, données chez vous, code ouvert : la sécurité de Lore.',
     h1: 'Conçu pour héberger de la documentation sensible.',
     lead: 'Procédures d’exploitation, schémas d’infrastructure, rapports d’incident : Lore part du principe que vos documents sont confidentiels, et que personne ne doit voir ce qu’il n’a pas le droit de voir.',
     now: {
       h2: 'Déjà en place',
       cards: [
         ['key', 'Comptes protégés', 'Mots de passe hachés avec Argon2id, tentatives de connexion limitées puis compte verrouillé, sessions côté serveur que chacun peut fermer à distance, aucun mot de passe par défaut.'],
-        ['list', 'Journal d’audit', 'Connexions, échecs de connexion, changements de mot de passe et d’adresse, invitations, rôles, membres et réglages de l’organisation sont enregistrés. Sa consultation dans l’administration arrive en v0.1, avec les opérations sur les documents.'],
-        ['check-circle', 'Vérifié à chaque modification', 'Des tests automatiques vérifient les comptes, les sessions et qui a le droit d’appeler l’API d’administration, à chaque modification du code.'],
+        ['lock', 'Les permissions d’abord', 'Les droits sont appliqués dans chaque requête, avant le tri et la pagination. Ni un titre, ni un extrait, ni un nombre de résultats ne trahit un document inaccessible.'],
+        ['eye-off', 'Introuvable, au sens strict', 'Un document auquel vous n’avez pas accès renvoie la même réponse qu’un document qui n’existe pas. Son existence même reste confidentielle.'],
+        ['scan', 'Fichiers non fiables isolés', 'L’extraction du texte s’exécute dans un processus séparé, et Lore nettoie ce qu’il en reçoit : un fichier piégé ne peut pas faire tomber l’application.'],
+        ['list', 'Journal d’audit', 'Connexions, invitations, rôles, réglages de l’organisation, imports, consultations, téléchargements et droits des documents sont enregistrés. Sa consultation dans l’administration arrive en v0.1.'],
+        ['search', 'Recherches confidentielles', 'Ce que vous cherchez n’est gardé ni au journal d’audit, ni dans les journaux du serveur. Vos recherches récentes restent dans votre navigateur, et s’effacent à la déconnexion.'],
+        ['check-circle', 'Vérifié à chaque modification', 'Des tests automatiques vérifient les comptes, les sessions, et qui voit quel document, dans quels résultats de recherche, pour chaque rôle, à chaque modification du code.'],
         ['server', 'Vos données chez vous', 'Lore s’héberge dans votre infrastructure, avec PostgreSQL. Rien n’est envoyé à l’extérieur sans votre décision.'],
         ['code', 'Code ouvert et auditable', 'Le code est public. Vos équipes de sécurité peuvent le relire, le tester et le compiler elles-mêmes.']
       ] as Card[]
@@ -39,9 +43,6 @@ const T = {
       h2: 'Prévu dans les prochaines versions',
       intro: 'Ces protections arrivent avec les fonctions qu’elles protègent.',
       cards: [
-        ['lock', 'Les permissions d’abord', 'Les droits seront appliqués dans chaque requête, avant le tri et la pagination. Ni un titre, ni un extrait, ni un nombre de résultats ne trahira un document inaccessible.', 'v0.1'],
-        ['eye-off', 'Introuvable, au sens strict', 'Un document auquel vous n’avez pas accès renverra la même réponse qu’un document qui n’existe pas. Son existence même restera confidentielle.', 'v0.1'],
-        ['scan', 'Fichiers non fiables isolés', 'L’extraction du texte s’exécutera dans un processus séparé : un fichier piégé ne pourra pas faire tomber l’application.', 'v0.1'],
         ['ask', 'Un assistant sous contrôle', 'Désactivé par défaut. Une fois activé, il ne recevra que les passages autorisés pour la personne qui pose la question.', 'v0.3']
       ] as PlannedCard[]
     },
@@ -56,15 +57,19 @@ const T = {
   },
   en: {
     title: 'Security',
-    description: 'Protected accounts, audit log, your data on your servers, open code, and the protections planned for documents: security in Lore.',
+    description: 'Protected accounts, permissions in every query, untrusted files kept apart, audit log, your data on your servers, open code: security in Lore.',
     h1: 'Built to hold sensitive documentation.',
     lead: 'Operating procedures, infrastructure diagrams, incident reports: Lore assumes your documents are confidential, and that nobody should see what they are not allowed to see.',
     now: {
       h2: 'Already in place',
       cards: [
         ['key', 'Protected accounts', 'Passwords hashed with Argon2id, rate-limited sign-in attempts followed by a lockout, server-side sessions that everyone can end remotely, no default password.'],
-        ['list', 'Audit log', 'Sign-ins, failed sign-ins, password and email changes, invitations, roles, members and organization settings are recorded. Browsing it in the administration comes in v0.1, along with document operations.'],
-        ['check-circle', 'Checked on every change', 'Automated tests check accounts, sessions and who may call the administration API, on every code change.'],
+        ['lock', 'Permissions first', 'Permissions are enforced in every query, before sorting and pagination. Not a title, not an excerpt, not a result count gives away an inaccessible document.'],
+        ['eye-off', 'Truly unfindable', 'A document you cannot access returns the same response as a document that does not exist. Even its existence stays confidential.'],
+        ['scan', 'Untrusted files kept apart', 'Text extraction runs in a separate process, and Lore cleans what it receives from it: a booby-trapped file cannot bring the application down.'],
+        ['list', 'Audit log', 'Sign-ins, invitations, roles, organization settings, and the imports, views, downloads and permissions of documents are recorded. Browsing it in the administration comes in v0.1.'],
+        ['search', 'Private searches', 'What you search for is kept neither in the audit log nor in the logs of the server. Your recent searches stay in your browser, and are cleared when you sign out.'],
+        ['check-circle', 'Checked on every change', 'Automated tests check accounts, sessions, and who sees which document, in which search results, for each role, on every code change.'],
         ['server', 'Your data stays with you', 'Lore runs in your infrastructure, with PostgreSQL. Nothing is sent outside without your decision.'],
         ['code', 'Open, auditable code', 'The code is public. Your security teams can review it, test it and build it themselves.']
       ] as Card[]
@@ -73,9 +78,6 @@ const T = {
       h2: 'Coming in the next releases',
       intro: 'These protections arrive with the features they protect.',
       cards: [
-        ['lock', 'Permissions first', 'Permissions will be enforced in every query, before sorting and pagination. Not a title, not an excerpt, not a result count will give away an inaccessible document.', 'v0.1'],
-        ['eye-off', 'Truly unfindable', 'A document you cannot access will return the same response as a document that does not exist. Even its existence will stay confidential.', 'v0.1'],
-        ['scan', 'Untrusted files kept apart', 'Text extraction will run in a separate process: a booby-trapped file will not be able to bring the application down.', 'v0.1'],
         ['ask', 'An assistant under control', 'Off by default. Once enabled, it will only receive the passages the person asking is allowed to read.', 'v0.3']
       ] as PlannedCard[]
     },

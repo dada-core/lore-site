@@ -197,9 +197,10 @@
     D.docs.forEach((d) => {
       if ((d.flags && d.flags.indexing) || d.status === 'archived') return;
       const titleMatch = groups.some((g) => groupMatch(norm(d.title), g));
+      const descMatch = !!d.description && groups.some((g) => groupMatch(norm(d.description), g));
       const matches = d.passages.filter((p) => groups.some((g) => groupMatch(norm(plain(p.text)), g)));
-      if (!titleMatch && !matches.length) return;
-      out.push({ doc: d, matches, titleMatch, score: matches.length * 2 + (titleMatch ? 3 : 0) });
+      if (!titleMatch && !descMatch && !matches.length) return;
+      out.push({ doc: d, matches, titleMatch, descMatch, score: matches.length * 2 + (titleMatch ? 3 : 0) + (descMatch ? 1 : 0) });
     });
     out.sort((a, b) => (a.doc.status === 'obsolete') - (b.doc.status === 'obsolete') || b.score - a.score);
     return out;
@@ -221,7 +222,7 @@
   /* =========================================================
      État et routage
      ========================================================= */
-  const state = { lastQ: null, ex: { space: new Set(), category: new Set(), status: new Set() }, date: 'all', pdfPage: {}, lastFocus: null, pal: { items: [], sel: 0 } };
+  const state = { lastQ: null, ex: { space: new Set(), category: new Set(), status: new Set(), format: new Set() }, date: 'all', shown: 0, recentCleared: false, focusSearch: false, pdfPage: {}, lastFocus: null, pal: { items: [], sel: 0 } };
 
   /* Mêmes adresses que l'application : l'accueil est la racine (#/). */
   const ROUTES = [
@@ -759,7 +760,7 @@ pg_restore -U postgres -d facturation_restore \\
       const r = docById(d.replacedBy);
       banners.push(`<div class="callout callout-warn">${ico('alert')}<p>Ce document est obsolète depuis le ${esc(d.obsoleteSince)}. Utilisez plutôt <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a>.</p></div>`);
     }
-    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Document numérisé : son contenu n’est pas recherchable. Seuls son titre et sa description le sont.</p><button class="btn" type="button" data-mock="Ajout d’une description : non simulé.">Ajouter une description</button></div>`);
+    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Document numérisé : son contenu n’est pas recherchable. Seuls son titre et sa description le sont.</p>${d.description ? '' : '<button class="btn" type="button" data-mock="Ajout d’une description : non simulé.">Ajouter une description</button>'}</div>`);
     if (d.flags && d.flags.indexing) banners.push(`<div class="callout">${ico('spinner', 'spin')}<p>Extraction du texte en cours : ce document apparaîtra dans les résultats de recherche d’ici quelques instants.</p></div>`);
 
     const members = D.spaceMembers[d.space] || [];
@@ -808,6 +809,7 @@ pg_restore -U postgres -d facturation_restore \\
           ${banners.join('')}
           <h1 class="doc-title"${d.lang === 'en' ? ' lang="en"' : ''}>${esc(d.title)}</h1>
           <div class="doc-sub">${status(d.status)}<span>Version ${d.version}</span><span>Mis à jour ${esc(d.updatedRel)} par ${esc(person(d.versions[0].by).name)}</span>${d.restricted ? `<span class="status">${ico('lock')}Accès restreint</span>` : ''}${d.lang === 'en' ? '<span class="tag-lang">EN</span>' : ''}</div>
+          ${d.description ? `<p class="doc-desc">${esc(d.description)}</p>` : ''}
           ${d.format === 'Word' && !(d.flags && d.flags.indexing) ? '<p class="doc-note">Affichage simplifié du document Word : images et mise en page ne sont pas reproduites. <button class="link" type="button" data-mock="Téléchargement de l’original : non simulé.">Télécharger l’original</button></p>' : ''}
           <div style="margin-top:10px">${content}</div>
           ${docActivity(d)}
@@ -831,14 +833,29 @@ pg_restore -U postgres -d facturation_restore \\
   const FACETS = {
     space: { label: 'Espace', get: (d) => spaceById(d.space).name },
     category: { label: 'Catégorie', get: (d) => d.category },
-    status: { label: 'Statut', get: (d) => ST[d.status].label }
+    status: { label: 'Statut', get: (d) => ST[d.status].label },
+    format: { label: 'Format', get: (d) => d.format }
   };
   const dateOk = (d) => state.date === 'all' || d.age <= parseInt(state.date, 10);
+  /* L’application affiche les résultats par 20 ; la démo, qui a peu de documents, par 3, pour montrer « Afficher plus de résultats ». */
+  const PAGE = 3;
+  function resetFilters() {
+    state.ex = { space: new Set(), category: new Set(), status: new Set(), format: new Set() };
+    state.date = 'all';
+    state.shown = PAGE;
+  }
+  /* La touche / ouvre la page Recherche, son champ sélectionné. */
+  function focusSearchField() {
+    if (!state.focusSearch) return;
+    state.focusSearch = false;
+    const field = $('#sq');
+    if (field) field.focus();
+  }
 
   function screenSearch(m, p) {
     const q = (p.get('q') || '').trim();
     const mode = p.get('mode') === 'semantic' ? 'semantic' : 'keywords';
-    if (q !== state.lastQ) { state.ex = { space: new Set(), category: new Set(), status: new Set() }; state.date = 'all'; state.lastQ = q; }
+    if (q !== state.lastQ) { resetFilters(); state.lastQ = q; }
     const seg = `<div class="seg" role="group" aria-label="Type de recherche"><a href="#/search${mode === 'semantic' ? '?q=' + enc(DEFAULT_Q) : q ? '?q=' + enc(q) : ''}"${mode === 'keywords' ? ' aria-current="page"' : ''}>Mots-clés</a><a href="#/search?mode=semantic&q=${enc(D.semantic.question)}"${mode === 'semantic' ? ' aria-current="page"' : ''}>Mots-clés et sens ${vb('v0.2')}</a></div>`;
     const head = `<div class="search-head"><h1 class="sr-only">Recherche</h1>
       <form class="search-box" role="search" data-form="search">${ico('search')}<label class="sr-only" for="sq">Rechercher dans vos documents</label><input id="sq" name="q" type="search" value="${esc(q)}" placeholder="Rechercher dans vos documents" autocomplete="off">${mode === 'semantic' ? '<input type="hidden" name="mode" value="semantic">' : ''}<button class="btn btn-primary" type="submit">Rechercher</button></form>
@@ -848,15 +865,16 @@ pg_restore -U postgres -d facturation_restore \\
     if (!q) {
       const recent = [DEFAULT_Q, 'bascule kubernetes', 'quota ceph', 'certificat -vpn'];
       base.html = `${head}<div class="results"><div class="home" style="margin-top:24px">
-        <section><h2 class="section-title">Recherches récentes</h2><ul class="list">${recent.map((r) => `<li><a class="list-row" href="#/search?q=${enc(r)}">${ico('clock')}<div class="list-main"><div class="list-title" style="font-family:var(--mono);font-size:13px">${esc(r)}</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul></section>
+        ${state.recentCleared ? '' : `<section aria-labelledby="recent-searches"><div class="row-between section-head"><h2 class="section-title" id="recent-searches">Recherches récentes</h2><button class="link" type="button" data-action="clear-recent">Effacer</button></div><ul class="list">${recent.map((r) => `<li><a class="list-row" href="#/search?q=${enc(r)}">${ico('clock')}<div class="list-main"><div class="list-title" style="font-family:var(--mono);font-size:13px">${esc(r)}</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul></section>`}
         <section><h2 class="section-title">Syntaxe</h2><div class="syntax">
           <code>"does not exist"</code><span>Expression exacte</span>
           <code>-barman</code><span>Exclure un mot</span>
           <code>pg_restore or pg_dump</code><span>L’un ou l’autre</span>
-          <code>ERR_CONNECTION_REFUSED</code><span>Les identifiants techniques sont retrouvés tels quels</span>
+          <code>ERR_CONNECTION_REFUSED</code><span>Les identifiants techniques sont retrouvés tels que vous les collez</span>
           <code>role</code><span>Accents et majuscules ignorés : trouve aussi « rôle »</span>
         </div></section></div></div>`;
       base.title = 'Recherche';
+      base.after = focusSearchField;
       return base;
     }
 
@@ -918,18 +936,21 @@ pg_restore -U postgres -d facturation_restore \\
     const terms = flatTerms(q);
     const all = computeResults(q);
     if (!all.length) {
-      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>Aucun document ne correspond à « ${esc(q)} »</h2><p>Vérifiez l’orthographe des identifiants, retirez un mot ou des guillemets. Les documents numérisés ne sont recherchables que par leur titre.</p>
+      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>Aucun document ne correspond à « ${esc(q)} »</h2><p>Vérifiez l’orthographe des identifiants, retirez un mot ou des guillemets. Les documents numérisés ne sont recherchables que par leur titre et leur description.</p>
         <div class="actions"><a class="btn" href="#/search?mode=semantic&q=${enc(D.semantic.question)}">Chercher par le sens ${vb('v0.2')}</a><a class="btn" href="#/assistant?q=${enc(q)}">${ico('ask')}Demander à l’assistant ${vb('v0.3')}</a></div>
         <p class="help">Les recherches sans résultat sont comptées dans le tableau de bord pour repérer les lacunes documentaires. ${vb('v0.2')}</p></div>`);
       return;
     }
     const visible = all.filter((r) => Object.keys(FACETS).every((k) => !state.ex[k].has(FACETS[k].get(r.doc))) && dateOk(r.doc));
-    const items = visible.map((r) => {
+    /* Comme dans l’application : le passage trouvé ; sinon le titre ; sinon un extrait de la description. */
+    const items = visible.slice(0, state.shown).map((r) => {
       const d = r.doc;
       const s = spaceById(d.space);
       const best = r.matches[0];
       const href = `#/documents/${d.id}?from=search&q=${enc(q)}${best ? '&anchor=' + best.anchor : ''}`;
-      const excerpt = best ? `<p class="excerpt">… ${hl(best.text, terms)} …</p>` : `<p class="excerpt excerpt-meta">${d.flags && d.flags.scanned ? 'Document numérisé : seul son titre correspond.' : 'Correspondance dans le titre.'}</p>`;
+      const excerpt = best ? `<p class="excerpt">… ${hl(best.text, terms)} …</p>`
+        : !r.titleMatch && r.descMatch ? `<p class="excerpt">${hl(d.description, terms)}</p>`
+        : `<p class="excerpt excerpt-meta">${d.flags && d.flags.scanned ? 'Document numérisé : seul son titre correspond.' : 'Correspondance dans le titre.'}</p>`;
       const others = r.matches.slice(1);
       return `<article class="result${d.status === 'obsolete' ? ' is-obsolete' : ''}">${ico(fmtIco(d))}<div class="result-body">
         <a class="result-title" href="${href}"${d.lang === 'en' ? ' lang="en"' : ''}>${markText(d.title, terms)}</a>
@@ -940,8 +961,9 @@ pg_restore -U postgres -d facturation_restore \\
       </div></article>`;
     }).join('');
     host.innerHTML = fr(`<div class="results-meta"><span>${visible.length} document${visible.length > 1 ? 's' : ''}${visible.length < all.length ? ' sur ' + all.length : ''}</span><span>Classés par pertinence. Les documents obsolètes apparaissent en dernier.</span></div>
-      ${items || `<p class="help" style="padding:16px 0">Aucun résultat avec ces filtres.</p>`}
-      <ul class="notes"><li>${ico('lock')}Seuls les documents auxquels vous avez accès apparaissent.</li><li>${ico('scan')}Les documents numérisés ne sont recherchables que par leur titre et leurs métadonnées.</li></ul>`);
+      ${items || `<div class="row-between results-none"><p class="help">Aucun résultat avec ces filtres.</p><button class="btn" type="button" data-action="clear-filters">Retirer les filtres</button></div>`}
+      ${visible.length > state.shown ? `<div class="results-more"><button class="btn" type="button" data-action="more-results">Afficher plus de résultats</button></div>` : ''}
+      <ul class="notes"><li>${ico('lock')}Seuls les documents auxquels vous avez accès apparaissent.</li><li>${ico('scan')}Les documents numérisés ne sont recherchables que par leur titre et leur description.</li></ul>`);
     updateChipLabels(all);
   }
 
@@ -1516,7 +1538,7 @@ pg_restore -U postgres -d facturation_restore \\
         ['Accès', 'v0.1', [['Configuration : organisation', '#/setup'], ['Configuration : compte administrateur', '#/setup?step=2'], ['Configuration : terminé', '#/setup?step=3'], ['Connexion', '#/login'], ['Connexion refusée', '#/login?error=1'], ['Rejoindre via une invitation', '#/join'], ['Mot de passe oublié', '#/forgot-password'], ['Nouveau mot de passe', '#/reset-password']]],
         ['Environnement', 'v0.1', [['Accueil', '#/'], ['Tous les espaces', '#/spaces'], ['Bibliothèque, vue grille', '#/spaces/infrastructure'], ['Bibliothèque, vue kanban', '#/spaces/infrastructure?view=kanban'], ['Bibliothèque filtrée sur un dossier', '#/spaces/infrastructure?folder=runbooks'], ['Espace vide', '#/spaces/applications'], ['Membres de l’espace', '#/spaces/infrastructure/members'], ['Paramètres de l’espace', '#/spaces/infrastructure/settings'], ['Mon compte', '#/account'], ['Page introuvable', '#/not-found']]],
         ['Documents', 'v0.1', [['Markdown', '#/documents/restaurer-pg'], ['Word converti', '#/documents/inc-2291'], ['PDF', '#/documents/guide-baie'], ['PDF numérisé', '#/documents/schema-cablage'], ['Accès restreint', '#/documents/rotation-tls'], ['Obsolète', '#/documents/barman'], ['Extraction en cours', '#/documents/plan-reprise'], ['Ouvert depuis la recherche', `#/documents/restaurer-pg?from=search&q=${enc2}&anchor=s-4-2`], ['PDF ouvert à la page trouvée', '#/documents/guide-baie?from=search&q=snapshot%20restore&anchor=page-112']]],
-        ['Recherche', 'v0.1', [['Page de recherche', '#/search'], ['Résultats et filtres', `#/search?q=${enc2}`], ['Aucun résultat', '#/search?q=quota%20ceph'], ['Palette de commandes (Ctrl K)', 'palette']]],
+        ['Recherche', 'v0.1', [['Page de recherche', '#/search'], ['Résultats et filtres', `#/search?q=${enc2}`], ['Aucun résultat', '#/search?q=quota%20ceph'], ['Correspondance dans la description', '#/search?q=fibre%20OM4'], ['Palette de commandes (Ctrl K)', 'palette']]],
         ['Fenêtres', 'v0.1', [['Importer des documents', '#/spaces/infrastructure?open=import'], ['Nouvelle version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Accès au document', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Changer le statut', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Créer un espace', '#/spaces?open=create-space'], ['Nouveau dossier', '#/spaces/infrastructure?open=new-folder'], ['Ajouter des membres à un espace', '#/spaces/securite/members?open=add-members&space=securite'], ['Supprimer un espace', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Inviter dans l’organisation', '#/admin/members?open=invite'], ['Lien de réinitialisation', '#/admin/members?open=reset-link&for=hc']]],
         ['Administration', 'v0.1', [['Général', '#/admin/general'], ['Membres', '#/admin/members'], ['Sécurité et connexion', '#/admin/security'], ['Stockage et import', '#/admin/storage'], ['Journal d’audit', '#/admin/audit']]],
         ['Base de connaissances', 'v0.2', [['Kanban des fiches', '#/knowledge'], ['Grille des fiches', '#/knowledge?view=grid'], ['Fiche validée', '#/knowledge/pg-role-manquant'], ['Fiche à valider', '#/knowledge/vpn-mtu'], ['Nouvelle fiche', '#/knowledge/new']]],
@@ -1719,7 +1741,16 @@ pg_restore -U postgres -d facturation_restore \\
       el.parentElement.querySelectorAll('[data-action="feedback"]').forEach((b) => b.setAttribute('aria-pressed', String(b === el)));
       toast('Merci. Votre avis compte dans le taux de réponses utiles du tableau de bord.');
     },
-    'pal-run': (el) => palRun(parseInt(el.dataset.i, 10))
+    'pal-run': (el) => palRun(parseInt(el.dataset.i, 10)),
+    'clear-recent': () => { state.recentCleared = true; render(); toast('Recherches récentes effacées'); },
+    'clear-filters': () => { resetFilters(); renderChips(); renderList(); },
+    'more-results': () => {
+      const before = state.shown;
+      state.shown += PAGE;
+      renderList();
+      const titles = $$('#results .result-title');
+      if (titles[before]) titles[before].focus();
+    }
   };
 
   const FORMS = {
@@ -1783,9 +1814,11 @@ pg_restore -U postgres -d facturation_restore \\
     if (t.matches('[data-facet]')) {
       const set = state.ex[t.dataset.facet];
       if (t.checked) set.delete(t.value); else set.add(t.value);
+      state.shown = PAGE;
       renderList();
     } else if (t.matches('[data-date]')) {
       state.date = t.value;
+      state.shown = PAGE;
       renderList();
     } else if (t.matches('[data-audit]')) {
       renderAudit();
@@ -1834,7 +1867,7 @@ pg_restore -U postgres -d facturation_restore \\
       return;
     }
     if (typing || e.ctrlKey || e.metaKey || e.altKey || overlayOpen) return;
-    if (e.key === '/') { e.preventDefault(); openOverlay('palette'); }
+    if (e.key === '/') { e.preventDefault(); state.focusSearch = true; go('#/search'); }
     else if ((e.key === 'i' || e.key === 'I') && $('.app')) { e.preventDefault(); openOverlay('import'); }
   });
 

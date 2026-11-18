@@ -21,8 +21,10 @@ Voir [Membres et invitations](members.md).
 | Voir les documents ouverts à tout l’espace | Oui | Oui | Oui |
 | Voir un document restreint | S’il fait partie des personnes choisies, ou s’il est responsable du document | S’il fait partie des personnes choisies, ou s’il est responsable du document | Oui |
 | Lire et télécharger les documents qu’il voit | Oui | Oui | Oui |
+| Chercher dans les documents qu’il voit | Oui | Oui | Oui |
 | Importer des documents | Non | Oui | Oui |
 | Modifier le titre, la description et la catégorie d’un document, le déplacer d’un dossier à l’autre | Non | Oui | Oui |
+| Changer la langue d’un document | Non | Oui | Oui |
 | Relancer une extraction en échec | Non | Oui | Oui |
 | Restreindre un document, ou le rouvrir à tout l’espace | Non | Ceux dont il est responsable | Oui |
 | Changer le responsable d’un document | Non | Ceux dont il est responsable | Oui |
@@ -34,7 +36,7 @@ Voir [Membres et invitations](members.md).
 | Voir l’espace une fois archivé | Non | Non | Oui |
 | Quitter l’espace | Oui | Oui | Oui, s’il reste un autre responsable |
 
-La page *Membres* de chaque espace rappelle ce que permet chaque rôle. Dans un espace archivé, plus rien ne se modifie : ni ses membres, ni ses dossiers, ni ses documents.
+La page *Membres* de chaque espace rappelle ce que permet chaque rôle. Dans un espace archivé, plus rien ne se modifie : ni ses membres, ni ses dossiers, ni ses documents. La recherche n’en montre les documents qu’à ceux qui voient encore l’espace, et seulement s’ils le demandent.
 
 Le responsable d’un document est d’abord la personne qui l’a importé. Les responsables de l’espace, et le responsable du document s’il est au moins contributeur, peuvent le confier à un autre membre actif de l’espace, qui a au moins le rôle Contributeur. Un document dont le responsable a quitté l’organisation ne peut être repris que par un responsable de l’espace.
 
@@ -60,7 +62,7 @@ Un document restreint n’est visible que :
 - du responsable du document, qui ne perd donc pas l’accès à ce qu’il vient de restreindre ;
 - des propriétaires et des administrateurs de l’organisation.
 
-Pour tous les autres, il n’apparaît nulle part : ni dans la liste des documents, ni dans le nombre de documents d’un espace ou d’un dossier, ni comme doublon signalé à l’import. Ouvert par son adresse, il répond comme un document qui n’existe pas.
+Pour tous les autres, il n’apparaît nulle part : ni dans la liste des documents, ni dans le nombre de documents d’un espace ou d’un dossier, ni dans les résultats de recherche, leur nombre ou leurs extraits, ni comme doublon signalé à l’import. Ouvert par son adresse, il répond comme un document qui n’existe pas.
 
 - **À l’import.** Dans la fenêtre d’import, cochez *Restreindre l’accès à certaines personnes* : la liste des membres de l’espace s’ouvre, les responsables et vous-même déjà cochés. Les documents sont restreints dès leur création : ils ne sont jamais visibles des autres, pas même un instant. Voir [Importer des documents](import.md#importer).
 - **Ensuite.** Depuis le document, dans *Accès au document*, on le restreint, on change les personnes choisies, ou on le rouvre à tout l’espace, ce qui retire les personnes choisies. C’est réservé aux responsables de l’espace et au responsable du document, s’il est au moins contributeur.

@@ -1,6 +1,6 @@
 ---
 title: "Stockage et extraction"
-description: "Où Lore range les fichiers importés, comment il en extrait le texte, et ce qu’il faut prévoir sur le serveur : disque, mémoire et réglages."
+description: "Où Lore range les fichiers importés, comment il en extrait le texte et l’indexe pour la recherche, et ce qu’il faut prévoir sur le serveur : disque, mémoire et réglages."
 ---
 
 ## Fichiers
@@ -85,6 +85,15 @@ Pour un document Markdown, Word ou texte, l’extraction produit aussi, dans la 
 | Contenu qui n’est pas du format annoncé | `unsupported_content` | Échec aussitôt. |
 
 L’extraction n’est pas inscrite au journal d’audit. L’état de *Apache Tika*, actif ou la cause d’une panne au démarrage d’un processus, est affiché dans *Administration › Stockage et import*.
+
+## Index de recherche
+
+La recherche n’ajoute aucun service : elle repose sur la recherche plein texte de PostgreSQL, dans la même base.
+
+- **Ce qui est indexé.** Le texte de chaque passage, avec les titres de ses sections, ainsi que le titre et la description de chaque document. Chacun deux fois : dans la langue du document, français, anglais ou autre, pour reconnaître les formes des mots ; et tel qu’écrit, sans accents ni majuscules, pour les identifiants techniques.
+- **Toujours à jour.** PostgreSQL recalcule l’index à chaque écriture d’un texte, d’un titre, d’une description ou d’une langue : il n’y a ni tâche à suivre, ni index à reconstruire.
+- **Place.** Les vecteurs et leurs index occupent environ 2,5 fois la place du texte, dans la base : mesuré sur 300 000 passages de 10 000 documents, environ 720 millions de caractères. Le texte et les vecteurs de chaque passage sont rangés à part de sa ligne : c’est ce qui rend la recherche rapide. PostgreSQL ne le fait qu’au-delà d’environ 2 Ko par ligne : des passages courts restent dans leur ligne, et la recherche d’un mot très fréquent parmi eux lit davantage.
+- **Sauvegarde.** `pg_dump` ne sauvegarde pas les vecteurs, calculés à partir du texte : PostgreSQL les recalcule à la restauration. Voir [Sauvegarde et restauration](backup.md).
 
 ## Mémoire à prévoir
 

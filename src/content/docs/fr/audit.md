@@ -17,7 +17,9 @@ description: "Le journal d’audit trace les opérations sensibles de toute l’
 | Connexion | Échecs répétés, blocage d’un compte |
 | Organisation | Création ou suppression d’un espace, avec son nombre de documents ; changement d’un réglage, comme la taille maximale d’un fichier |
 
-Les changements d’un document sont aussi inscrits : son titre, sa description ou sa catégorie modifiés, avec les champs changés, et son déplacement d’un dossier à l’autre. L’extraction du texte, elle, ne l’est pas.
+Les changements d’un document sont aussi inscrits : son titre, sa description, sa catégorie ou sa langue modifiés, avec les champs changés, et son déplacement d’un dossier à l’autre. Un changement de langue garde l’ancienne : dans l’événement `document.updated`, `changes` contient `language`, et `previousLanguage` donne l’ancienne langue. L’extraction du texte, elle, n’est pas inscrite.
+
+Les recherches ne sont jamais inscrites, ni dans ce journal, ni dans les journaux du serveur. Ouvrir un document depuis un résultat est une consultation, inscrite comme les autres. Voir [Rechercher](search.md#confidentialité).
 
 Une page rouverte ou rechargée dans l’heure n’ajoute pas de consultation, et un document que la personne ne peut pas voir n’en inscrit jamais. Chaque téléchargement est inscrit ; la reprise d’un téléchargement interrompu ne l’est pas, ni la lecture d’un PDF dans la page ou dans un nouvel onglet, qui fait partie de la consultation.
 

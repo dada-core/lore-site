@@ -86,7 +86,12 @@ Une ancre suivie d’un numéro de passage, comme `h-7-2`, mène à sa section, 
 https://lore.example.com/documents/0193a7c2-…?from=search&q=pg_restore%20role&v=1#h-7-2
 ```
 
-Les mots de `q` sont surlignés dans la section ou la page désignée seulement, sans tenir compte des accents ni des majuscules ; une expression entre guillemets droits reste entière. Avec `from=search`, un bandeau le rappelle : « Passage trouvé pour « pg_restore role », section 4.2 Erreurs fréquentes. Il est surligné ci-dessous. » C’est la forme des liens que donnera la recherche, prévue en version 0.1.
+Les mots de `q` sont surlignés dans la section ou la page désignée seulement, sans tenir compte des accents ni des majuscules ; une expression entre guillemets droits reste entière, et ni `or`, ni les mots exclus, comme `-barman`, ne sont surlignés. Avec `from=search`, un bandeau le rappelle : « Passage trouvé pour « pg_restore role », section 4.2 Erreurs fréquentes. Il est surligné ci-dessous. »
+
+**Depuis un résultat de recherche.** Le lien d’un résultat a cette forme, avec la version actuelle au moment de la recherche. Un document trouvé par son titre ou sa description s’ouvre en haut, sans bandeau.
+
+- **Formes trouvées.** Le lecteur surligne aussi les mots que la recherche a trouvés sous une autre forme, comme « serveur » pour « serveurs », vingt au plus. Un lien copié ne porte que `q` : seuls les mots écrits dans `q` y sont surlignés.
+- **Retour aux résultats.** Le bandeau propose *Retour aux résultats*. Depuis la page de résultats, il y ramène, avec ses filtres ; depuis un lien copié ou un nouvel onglet, il relance la recherche de `q`.
 
 | Cas | Ce qui s’affiche |
 | --- | --- |
@@ -116,7 +121,7 @@ Le panneau de droite, affiché ou masqué avec <kbd>]</kbd>, dit tout du documen
 | Catégorie | Sa pastille, ou *Sans catégorie* | Contributeurs et responsables de l’espace |
 | Espace | Un lien vers ses documents | Personne |
 | Dossier | Son nom, ou *Sans dossier* | Contributeurs et responsables de l’espace, avec *Déplacer* |
-| Langue | Français, anglais ou autre, détectée à l’extraction | Personne : elle se corrigera avec la recherche, prévue en version 0.1 |
+| Langue | Français, anglais ou autre, détectée à l’extraction | Contributeurs et responsables de l’espace, voir [Changer la langue](#changer-la-langue) |
 | Format | Le format, le nombre de pages ou de sections et la taille, par exemple « PDF, 312 pages, 24,8 Mo » | Personne |
 | Indexation | L’état de l’extraction et sa date | *Relancer*, après un échec passager |
 
@@ -133,6 +138,21 @@ Le responsable veille à ce que le document reste à jour, et peut en gérer l�
 - **Pour un document restreint**, le nouveau responsable le voit. Si vous n’êtes ni parmi les personnes choisies, ni responsable de l’espace, ni administrateur, vous ne le verrez plus ; la fenêtre vous prévient : « Christ Koffi verra ce document. Vous ne le verrez plus : vous ne faites pas partie des personnes choisies. »
 
 Les propriétaires et les administrateurs de l’organisation ont les droits d’un responsable de l’espace. Le changement est inscrit au journal d’audit.
+
+### Changer la langue
+
+La langue décide de la façon dont la recherche lit le document : en français ou en anglais, elle reconnaît les formes des mots, comme « serveur » pour « serveurs » ; dans une autre langue, elle cherche les mots tels qu’écrits. Si la détection s’est trompée, par exemple pour un guide en anglais détecté comme français :
+
+1. **Choisir la langue**
+   Cliquez sur la langue, dans le panneau de droite, puis choisissez *Français*, *Anglais* ou *Autre*.
+2. **Confirmer**
+   La fenêtre *Changer la langue du document ?* le rappelle : « Changer la langue relance l’indexation du document, pour que la recherche tienne compte de la nouvelle langue. » Cliquez sur *Changer la langue*.
+
+Le document est réindexé aussitôt : « Langue mise à jour : le document est réindexé. » La langue choisie est gardée si la même version est extraite de nouveau.
+
+- **Qui la change.** Les contributeurs et les responsables de l’espace, comme les propriétaires et les administrateurs de l’organisation.
+- **Quand.** Pas pendant l’extraction du texte, ni dans un espace archivé.
+- **Journal d’audit.** Le changement y est inscrit, avec l’ancienne langue.
 
 ## Télécharger l’original
 

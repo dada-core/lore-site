@@ -16,6 +16,24 @@ First version: a complete workspace, without artificial intelligence.
 - Audit log
 - Installation with Docker Compose, .deb and .rpm packages or a universal archive
 
+## Version 0.1.0-alpha.4 <span class="vb">Preview</span>
+
+Released on November 18, 2026, to try search before version 0.1. It keeps the data of a 0.1.0-alpha.3 installation: the upgrade only adds a migration, which computes the search index of the documents already imported, without extracting them again (see [Upgrading](upgrade.md#from-the-010-alpha3-preview)). It is not meant for production: its data may not carry over to the next version.
+
+- Full-text search with PostgreSQL alone: words, phrases between quotes, words left out, `or`, identifiers, addresses and error codes found as they are pasted
+- Accents and capitals ignored, the forms of a word found together (“redemarrer” finds “Redémarrage”)
+- Ranked results, obsolete documents last, with the excerpt of the best passage, its words highlighted, and the other passages found
+- Filters by space, category, status, format and date, each with its number of documents
+- Permissions applied in the query: a document you cannot see appears neither in the results, nor in the counts, nor in the excerpts
+- <kbd>Ctrl K</kbd> palette, <kbd>/</kbd> shortcut, recent searches kept in the browser
+- A document opened at the passage found, its words highlighted, with *Back to results*
+- The language of a document can be changed, and it is indexed again at once
+- No search recorded, neither in the audit log nor in the logs of the server
+
+See [Search](search.md). Versions and statuses, and the audit log screen, come with version 0.1.
+
+Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.4).
+
 ## Version 0.1.0-alpha.3 <span class="vb">Preview</span>
 
 Released on November 17, 2026, to try the document reader before version 0.1. It keeps the data of a 0.1.0-alpha.2 installation: the upgrade only adds a migration, and extracts Markdown, Word and text documents again for their laid-out content (see [Upgrading](upgrade.md#from-the-010-alpha2-preview)). It is not meant for production: its data may not carry over to the next version.

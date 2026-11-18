@@ -77,9 +77,11 @@ Un fichier refusé n’est pas importé : aucun document n’est créé, et rien
 
 L’état de chaque document s’affiche dans la fenêtre d’import, dans la liste des documents de l’espace et sur la page du document. Vos propres imports encore en cours ou en échec sont aussi rappelés sur l’accueil.
 
-**Document numérisé.** Une page compte comme sans texte en dessous de 20 caractères visibles. Le document est importé, son nombre de pages est connu et le texte de ses autres pages est gardé ; avec la recherche, prévue en version 0.1, il sera trouvable par son titre et sa description.
+**Document numérisé.** Une page compte comme sans texte en dessous de 20 caractères visibles. Le document est importé, son nombre de pages est connu et le texte de ses autres pages est gardé ; la recherche le trouve par son titre et sa description : donnez-lui une description qui dit ce qu’il contient.
 
 **Texte tronqué.** Lore garde jusqu’à 10 millions de caractères de texte par document. Au-delà, la suite est laissée de côté, et la page du document le signale.
+
+**Langue.** L’extraction détecte aussi la langue du texte : français, anglais ou autre. La recherche s’en sert pour reconnaître les formes des mots. Si elle s’est trompée, un contributeur la corrige dans le panneau du document : voir [Changer la langue](reader.md#changer-la-langue).
 
 ### En cas d’échec
 
@@ -100,6 +102,7 @@ L’état de chaque document s’affiche dans la fenêtre d’import, dans la li
 | Action | Qui | Ce qu’il faut savoir |
 | --- | --- | --- |
 | Changer le titre, la description ou la catégorie | Contributeurs et responsables de l’espace | Titre de 200 caractères au plus, description de 2 000. |
+| Changer la langue | Contributeurs et responsables de l’espace | Français, anglais ou autre : le document est réindexé aussitôt. Pas pendant l’extraction. Voir [Changer la langue](reader.md#changer-la-langue). |
 | Déplacer vers un autre dossier | Contributeurs et responsables de l’espace | Vers un dossier du même espace, ou à sa racine. |
 | Restreindre l’accès, ou le rouvrir à l’espace | Responsables de l’espace, responsable du document | Voir [Documents restreints](permissions.md#documents-restreints). |
 | Changer le responsable | Responsables de l’espace, responsable du document | Vers un membre actif de l’espace, au moins contributeur. Le nouveau responsable voit le document, même restreint. Voir [Changer le responsable](reader.md#changer-le-responsable). |

@@ -14,7 +14,7 @@ description: "Lore est un environnement open source où les équipes techniques 
 
 ## Où en est Lore
 
-Lore prépare sa version 0.1. Aujourd’hui, l’application fait la configuration initiale, la connexion, les invitations, la réinitialisation des mots de passe, *Mon compte* et l’administration de l’organisation : membres, rôles et réglages de sécurité. Elle gère aussi les espaces, leurs dossiers et leurs rôles, l’import de documents PDF, Word, Markdown et texte, avec l’extraction de leur texte et des documents restreints à quelques personnes, et leur lecture : contenu mis en forme, PDF affichés dans la page, liens vers une section ou une page. La recherche, les versions et les statuts, et l’écran du journal d’audit arrivent avec la version 0.1.
+Lore prépare sa version 0.1. Aujourd’hui, l’application fait la configuration initiale, la connexion, les invitations, la réinitialisation des mots de passe, *Mon compte* et l’administration de l’organisation : membres, rôles et réglages de sécurité. Elle gère aussi les espaces, leurs dossiers et leurs rôles, l’import de documents PDF, Word, Markdown et texte, avec l’extraction de leur texte et des documents restreints à quelques personnes, leur lecture (contenu mis en forme, PDF affichés dans la page, liens vers une section ou une page) et la recherche dans leur texte, filtrée par les droits. Les versions et les statuts, et l’écran du journal d’audit arrivent avec la version 0.1.
 
 ## Ce que Lore n’est pas
 

@@ -17,7 +17,9 @@ description: "The audit log records the sensitive operations of the whole organi
 | Sign-in | Repeated failures, an account locked |
 | Organization | A space created or deleted, with its number of documents; a setting changed, such as the maximum size of a file |
 
-Changes to a document are recorded too: its title, description or category changed, with the fields involved, and its move from one folder to another. Text extraction, on the other hand, is not.
+Changes to a document are recorded too: its title, description, category or language changed, with the fields involved, and its move from one folder to another. A change of language keeps the former one: in the `document.updated` event, `changes` contains `language`, and `previousLanguage` gives the former language. Text extraction, on the other hand, is not recorded.
+
+Searches are never recorded, neither in this log, nor in the server’s logs. Opening a document from a result is a view, recorded like the others. See [Searching](search.md#privacy).
 
 A page opened again or reloaded within the hour adds no view, and a document the person cannot see never records one. Each download is recorded; the resumption of an interrupted download is not, nor is reading a PDF in the page or in a new tab, which is part of the view.
 

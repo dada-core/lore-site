@@ -16,6 +16,24 @@ Première version : un environnement complet, sans intelligence artificielle.
 - Journal d’audit
 - Installation avec Docker Compose, des paquets .deb et .rpm ou une archive universelle
 
+## Version 0.1.0-alpha.4 <span class="vb">Préversion</span>
+
+Publiée le 18 novembre 2026, pour essayer la recherche avant la version 0.1. Elle reprend les données d’une installation 0.1.0-alpha.3 : la mise à jour n’ajoute qu’une migration, qui calcule l’index de recherche des documents déjà importés, sans les extraire de nouveau (voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-alpha3)). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
+
+- Recherche plein texte avec PostgreSQL seul : mots, expressions entre guillemets, mots exclus, `or`, identifiants, adresses et codes d’erreur trouvés tels qu’ils sont collés
+- Accents et majuscules ignorés, formes d’un même mot trouvées ensemble (« redemarrer » trouve « Redémarrage »)
+- Résultats classés, documents obsolètes en dernier, avec l’extrait du meilleur passage, ses mots surlignés, et les autres passages trouvés
+- Filtres par espace, catégorie, statut, format et date, chacun avec son nombre de documents
+- Droits appliqués dans la requête : un document invisible n’apparaît ni dans les résultats, ni dans les nombres, ni dans les extraits
+- Palette <kbd>Ctrl K</kbd>, raccourci <kbd>/</kbd>, recherches récentes gardées dans le navigateur
+- Document ouvert au passage trouvé, ses mots surlignés, avec *Retour aux résultats*
+- Langue d’un document modifiable, réindexé aussitôt
+- Aucune recherche inscrite, ni au journal d’audit, ni dans les journaux du serveur
+
+Voir [Rechercher](search.md). Les versions et les statuts, et l’écran du journal d’audit arrivent avec la version 0.1.
+
+Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-alpha.4).
+
 ## Version 0.1.0-alpha.3 <span class="vb">Préversion</span>
 
 Publiée le 17 novembre 2026, pour essayer le lecteur de documents avant la version 0.1. Elle reprend les données d’une installation 0.1.0-alpha.2 : la mise à jour n’ajoute qu’une migration, et relance l’extraction des documents Markdown, Word et texte pour leur contenu mis en forme (voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-alpha2)). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
