@@ -77,7 +77,7 @@ Le nombre de documents trouvés, « 3 documents », et l’ordre, « Classés pa
 - son titre, les mots trouvés surlignés, qui ouvre le document ;
 - son espace et son dossier, l’emplacement de son meilleur passage, comme « Section 4.2 Erreurs fréquentes » ou « Page 112 », et sa catégorie ;
 - un extrait de ce passage, les mots trouvés surlignés : un ou deux morceaux d’environ 35 mots, séparés par « … » ;
-- son statut, sa version, sa date de mise à jour, et « Accès restreint » s’il l’est ;
+- son statut, sa version, sa date de mise à jour, et « Accès restreint » s’il l’est ; pour un document obsolète, « Remplacé par » et le titre du document qui le remplace, si vous pouvez le lire ;
 - s’il y en a, ses autres passages trouvés, comme « 2 autres passages dans ce document » : un clic déplie l’emplacement des cinq premiers, dans l’ordre du document, et chacun l’ouvre à ce passage.
 
 Le meilleur passage est celui qui réunit le plus de termes. Un document trouvé seulement par son titre affiche « Correspondance dans le titre. », ou « Document numérisé : seul son titre correspond. » ; trouvé par sa description, un extrait de celle-ci.
@@ -106,6 +106,10 @@ Sous le champ, cinq puces : *Espace*, *Catégorie*, *Statut*, *Format* et *Date*
 
 Les documents d’un espace archivé n’apparaissent pas par défaut, même pour ceux qui voient encore l’espace : ses responsables, les propriétaires et les administrateurs de l’organisation. Ceux-là le trouvent dans la puce *Espace*, décoché et marqué « archivé » : cochez-le pour ajouter ses documents aux résultats.
 
+### Documents archivés
+
+Un document archivé n’apparaît pas non plus par défaut, même pour ceux qui le voient : les responsables de son espace, les propriétaires et les administrateurs. Ceux-là trouvent *Archivé* dans la puce *Statut*, décoché, avec son nombre de documents : cochez-le pour les ajouter aux résultats. Les autres ne voient ni la valeur ni son nombre. La palette ne propose jamais un document archivé.
+
 ## Ordre des résultats
 
 1. Un document dont le titre contient tous les termes passe devant.
@@ -119,8 +123,8 @@ Les documents d’un espace archivé n’apparaissent pas par défaut, même pou
 
 <kbd>Ctrl K</kbd>, ou le champ *Rechercher* de la barre latérale, ouvre la palette : « Rechercher un document, un espace ou une action… ». La page introuvable l’ouvre aussi, avec *Rechercher*.
 
-- **Vide**, elle propose : *Actions* (« Importer des documents », touche <kbd>I</kbd>, si vous pouvez importer ; « Créer un espace » ; « Changer de thème ») ; *Aller à* (« Accueil », « Recherche », « Tous les espaces », « Administration » pour les propriétaires et les administrateurs, « Mon compte ») ; *Espaces*, avec leur nombre de documents ; *Documents récents*, les cinq derniers que vous avez ouverts.
-- **Pendant la frappe**, elle propose d’abord « Rechercher « … » dans les documents » ; puis les actions, les destinations et les espaces dont le nom contient les mots tapés ; puis les documents dont le titre a un mot qui commence par chacun des mots tapés, parmi ceux que vous voyez, en cours d’extraction compris, hors espaces archivés. Douze éléments au plus ; accents et majuscules ne comptent pas.
+- **Vide**, elle propose : *Actions* (« Importer des documents », touche <kbd>I</kbd>, si vous pouvez importer ; « Créer un espace » ; « Changer de thème ») ; *Aller à* (« Accueil », « Recherche », « Tous les espaces », « Administration » et « Journal d’audit » pour les propriétaires et les administrateurs, « Mon compte ») ; *Espaces*, avec leur nombre de documents ; *Documents récents*, les cinq derniers que vous avez ouverts.
+- **Pendant la frappe**, elle propose d’abord « Rechercher « … » dans les documents » ; puis les actions, les destinations et les espaces dont le nom contient les mots tapés ; puis les documents dont le titre a un mot qui commence par chacun des mots tapés, parmi ceux que vous voyez, en cours d’extraction compris, hors espaces et documents archivés. Douze éléments au plus ; accents et majuscules ne comptent pas.
 - **Au clavier**, <kbd>↑</kbd> et <kbd>↓</kbd> choisissent un élément, <kbd>Entrée</kbd> l’ouvre, <kbd>Échap</kbd> ferme la palette.
 
 ## Recherches récentes
@@ -131,7 +135,7 @@ Sans recherche, la page *Recherche* rappelle vos huit dernières recherches. Ell
 
 - **Les documents que vous ne voyez pas**, restreints ou rangés dans un espace dont vous n’êtes pas membre : ni dans les résultats, ni dans leur nombre, ni dans les filtres et leurs nombres, ni dans les extraits, ni dans la palette. Quand seuls de tels documents correspondent, la page est la même que pour un mot que personne n’a écrit.
 - **Les documents en cours d’extraction**, à leur premier import : ils apparaissent dès la fin de l’extraction. La palette les trouve déjà par leur titre.
-- **Les documents des espaces archivés**, par défaut : voir [Espaces archivés](#espaces-archivés).
+- **Les documents des espaces archivés, et les documents archivés**, par défaut : voir [Espaces archivés](#espaces-archivés) et [Documents archivés](#documents-archivés).
 - **Les anciennes versions** : seule la version actuelle de chaque document est cherchée.
 
 ## Confidentialité

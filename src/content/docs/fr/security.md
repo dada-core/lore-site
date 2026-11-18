@@ -9,7 +9,7 @@ Les mots de passe sont hachés avec Argon2id. Longueur minimale : 12 caractères
 
 ## Tentatives de connexion
 
-Par défaut, après 5 échecs, la connexion est bloquée 15 minutes. Les échecs sont comptés pour chaque couple adresse e-mail et adresse IP ; une adresse e-mail est aussi bloquée, quelle que soit l’adresse IP, après quatre fois plus d’échecs. Le nombre d’échecs et la durée du blocage se règlent dans *Administration › Sécurité et connexion*. Les échecs et les blocages sont inscrits au journal d’audit, consultable dans l’administration à partir de la v0.1.
+Par défaut, après 5 échecs, la connexion est bloquée 15 minutes. Les échecs sont comptés pour chaque couple adresse e-mail et adresse IP ; une adresse e-mail est aussi bloquée, quelle que soit l’adresse IP, après quatre fois plus d’échecs. Le nombre d’échecs et la durée du blocage se règlent dans *Administration › Sécurité et connexion*. Les échecs et les blocages sont inscrits au journal d’audit, consultable dans *Administration › Journal d’audit*.
 
 ## Sessions
 
@@ -34,7 +34,16 @@ Un fichier importé peut être piégé : Lore ne l’exécute jamais, et ne le s
 
 ### Journal des consultations
 
-Chaque ouverture d’un document est inscrite au journal d’audit, une fois par heure au plus pour une même personne, comme chaque téléchargement : le journal dit qui a lu quoi. Ce sont des données personnelles, gardées pour la sécurité, consultables par les seuls propriétaires et administrateurs de l’organisation, dans l’administration à partir de la v0.1, et effacées au bout d’un an. Informez-en les membres de votre organisation.
+Chaque ouverture d’un document est inscrite au journal d’audit, une fois par heure au plus pour une même personne, comme chaque téléchargement : le journal dit qui a lu quoi. Ce sont des données personnelles, gardées pour la sécurité, consultables par les seuls propriétaires et administrateurs de l’organisation, dans *Administration › Journal d’audit*, et effacées au bout d’un an. Informez-en les membres de votre organisation. Elles ne s’affichent jamais sur le document : son *Activité* dit ce qui y a été changé, pas qui l’a lu.
+
+### Journal d’audit
+
+*Administration › Journal d’audit* montre les opérations de l’organisation, filtrées par catégorie, par personne et par période, et les exporte en CSV avec les mêmes filtres.
+
+- **Qui.** Les propriétaires et les administrateurs seulement ; les autres reçoivent un refus.
+- **Export.** Le fichier est écrit au fil de la lecture, sans tout charger en mémoire, une exportation à la fois par personne. L’export est lui-même inscrit au journal, avec ses filtres et son nombre de lignes.
+- **Formules neutralisées.** Une valeur qui commence par `=`, `+`, `-` ou `@`, comme un titre de document écrit pour piéger un tableur, est précédée d’une apostrophe : ouvert dans un tableur, le fichier n’exécute aucune formule.
+- **Personnes parties.** Le journal montre le nom et l’adresse e-mail actuels du compte de qui a agi, même après son départ de l’organisation.
 
 ## Recherche
 

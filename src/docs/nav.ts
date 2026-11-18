@@ -54,7 +54,7 @@ const SECTIONS: { title: Record<DocLang, string>; pages: DocKey[] }[] = [
    search) until the feature ships. Take a page out of this list in the release that brings its feature;
    the link check of the site reports any published page that still links to one of them. */
 export const DRAFTS: ReadonlySet<DocKey> = new Set<DocKey>([
-  'versions', 'knowledge', 'assistant', 'audit'
+  'knowledge', 'assistant'
 ]);
 
 /* The sections of the site, without the drafts (a section left empty disappears). */

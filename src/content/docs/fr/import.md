@@ -97,10 +97,27 @@ L’état de chaque document s’affiche dans la fenêtre d’import, dans la li
 > [!NOTE]
 > **Documents numérisés.** La reconnaissance de texte (OCR) n’est pas incluse dans la version 0.1, ni le branchement d’un extracteur externe qui l’apporterait. Voir [Stockage et extraction](storage.md#extracteur-externe).
 
+## Importer une nouvelle version
+
+Un document se met à jour en important une nouvelle version de son fichier : *Nouvelle version*, en haut de la page du document, pour les contributeurs et les responsables de l’espace. Déposez le fichier, ou choisissez-le, puis écrivez *Ce qui change* (500 caractères au plus, visible dans l’historique des versions).
+
+- **Mêmes contrôles qu’un import.** Formats, taille maximale, fichiers refusés : comme ci-dessus.
+- **Fichier identique.** Un fichier identique à la dernière version, actuelle, en cours ou en échec, est refusé : « Ce fichier est identique à la version 4. » Identique à une version plus ancienne, il est accepté : c’est un retour en arrière.
+- **Format.** Il peut changer d’une version à l’autre ; la fenêtre l’annonce (« Le format change : Markdown, puis PDF. »).
+- **Statut.** Un document publié propose *Conserver le statut Publié*, cochée ; décochée, il repasse en Brouillon. Un document obsolète propose *Repasser en Publié*. Le choix s’applique quand la version devient la version actuelle, et pas si le statut a changé entre-temps.
+- **Pendant l’extraction.** Tout le monde lit encore la version actuelle, et la recherche s’appuie sur elle ; la page du document affiche « Une nouvelle version est en cours de traitement. », la liste des documents « Version 5 en cours ». Une fois le texte extrait, la nouvelle version devient la version actuelle d’un coup, pour la lecture comme pour la recherche.
+- **En cas d’échec.** La version actuelle ne change pas. Les contributeurs voient « La version 5 n’a pas pu être traitée », avec *Relancer* pour une cause passagère et *Importer une autre version*.
+- **Langue.** Elle est détectée de nouveau, sauf si quelqu’un a choisi celle de la version actuelle : la nouvelle version la reprend.
+
+La version précédente reste consultable et téléchargeable dans l’historique du document. Un document archivé n’accepte pas de nouvelle version : ramenez-le d’abord à un autre statut.
+
 ## Après l’import
 
 | Action | Qui | Ce qu’il faut savoir |
 | --- | --- | --- |
+| Importer une nouvelle version | Contributeurs et responsables de l’espace | Voir [Importer une nouvelle version](#importer-une-nouvelle-version). |
+| Changer le statut | Contributeurs et responsables de l’espace | Brouillon, Publié ou Obsolète, avec le document qui remplace un document obsolète. |
+| Archiver, ou sortir d’Archivé | Responsables de l’espace | Retiré des listes et de la recherche ; seuls les responsables de l’espace et les administrateurs le voient, en lecture seule. |
 | Changer le titre, la description ou la catégorie | Contributeurs et responsables de l’espace | Titre de 200 caractères au plus, description de 2 000. |
 | Changer la langue | Contributeurs et responsables de l’espace | Français, anglais ou autre : le document est réindexé aussitôt. Pas pendant l’extraction. Voir [Changer la langue](reader.md#changer-la-langue). |
 | Déplacer vers un autre dossier | Contributeurs et responsables de l’espace | Vers un dossier du même espace, ou à sa racine. |
@@ -108,4 +125,4 @@ L’état de chaque document s’affiche dans la fenêtre d’import, dans la li
 | Changer le responsable | Responsables de l’espace, responsable du document | Vers un membre actif de l’espace, au moins contributeur. Le nouveau responsable voit le document, même restreint. Voir [Changer le responsable](reader.md#changer-le-responsable). |
 | Supprimer | Responsables de l’espace ; la personne qui l’a importé, tant qu’il n’a qu’une version | Après confirmation, définitivement : il n’y a pas de corbeille. Son fichier est effacé si aucun autre document ne l’utilise. |
 
-Les propriétaires et les administrateurs de l’organisation ont les droits d’un responsable. Dans un espace archivé, aucune de ces actions n’est possible.
+Les propriétaires et les administrateurs de l’organisation ont les droits d’un responsable. Dans un espace archivé, aucune de ces actions n’est possible. Un document archivé n’accepte que le changement de son statut et sa suppression.
