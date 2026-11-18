@@ -16,7 +16,7 @@ Les documents qui correspondent à `q`, classés par pertinence, les documents o
 | `q` | La recherche, avec la [syntaxe de l’interface](search.md#syntaxe) : 500 caractères et 32 mots au plus. Obligatoire. |
 | `space` | Un ou plusieurs espaces, par leur identifiant |
 | `category` | Une ou plusieurs [catégories](api-documents.md#catégories), comme `RUNBOOK` |
-| `status` | Un ou plusieurs statuts : `DRAFT`, `PUBLISHED`, `OBSOLETE` ou `ARCHIVED` |
+| `status` | Un ou plusieurs statuts : `DRAFT`, `PUBLISHED`, `OBSOLETE` ou `ARCHIVED`. Sans `status`, les documents archivés sont écartés ; avec `ARCHIVED`, vous ne recevez que ceux que vous voyez, comme responsable de leur espace, propriétaire ou administrateur |
 | `format` | Un ou plusieurs types : `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `text/markdown` ou `text/plain` |
 | `updated` | `30d` ou `12m` : les documents mis à jour dans les 30 derniers jours, ou dans les 12 derniers mois |
 | `includeArchived` | `true` pour ajouter les documents des espaces archivés que vous voyez encore |
@@ -100,14 +100,14 @@ La réponse ci-dessous ne montre que le premier des trois documents trouvés.
 | Champ | Valeurs |
 | --- | --- |
 | `total` | Le nombre de documents trouvés, filtres compris |
-| `document` | Le document, avec sa version actuelle : son espace (`archived` à `true` pour un espace archivé) et son dossier, ou `null` |
+| `document` | Le document, avec sa version actuelle : son espace (`archived` à `true` pour un espace archivé) et son dossier, ou `null` ; pour un document obsolète, `replacedBy` (`id` et `title`) nomme celui qui le remplace, si vous pouvez le lire, `null` sinon |
 | `version` | Le numéro de la version actuelle, pour le lien du passage |
 | `match` | Ce qui correspond : `passage`, `title` (le titre) ou `description` |
 | `passage` | Le meilleur passage, celui qui réunit le plus de termes : son ancre (`h-7-2`, `page-112`, `part-3`), sa page pour un PDF, les titres de ses sections depuis le haut, son extrait et ses `highlights`. `null` quand `match` vaut `title` ou `description` |
 | `description` | Quand `match` vaut `description` : un extrait de la description (`text`) et ses `highlights` ; `null` sinon |
 | `words` | Les mots trouvés, tels qu’écrits dans le titre et l’extrait, 20 au plus : ceux que le lecteur surligne |
 | `otherPassages` | Le nombre des autres passages trouvés dans le document (`total`), et les cinq premiers, dans l’ordre du document |
-| `facets` | Chaque valeur présente dans les résultats sans les filtres, avec son nombre de documents. `spaces` nomme un espace archivé à qui le voit encore ; `categories`, `statuses` et `formats` ne comptent ses documents qu’avec `includeArchived=true` |
+| `facets` | Chaque valeur présente dans les résultats sans les filtres, avec son nombre de documents. `spaces` nomme un espace archivé à qui le voit encore ; `categories`, `statuses` et `formats` ne comptent ses documents qu’avec `includeArchived=true`. `statuses` donne `ARCHIVED` et son nombre à qui voit des documents archivés ; les autres filtres ne les comptent qu’avec `status=ARCHIVED` |
 
 **Positions.** `titleHighlights` et `highlights` désignent les mots trouvés par des paires `[début, fin[`, début compris et fin exclue, en unités UTF-16, celles de JavaScript : un émoji compte pour deux, une lettre accentuée pour une. Deux mots séparés par un seul `_`, `-`, `.` ou `/` forment un seul surlignage : `pg_restore`.
 
@@ -132,7 +132,7 @@ La réponse ci-dessous ne montre que le premier des trois documents trouvés.
 
 `GET /api/v1/search/titles`
 
-La recherche de la palette : les documents que vous pouvez lire dont le titre a un mot qui commence par chacun des mots de `q`, accents et majuscules ignorés. Les documents en cours d’extraction y figurent ; ceux des espaces archivés, non. Ceux dont le titre commence par `q` viennent d’abord, puis les plus récemment mis à jour.
+La recherche de la palette : les documents que vous pouvez lire dont le titre a un mot qui commence par chacun des mots de `q`, accents et majuscules ignorés. Les documents en cours d’extraction y figurent ; les documents archivés et ceux des espaces archivés, non. Ceux dont le titre commence par `q` viennent d’abord, puis les plus récemment mis à jour.
 
 | Paramètre | Description |
 | --- | --- |

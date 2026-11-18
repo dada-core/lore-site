@@ -77,7 +77,7 @@ The number of documents found, “3 documents”, and the order, “Ranked by re
 - its title, the words found highlighted, which opens the document;
 - its space and its folder, the place of its best passage, such as “Section 4.2 Common errors” or “Page 112”, and its category;
 - an excerpt of that passage, the words found highlighted: one or two pieces of about 35 words, separated by “…”;
-- its status, its version, its date of update, and “Restricted access” if it is;
+- its status, its version, its date of update, and “Restricted access” if it is; for an outdated document, “Replaced by” and the title of the document that replaces it, if you can read it;
 - if there are any, its other passages found, such as “2 other passages in this document”: a click unfolds the place of the first five, in the order of the document, and each opens it at that passage.
 
 The best passage is the one that gathers the most terms. A document found only by its title shows “Match in the title.”, or “Scanned document: only its title matches.”; found by its description, an excerpt of it.
@@ -106,6 +106,10 @@ Under the field, five chips: *Space*, *Category*, *Status*, *Format* and *Date*.
 
 The documents of an archived space do not appear by default, even for those who still see the space: its maintainers, and the organization’s owners and administrators. They find it in the *Space* chip, unticked and marked “archived”: tick it to add its documents to the results.
 
+### Archived documents
+
+An archived document does not appear by default either, even for those who see it: the maintainers of its space, the owners and the administrators. They find *Archived* in the *Status* chip, unticked, with its number of documents: tick it to add them to the results. The others see neither the value nor its number. The palette never offers an archived document.
+
 ## Result order
 
 1. A document whose title contains all the terms comes first.
@@ -119,8 +123,8 @@ With equal relevance, the most recently updated document comes first.
 
 <kbd>Ctrl K</kbd>, or the *Search* field of the sidebar, opens the palette: “Search for a document, a space or an action…”. The page of something not found opens it too, with *Search*.
 
-- **Empty**, it offers: *Actions* (“Import documents”, the <kbd>I</kbd> key, if you can import; “Create a space”; “Change theme”); *Go to* (“Home”, “Search”, “All spaces”, “Administration” for owners and administrators, “My account”); *Spaces*, with their number of documents; *Recent documents*, the last five you opened.
-- **While you type**, it first offers “Search the documents for “…””; then the actions, the destinations and the spaces whose name contains the words typed; then the documents whose title has a word that begins with each of the words typed, among those you see, those being extracted included, archived spaces aside. Twelve items at most; accents and capitals do not count.
+- **Empty**, it offers: *Actions* (“Import documents”, the <kbd>I</kbd> key, if you can import; “Create a space”; “Change theme”); *Go to* (“Home”, “Search”, “All spaces”, “Administration” and “Audit log” for owners and administrators, “My account”); *Spaces*, with their number of documents; *Recent documents*, the last five you opened.
+- **While you type**, it first offers “Search the documents for “…””; then the actions, the destinations and the spaces whose name contains the words typed; then the documents whose title has a word that begins with each of the words typed, among those you see, those being extracted included, archived spaces and documents aside. Twelve items at most; accents and capitals do not count.
 - **With the keyboard**, <kbd>↑</kbd> and <kbd>↓</kbd> choose an item, <kbd>Enter</kbd> opens it, <kbd>Esc</kbd> closes the palette.
 
 ## Recent searches
@@ -131,7 +135,7 @@ Without a search, the *Search* page lists your last eight searches. They are kep
 
 - **The documents you do not see**, restricted or kept in a space you are not a member of: not in the results, not in their number, not in the filters and their numbers, not in the excerpts, not in the palette. When only such documents match, the page is the same as for a word nobody wrote.
 - **The documents being extracted**, at their first import: they appear as soon as the extraction ends. The palette already finds them by their title.
-- **The documents of archived spaces**, by default: see [Archived spaces](#archived-spaces).
+- **The documents of archived spaces, and archived documents**, by default: see [Archived spaces](#archived-spaces) and [Archived documents](#archived-documents).
 - **Older versions**: only the current version of each document is searched.
 
 ## Privacy

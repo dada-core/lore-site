@@ -216,14 +216,15 @@ window.SL = (function () {
   ];
 
   var audit = [
-    { when: 'Today, 10:42 AM', who: 'as', type: 'Permissions', text: 'restricted access to “Rotating the internal TLS certificates” (2 people).' },
+    { when: 'Today, 10:42 AM', who: 'as', type: 'Rights', text: 'restricted access to “Rotating the internal TLS certificates” (2 people).' },
     { when: 'Today, 10:15 AM', who: 'as', type: 'Import', text: 'imported “Disaster recovery plan 2026”, version 1.' },
     { when: 'Today, 9:58 AM', who: 'eb', type: 'View', text: 'viewed “Restore a PostgreSQL database from a backup”.' },
     { when: 'Today, 9:31 AM', who: null, type: 'Sign-in', text: '5 failed sign-in attempts for herve.coulibaly@dada.group. Account locked for 15 minutes.' },
     { when: 'Today, 8:47 AM', who: 'wk', type: 'Organization', text: 'created the “Business applications” space.' },
     { when: 'Yesterday, 6:04 PM', who: 'as', type: 'Import', text: 'imported version 4 of “Restore a PostgreSQL database from a backup”.' },
-    { when: 'Yesterday, 4:20 PM', who: 'as', type: 'Members', text: 'changed the role of Eli Brou in Infrastructure: Reader, previously Contributor.' },
+    { when: 'Yesterday, 4:20 PM', who: 'as', type: 'Rights', text: 'changed the role of Eli Brou in Infrastructure: Reader, previously Contributor.' },
     { when: 'Yesterday, 3:12 PM', who: 'hc', type: 'Status', text: 'marked “Nightly backups with Barman” as outdated.' },
+    { when: 'Yesterday, 2:03 PM', who: 'eb', type: 'Change', text: 'changed the description of “Server room B cabling diagram”.' },
     { when: 'Yesterday, 11:05 AM', who: 'ck', type: 'Deletion', text: 'deleted “VPN procedure (copy)” (1 version).' },
     { when: 'Nov 9, 8:15 AM', who: 'ey', type: 'Download', text: 'downloaded the original of “Server room B cabling diagram”.' },
     { when: 'Nov 8, 5:40 PM', who: 'as', type: 'Members', text: 'created an invitation link for the Infrastructure space (Contributor role).' }

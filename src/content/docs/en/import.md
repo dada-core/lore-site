@@ -97,10 +97,27 @@ The state of each document is shown in the import window, in the list of documen
 > [!NOTE]
 > **Scanned documents.** Text recognition (OCR) is not included in version 0.1, nor is plugging in an external extractor that would bring it. See [Storage and extraction](storage.md#external-extractor).
 
+## Import a new version
+
+A document is updated by importing a new version of its file: *New version*, at the top of the document’s page, for the space’s contributors and maintainers. Drop the file, or choose it, then write *What changes* (500 characters at most, shown in the history of the versions).
+
+- **The same checks as an import.** Formats, largest size, refused files: as above.
+- **Same file.** A file that is the same as the latest version, current, in progress or failed, is refused: “This file is the same as version 4.” The same as an older version, it is accepted: it is a way back.
+- **Format.** It may change from one version to the next; the window says so (“The format changes: Markdown, then PDF.”).
+- **Status.** A published document offers *Keep the Published status*, ticked; unticked, it goes back to Draft. An outdated document offers *Back to Published*. The choice applies when the version becomes the current one, and not if the status changed in the meantime.
+- **During the extraction.** Everyone still reads the current version, and search relies on it; the document’s page shows “A new version is being processed.”, the list of documents “Version 5 in progress”. Once its text is extracted, the new version becomes the current one at once, for reading as for search.
+- **After a failure.** The current version does not change. Contributors see “Version 5 could not be processed”, with *Retry* for a passing cause and *Import another version*.
+- **Language.** It is detected again, unless someone chose the one of the current version: the new version takes it over.
+
+The previous version stays readable and downloadable in the history of the document. An archived document accepts no new version: give it another status first.
+
 ## After the import
 
 | Action | Who | What to know |
 | --- | --- | --- |
+| Import a new version | The space’s contributors and maintainers | See [Import a new version](#import-a-new-version). |
+| Change the status | The space’s contributors and maintainers | Draft, Published or Outdated, with the document that replaces an outdated one. |
+| Archive, or take out of Archived | The space’s maintainers | Out of the lists and the search; only the maintainers of the space and the administrators see it, read only. |
 | Change the title, description or category | The space’s contributors and maintainers | Title of 200 characters at most, description of 2,000. |
 | Change the language | The space’s contributors and maintainers | French, English or other: the document is indexed again at once. Not during the extraction. See [Change the language](reader.md#change-the-language). |
 | Move to another folder | The space’s contributors and maintainers | To a folder of the same space, or to its root. |
@@ -108,4 +125,4 @@ The state of each document is shown in the import window, in the list of documen
 | Change the owner | The space’s maintainers, the document’s owner | To an active member of the space, at least a contributor. The new owner sees the document, even a restricted one. See [Change the owner](reader.md#change-the-owner). |
 | Delete | The space’s maintainers; the person who imported it, as long as it has a single version | After confirmation, permanently: there is no trash. Its file is erased if no other document uses it. |
 
-The organization’s owners and administrators have the rights of a maintainer. In an archived space, none of these actions is possible.
+The organization’s owners and administrators have the rights of a maintainer. In an archived space, none of these actions is possible. An archived document only accepts the change of its status and its deletion.

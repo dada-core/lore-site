@@ -1,6 +1,6 @@
 ---
 title: "Documents"
-description: "List, import, read, download, update, move, restrict and delete documents through the API, change their owner and follow the extraction of their text."
+description: "List, import, read, download, update, move, restrict and delete documents through the API, import their new versions, change their status and owner, follow the extraction of their text and their activity, and read the audit log."
 ---
 
 These routes follow the rules described in the [API overview](api.md): the session and CSRF token of the interface, and errors in the `application/problem+json` format.
@@ -8,6 +8,7 @@ These routes follow the rules described in the [API overview](api.md): the sessi
 - A space or a document you cannot see answers `404`, as if it did not exist.
 - On a document you can see, an action your role does not allow answers `403`, with the code `contributor_only`, `maintainer_only` or `maintainer_or_owner_only`.
 - An archived space refuses any change: `409 space_archived`.
+- An archived document refuses any change but the change of its status and its deletion: `409 document_archived`.
 
 ## List the documents of a space
 
@@ -20,6 +21,7 @@ Returns a page of the documents of the space that you can see, grouped by folder
 | `folder` | A folder’s identifier, or `none` for the documents without a folder |
 | `restricted` | `true` for restricted documents only, `false` for the others |
 | `ids` | Given documents, 100 at most, for instance to follow their extraction |
+| `status` | The statuses wanted, one or several: `DRAFT`, `PUBLISHED`, `OBSOLETE`, `ARCHIVED`. Without `status`, the archived documents are left out; with `ARCHIVED`, you only receive those you see, as a maintainer of the space, an owner or an administrator |
 | `sort` | The order within each folder: `updated` (date of the last update, the default), `title`, `category`, `status` or `size` (size of the file) |
 | `direction` | `asc` or `desc`; by default, `desc` for `updated` and `asc` for the others |
 | `page`, `size` | Pagination: 50 per page by default, 200 at most |
@@ -44,7 +46,8 @@ Returns a page of the documents of the space that you can see, grouped by folder
       "extractionError": null,
       "language": "en",
       "pageCount": null,
-      "sectionCount": 6
+      "sectionCount": 6,
+      "newerVersion": null
     }
   ],
   "page": 0,
@@ -53,13 +56,15 @@ Returns a page of the documents of the space that you can see, grouped by folder
 }
 ```
 
-Field errors: `sort` and `direction` (`invalid_value`), `ids` (`too_many`).
+`newerVersion` describes a version imported after the current one, being extracted or failed: `number`, `extractionStatus`, `extractionError` and `createdAt`; `null` when the latest version is the current one.
+
+Field errors: `sort`, `direction` and `status` (`invalid_value`), `ids` (`too_many`).
 
 ## Count the documents of a space
 
 `GET /api/v1/spaces/{spaceId}/documents/summary`
 
-Counts the documents of the space that you can see: in all, being extracted, scanned, failed, and by folder (`folderId` set to `null` for those without a folder).
+Counts the documents of the space that you can see: in all, being extracted, scanned, failed, and by folder (`folderId` set to `null` for those without a folder). Archived documents are counted apart, in `archived`, and nowhere else: neither in `total`, nor in the folders, nor in the `documentCount` of the space. `archived` is 0 for whoever does not see them.
 
 ```json title="Response 200"
 {
@@ -67,6 +72,7 @@ Counts the documents of the space that you can see: in all, being extracted, sca
   "inProgress": 1,
   "scanned": 1,
   "failed": 0,
+  "archived": 1,
   "folders": [
     { "folderId": null, "count": 2 },
     { "folderId": "…", "count": 7 }
@@ -142,12 +148,15 @@ Returns the document, its current version and what you may do with it (`actions`
   "description": null,
   "category": "RUNBOOK",
   "status": "PUBLISHED",
+  "statusChangedAt": "2026-11-16T09:12:40Z",
+  "replacedBy": null,
   "restricted": false,
   "space": { "id": "…", "name": "Infrastructure", "slug": "infrastructure", "color": "#13705E" },
   "folder": { "id": "…", "name": "Runbooks" },
   "owner": { "id": "…", "displayName": "Amenan Souaga" },
   "createdAt": "2026-11-16T09:12:40Z",
   "updatedAt": "2026-11-16T09:12:52Z",
+  "versionCount": 1,
   "currentVersion": {
     "id": "…",
     "number": 1,
@@ -164,9 +173,15 @@ Returns the document, its current version and what you may do with it (`actions`
     "createdAt": "2026-11-16T09:12:40Z",
     "author": { "id": "…", "displayName": "Amenan Souaga" },
     "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-    "fileAvailable": true
+    "fileAvailable": true,
+    "note": null,
+    "changeRatio": 1
   },
-  "actions": { "edit": true, "delete": true, "manageAccess": true, "retry": false, "changeOwner": true },
+  "newerVersion": null,
+  "actions": {
+    "edit": true, "delete": true, "manageAccess": true, "retry": false, "changeOwner": true,
+    "newVersion": true, "changeStatus": true, "archive": false
+  },
   "duplicateOf": null
 }
 ```
@@ -182,9 +197,19 @@ Returns the document, its current version and what you may do with it (`actions`
 | `owner`, `author` | `null` for someone who left the organization |
 | `sha256` | The SHA-256 fingerprint of the file, to compare it with a copy |
 | `fileAvailable` | `false` if the file cannot be found on the server’s disk: its download then answers `410 file_missing` |
-| `actions` | What you may do: `edit`, `delete`, `manageAccess`, `retry` and `changeOwner` |
+| `statusChangedAt` | Since when the document has its status; for a document imported before version 0.1.0-beta.1, its creation date |
+| `replacedBy` | For an outdated document, the one that replaces it (`id` and `title`); `null` when there is none, or when you cannot read it: neither its title nor its identifier is given to you |
+| `versionCount` | The number of versions of the document |
+| `note` | What changes, written at the import of the version; `null` for the first one |
+| `changeRatio` | How much the version changed, from 0 to 1: the share of passages added or removed from the previous version. 1 for the first version, `null` when unknown (scanned document, failure) |
+| `newerVersion` | A version imported after the current one, being extracted or failed: `number`, `extractionStatus`, `extractionError`, `createdAt` and `author`; `null` otherwise |
+| `actions` | What you may do: `edit`, `delete`, `manageAccess`, `retry`, `changeOwner`, `newVersion` (import a new version), `changeStatus` and `archive` (archive the document, or take it out of Archived) |
 
-Each call records a view in the audit log, once an hour at most for the same person and the same document, never for a `404` response.
+| Parameter | Description |
+| --- | --- |
+| `version` | The number of an older version, opened in its own page: the view recorded is of that version, once an hour and per document |
+
+Each call records a view in the audit log, with the number of the version shown, once an hour at most for the same person and the same document, never for a `404` response.
 
 ## Read the content of a version
 
@@ -197,6 +222,7 @@ Returns the content of a Markdown, Word or text document, laid out and cleaned, 
 | `part` | The part wanted, from 1 |
 | `anchor` | An anchor, such as `h-7` or `part-3`: the response gives the part that holds it. An anchor the document does not have gives the first part. |
 | `outline` | `false` not to receive the outline; `true` by default |
+| `fromVersion` | With `anchor`: the number of the version the anchor was made for, for instance a link copied before a new version. The response gives the part that holds the section of the same title in this version, and its anchor in `anchor`; `null` when the section no longer exists. A title found several times is matched by its rank. |
 
 Without `part` or `anchor`, the response gives the first part.
 
@@ -207,6 +233,7 @@ Without `part` or `anchor`, the response gives the first part.
   "part": 1,
   "partCount": 1,
   "truncated": false,
+  "anchor": "h-7",
   "outline": [
     { "anchor": "h-1", "level": 1, "title": "Restore a PostgreSQL database from a backup", "part": 1 },
     { "anchor": "h-5", "level": 2, "title": "4. Check the restore", "part": 1 },
@@ -225,6 +252,7 @@ Without `part` or `anchor`, the response gives the first part.
 | `truncated` | `true` if the content stops before the end of the document |
 | `outline` | The headings of the whole document: anchor, level from 1 to 6, text and the part that holds it; `null` with `outline=false` |
 | `html` | The part, as cleaned HTML: one `section` per heading (`h-7`) or per part of a text (`part-3`) |
+| `anchor` | The place shown: the anchor asked, or the section of the same title found with `fromVersion`; `null` when there is none |
 
 The response carries an `ETag` and `Cache-Control: private, no-cache`: content already received is not sent again (`304`), but access is checked at each request.
 
@@ -302,7 +330,7 @@ Changes the title (200 characters at most), the description (2,000), the categor
 - **Language.** `language` is `fr`, `en` or `other`. Changing it indexes the document again for search at once, in the same request; the language chosen is kept if the same version is extracted again. While the text is being extracted, the language cannot be changed: `409 extraction_pending`.
 - **Audit log.** Each change records `document.updated`, with the fields changed in `changes`; for the language, the former one in `previousLanguage`.
 
-Field errors: `title` (`required`, `too_long`), `description` (`too_long`), `category` and `language` (`invalid_value`).
+Field errors: `title` (`required`, `too_long`), `description` (`too_long`), `category` and `language` (`invalid_value`). An archived document: `409 document_archived`.
 
 ## Move a document
 
@@ -326,7 +354,92 @@ Permanently deletes the document, its versions, its text and its access, then it
 
 `POST /api/v1/documents/{id}/extraction/retry`
 
-After a failure with a passing cause (`timeout`, `extractor_crashed`, `file_missing`), puts the document back in the extraction queue; it returns to `PENDING`. Reserved for the space’s contributors and maintainers. For a final cause, or a document that did not fail: `409 not_retryable`.
+After a failure with a passing cause (`timeout`, `extractor_crashed`, `file_missing`), puts the latest version back in the extraction queue: the current version, or a new version that failed; it returns to `PENDING`. Reserved for the space’s contributors and maintainers. For a final cause, or a version that did not fail: `409 not_retryable`.
+
+## Import a new version
+
+`POST /api/v1/documents/{id}/versions`
+
+Sends the file of a new version, as an import does: a `multipart/form-data` form, with the same checks and the same errors on the file. Reserved for the space’s contributors and maintainers. Answers `201` with the document: `newerVersion` describes the new version, being extracted; the current version does not change yet.
+
+| Field | Description |
+| --- | --- |
+| `file` | The file: PDF, Word (.docx), Markdown or text. The format may change from one version to the next. |
+| `note` | What changes, 500 characters at most; optional |
+| `status` | `DRAFT` or `PUBLISHED`: the status the document takes when the version becomes the current one; left out, it does not change |
+
+- **Number.** The largest number of the document plus one: two files sent at once receive two different numbers.
+- **Current version.** The new version becomes the current one once its text is extracted, at once, for reading as for search. If a later version became current in the meantime, it stays in the history. After a failure, the current version does not change: see [Retry the extraction](#retry-the-extraction).
+- **Status.** The status asked applies then, unless the status of the document changed since the version was imported, or the document is archived; it is recorded in the audit log in the name of the person who imported the version.
+- **Language.** A language chosen by hand on the current version is taken over by the new version.
+- **Audit log.** `document.version_imported`, with `version`, `previous` (the number of the current version), `filename`, `size` and `status`; the note is not copied.
+
+| HTTP code | `code` | Cause |
+| --- | --- | --- |
+| 400 | `invalid_request` | `file` (as for an import), `note` (`too_long`), `status` (`invalid_value`) |
+| 409 | `same_content` | The file is the same as the one of the latest version, current, in progress or failed; `version` gives its number. The same as an older version, it is accepted: it is a way back. |
+| 409 | `document_archived` | The document is archived |
+| 413 | `file_too_large` | The file is over the largest size |
+| 507 | `storage_full` | The server’s disk is full |
+
+## Versions of a document
+
+`GET /api/v1/documents/{id}/versions`
+
+The versions of the document, the latest first, by pages (`page`, `size`: 50 by default, 200 at most), for anyone who sees the document. Each in the shape of `currentVersion`: `number`, `createdAt`, `author`, `note`, `changeRatio`, `extractionStatus`, `extractionError`, `filename`, `mediaType`, `sizeBytes`, `sha256`, `pageCount`, `sectionCount`, `language`, `fileAvailable`.
+
+`GET /api/v1/documents/{id}/versions/{number}`
+
+One version, in the same shape; `404` for a number the document does not have. Its content is read with `/rendering` and its file downloaded with `/file`, under the same number. The passages of a version that is no longer the current one are deleted: search does not find it.
+
+## Change the status
+
+`PUT /api/v1/documents/{id}/status`
+
+```json title="Request body"
+{ "status": "OBSOLETE", "replacedBy": "…" }
+```
+
+- **Who.** The space’s contributors and maintainers move a document between Draft, Published and Outdated. Archiving is reserved for the maintainers of the space, the owners and the administrators: `403 maintainer_only` otherwise. An archived document is seen by them only: it answers `404` to the others, for leaving Archived as for the rest.
+- **Replacement.** For Outdated only, optional: a document you can read, in any of your spaces. Neither the document itself, nor an outdated or archived one. Leaving Outdated removes the replacement; deleting the replacement removes it too.
+- **Date.** `statusChangedAt` changes with the status only. Without a change of status or of replacement, nothing is done; a document that stays outdated may change its replacement.
+- **Audit log.** `document.status_changed`, with `before`, `after`, `replacedBy` and `replacedByTitle`.
+
+Returns the document. Field errors: `status` (`invalid_value`), `replacedBy` (`unknown_document`, also for a document you cannot read; `not_replaceable`).
+
+## Activity of a document
+
+`GET /api/v1/documents/{id}/activity`
+
+What was done to the document, the latest first, for anyone who sees it: imports and new versions, changes of status, access, owner, folder, title, description, category and language. Never its views nor its downloads.
+
+| Parameter | Description |
+| --- | --- |
+| `before` | The cursor `next` of the previous page |
+| `size` | 20 by default, 50 at most |
+
+```json title="Response 200"
+{
+  "items": [
+    {
+      "id": 4182,
+      "occurredAt": "2026-11-17T15:12:00Z",
+      "actor": { "id": "…", "displayName": "Hervé Coulibaly" },
+      "action": "document.status_changed",
+      "details": { "before": "PUBLISHED", "after": "OBSOLETE", "replacedBy": { "id": "…", "title": "Restore a PostgreSQL database from a backup" } }
+    }
+  ],
+  "next": "1794928320000000-4182"
+}
+```
+
+The details only give what you may know: the number of people chosen for an access (`added`, `removed`), not who; the replacement of an outdated document only if you can read it. `actor` is `null` for an operation of the server. Field errors: `before` (`invalid_value`), `size` (`out_of_range`).
+
+## Recent activity
+
+`GET /api/v1/activity`
+
+The 8 latest imports, new versions and changes of status of the documents you see, archived ones left out: for *Recent activity in your spaces*, on the home page. Each with `occurredAt`, `actor`, `action`, `document` (`id`, `title`), `space` and `details` (`version`, `before`, `after`).
 
 ## Access to a document
 
@@ -384,7 +497,7 @@ The maximum size in force and the accepted extensions, to check the files before
 
 `GET /api/v1/imports/attention`
 
-The documents you imported and can still see whose extraction is in progress or failed, most recent first, 20 at most. Each with `id`, `title`, `space` (`id`, `name`, `slug`, `color`), `extractionStatus` and `extractionError`.
+The versions you imported, first imports and new versions of documents you can still see, whose extraction is in progress or failed, as long as no later version became the current one; most recent first, 20 at most. Each with the `id` and `title` of the document, `space` (`id`, `name`, `slug`, `color`), `version`, `extractionStatus` and `extractionError`.
 
 ## Storage and import (administration)
 
@@ -401,6 +514,44 @@ Changes the maximum size of a file, in megabytes, from 1 up to the ceiling set b
 ```
 
 Field error: `maxUploadMegabytes` (`out_of_range`, with `min` and `max`).
+
+## Audit log (administration)
+
+`GET /api/v1/admin/audit`
+
+The operations of the organization, the latest first. Reserved for owners and administrators (`403 admin_only`).
+
+| Parameter | Description |
+| --- | --- |
+| `category` | `view`, `download`, `import`, `status`, `change`, `deletion`, `rights`, `members`, `sign_in`, `organization`, or `other` for an action no category knows |
+| `actor` | The identifier of a person, or `system` for the operations of the server |
+| `from`, `to` | A period, as ISO 8601 instants (`2026-11-01T00:00:00Z`); `to` excluded |
+| `before` | The cursor `next` of the previous page |
+| `size` | 50 by default, 200 at most |
+
+```json title="Response 200"
+{
+  "items": [
+    {
+      "id": 4182,
+      "occurredAt": "2026-11-17T15:12:00Z",
+      "actor": { "id": "…", "displayName": "Hervé Coulibaly", "email": "herve.coulibaly@dada.group" },
+      "action": "document.status_changed",
+      "category": "status",
+      "resource": { "type": "document", "id": "…" },
+      "ip": "10.0.3.17",
+      "details": { "title": "Nightly backups with Barman", "before": "PUBLISHED", "after": "OBSOLETE" }
+    }
+  ],
+  "next": "1794928320000000-4182"
+}
+```
+
+`actor` is `null` for an operation of the server; `displayName` and `email` are given for someone who left the organization too. Field errors: `category`, `actor`, `from`, `to`, `before` (`invalid_value`), `size` (`out_of_range`).
+
+`GET /api/v1/admin/audit/export`
+
+The same filters, without `before` or `size`, as CSV (`text/csv`, UTF-8 with a byte order mark, RFC 4180), written as it is read, as the attachment `lore-audit-2026-11-18.csv`. Columns: `occurred_at`, `actor_id`, `actor_name`, `actor_email`, `action`, `category`, `resource_type`, `resource_id`, `title`, `space`, `ip` and `details` (as JSON). A value that starts with `=`, `+`, `-` or `@` is written after an apostrophe, so that a spreadsheet does not read it as a formula. The export itself is recorded in the log (`audit.exported`, with the filters and the number of lines). One export at a time per person: `429 export_running`.
 
 ## Spaces and folders
 

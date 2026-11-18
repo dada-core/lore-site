@@ -14,7 +14,7 @@ description: "Lore is an open source workspace where technical teams gather, sea
 
 ## Where Lore stands
 
-Lore is getting ready for version 0.1. Today, the application handles the initial setup, sign-in, invitations, password resets, *My account* and the administration of the organization: members, roles and security settings. It also handles spaces, their folders and roles, the import of PDF, Word, Markdown and text documents, with the extraction of their text and documents restricted to a few people, their reading (laid-out content, PDF files shown in the page, links to a section or a page) and search in their text, filtered by permissions. Versions and statuses, and the audit log screen come with version 0.1.
+Lore is getting ready for version 0.1. Today, the application handles the initial setup, sign-in, invitations, password resets, *My account* and the administration of the organization: members, roles and security settings. It also handles spaces, their folders and roles, the import of PDF, Word, Markdown and text documents, with the extraction of their text and documents restricted to a few people, their reading (laid-out content, PDF files shown in the page, links to a section or a page), search in their text, filtered by permissions, the versions of each document and their statuses, and the audit log of the organization. A preview, 0.1.0-beta.1, holds all these features: see the [release notes](release-notes.md).
 
 ## What Lore is not
 

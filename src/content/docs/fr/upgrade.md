@@ -49,6 +49,13 @@ description: "Une mise à jour consiste à installer la nouvelle version et à r
    sudo journalctl -u lore -f
    ```
 
+## Depuis la préversion 0.1.0-alpha.4
+
+La préversion 0.1.0-beta.1, qui apporte les versions, les statuts et l’écran du journal d’audit, ajoute quelques colonnes, un index des remplaçants et trois index du journal à son premier démarrage. Seule la date du statut est écrite sur chaque document, et aucun document n’est extrait de nouveau : environ 1 seconde pour 10 000 documents, puis 1,4 seconde pour les index d’un journal de 1,3 million d’événements. Lore ne démarre qu’à la fin de la migration.
+
+- **Statuts.** Chaque document garde son statut ; la date de ce statut est celle de sa création.
+- **Versions.** Chaque document garde sa version unique, qui reste sa version actuelle.
+
 ## Depuis la préversion 0.1.0-alpha.3
 
 La préversion 0.1.0-alpha.4, qui apporte la recherche, calcule à son premier démarrage l’index de recherche des documents déjà importés : PostgreSQL réécrit la table des passages, en rangeant leur texte et leurs vecteurs à part de leur ligne, puis construit les index. Aucun document n’est extrait de nouveau, et chacun garde la langue détectée à son import.

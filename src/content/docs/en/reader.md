@@ -96,7 +96,8 @@ The words of `q` are highlighted in the section or page pointed to only, regardl
 | Case | What is shown |
 | --- | --- |
 | A heading, a part or a page the document does not have | The document opens at the top, or at its first page for a PDF, with “This passage does not exist in this document.” |
-| A link made for another version than the current one | The document opens at the top, with “This passage has changed since version 1.” |
+| A link made for an older version | The current version opens at the section of the same title, with “This link was made for version 3: here is the same section in the current version.” If it no longer exists, at the top, with “This passage changed since version 3.” In both cases, *Show version 3* opens the older version. A PDF opens at the same page, if it still exists. |
+| A link that names a version the document does not have yet | The document opens at the top, with “This passage has changed since version 6.” |
 | You are not signed in | After signing in, the document opens at the same passage. |
 | You cannot see the document | *This page cannot be found*, as for a document that does not exist. |
 
@@ -116,7 +117,7 @@ The right panel, shown or hidden with <kbd>]</kbd>, tells everything about the d
 
 | Property | What is shown | Who changes it |
 | --- | --- | --- |
-| Status | *Draft* or *Published* | Chosen at import |
+| Status | *Draft*, *Published*, *Outdated* or *Archived* | The space’s contributors and maintainers, with *Change the status*; Archived, the space’s maintainers only |
 | Owner | Their name, or *Former member* if they left the organization | See [Change the owner](#change-the-owner) |
 | Category | Its pill, or *No category* | The space’s contributors and maintainers |
 | Space | A link to its documents | Nobody |
@@ -125,7 +126,7 @@ The right panel, shown or hidden with <kbd>]</kbd>, tells everything about the d
 | Format | The format, the number of pages or sections and the size, for example “PDF, 312 pages, 24.8 MB” | Nobody |
 | Indexing | The state of the extraction and its date | *Retry*, after a passing failure |
 
-Then come *Access*, which says who sees the document, *Versions*, with the card of the version (date of import, author, file name, *SHA-256 fingerprint* to copy and *Download*), then *On this page*.
+Then come *Access*, which says who sees the document, *Versions*, the history in strata described below, with the *SHA-256 fingerprint* of the version chosen, to copy, then *On this page*.
 
 Under the title, a line gives the status, the version, the date of the last update, restricted access, and `EN` for a document in English; then comes the description, or *Add a description* for a contributor. In an archived space, everything is read-only.
 
@@ -154,12 +155,41 @@ The document is indexed again at once: “Language updated: the document is inde
 - **When.** Not while the text is being extracted, nor in an archived space.
 - **Audit log.** The change is recorded there, with the former language.
 
+## Versions and status
+
+### History in strata
+
+In *Versions*, each version is a band, the latest on top and in colour. The thickness of a band shows how much the version changed: the share of passages added or removed from the previous version. A hatched band marks a change that is unknown, for a scanned document for instance. A version in progress or failed, later than the current one, is marked *in progress* or *failed*.
+
+Choose a band, with the mouse or the arrows <kbd>↑</kbd> and <kbd>↓</kbd>: below it show its date of import and its author, *What changes* (“First version” for the first one), the name of its file, *Show* for an older version and *Download*. The ten latest versions show first, then *All the versions*.
+
+### Older version
+
+*Show* opens an older version in its own page, `/documents/{id}/versions/3`, read only: its laid-out content or its PDF, its outline and the links of its sections. A banner says so: “You are reading version 3 of Sep 2, 2026. The current version is 5.”, with *Back to the current version*. Opening it is a view, recorded in the audit log with its number, once an hour and per document. Search never leads to an older version: it only searches the current one.
+
+### New version
+
+*New version*, at the top of the page, opens the window to import a new version, for the space’s contributors and maintainers. See [Import a new version](import.md#import-a-new-version). During its extraction, the page shows “A new version is being processed.” and updates itself when it becomes the current version.
+
+### Status
+
+*Change the status*, in the *More actions* menu or by clicking the status in the panel, opens a window that describes the effect of each status. *Archive*, in the same menu, opens the same window with Archived already chosen, for the space’s maintainers.
+
+| Status | What the reader sees |
+| --- | --- |
+| Outdated | “This document is outdated since Nov 10, 2026. Use instead Restore a PostgreSQL database from a backup.”, the title as a link to the document that replaces it. If you cannot read it, or there is none, the banner stops at the date. |
+| Archived | “This document is archived since …: only the maintainers of the space and the administrators see it. It can no longer be changed.” Only its status and its deletion remain possible. |
+
+### Activity
+
+Below the content, *Activity* tells what was done to the document, the latest first: imports and new versions, changes of status, access, owner, folder, title, description, category and language, with the person and the date; *Show more* for the older ones. Views and downloads never appear there. A change of access says to how many people the document is restricted, not who, and the replacement of an outdated document is only named to whoever can read it.
+
 ## Download the original
 
 *Download the original*, the icon at the top right, or *Download* in the card of the version, gives the file as it was imported, under its original name.
 
 - **Everyone who sees the document can download it**, readers included: showing a PDF transfers the file to the browser anyway. In an archived space, those who still see it can download it too.
-- **To check a copy**, compare its fingerprint with the *SHA-256 fingerprint* of the card of the version, for example with `sha256sum`.
+- **To check a copy**, compare its fingerprint with the *SHA-256 fingerprint* of its version, in *Versions*, for example with `sha256sum`.
 - **Each download** is recorded in the audit log.
 
 If the file has disappeared from the server’s disk, the page says so: “The file of this document cannot be found on the server. Tell the person who runs Lore.” *Download* then disappears; the content of a Markdown, Word or text document, kept in the database, can still be read.

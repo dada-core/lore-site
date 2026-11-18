@@ -60,7 +60,7 @@
   const CAT = { 'Runbook': 'p-blue', 'Procédure d’exploitation': 'p-teal', 'Rapport d’incident': 'p-red', 'Documentation de sécurité': 'p-purple', 'Documentation constructeur': 'p-yellow', 'Documentation d’architecture': 'p-cyan', 'Documentation technique': 'p-gray' };
   const ROLE = { 'Responsable': 'p-purple', 'Contributeur': 'p-blue', 'Lecteur': 'p-gray', 'Propriétaire': 'p-orange', 'Administrateur': 'p-purple', 'Membre': 'p-gray' };
   const TECH = { 'PostgreSQL': 'p-blue', 'NFS': 'p-gray', 'IPsec': 'p-teal', 'Réseau': 'p-cyan', 'Kubernetes': 'p-purple', 'TLS': 'p-green', 'LDAP': 'p-orange' };
-  const AUDIT = { 'Droits': 'p-purple', 'Import': 'p-blue', 'Consultation': 'p-gray', 'Connexion': 'p-red', 'Organisation': 'p-orange', 'Membres': 'p-teal', 'Statut': 'p-yellow', 'Téléchargement': 'p-cyan', 'Suppression': 'p-pink' };
+  const AUDIT = { 'Droits': 'p-purple', 'Import': 'p-blue', 'Consultation': 'p-gray', 'Connexion': 'p-red', 'Organisation': 'p-orange', 'Membres': 'p-teal', 'Statut': 'p-yellow', 'Modification': 'p-green', 'Téléchargement': 'p-cyan', 'Suppression': 'p-pink' };
   const STATE = { 'Actif': 'p-green', 'Invitation en attente': 'p-yellow', 'Désactivé': 'p-gray' };
   const catPill = (c) => pill(c, CAT[c]);
   const LANG = { fr: 'Français', en: 'Anglais', other: 'Autre' };
@@ -570,7 +570,8 @@
     if (view === 'kanban') {
       const cols = ['draft', 'published', 'obsolete', 'archived'].map((st) => {
         const list = docs.filter((d) => d.status === st);
-        return `<section class="column"><div class="column-head">${stIcon(st)}${ST[st].label}<span class="count">${list.length}</span></div><div class="cards">${list.map((d) => `<a class="card" href="#/documents/${d.id}"><div class="card-title">${esc(d.title)}${d.restricted ? ` <svg class="ico lock" aria-hidden="true"><use href="#i-lock"/></svg>` : ''}</div><div class="card-pills">${catPill(d.category)}${(d.flags && (d.flags.indexing || d.flags.scanned)) ? indexPill(d) : ''}</div><div class="card-meta">${who(d.owner)}<span>Version ${d.version}, ${esc(inText(d.updated))}</span></div></a>`).join('') || '<p class="column-empty">Aucun document</p>'}</div></section>`;
+        const reserved = st === 'archived' ? '<p class="help" style="padding:0 6px 8px">Visible par les responsables de l’espace et les administrateurs seulement.</p>' : '';
+        return `<section class="column"><div class="column-head">${stIcon(st)}${ST[st].label}<span class="count">${list.length}</span></div>${reserved}<div class="cards">${list.map((d) => `<a class="card" href="#/documents/${d.id}"><div class="card-title">${esc(d.title)}${d.restricted ? ` <svg class="ico lock" aria-hidden="true"><use href="#i-lock"/></svg>` : ''}</div><div class="card-pills">${catPill(d.category)}${(d.flags && (d.flags.indexing || d.flags.scanned)) ? indexPill(d) : ''}</div><div class="card-meta">${who(d.owner)}<span>Version ${d.version}, ${esc(inText(d.updated))}</span></div></a>`).join('') || '<p class="column-empty">Aucun document</p>'}</div></section>`;
       }).join('');
       body = `<div class="board">${cols}</div>`;
     } else {
@@ -797,7 +798,7 @@ pg_restore -U postgres -d facturation_restore \\
         ${pdf ? `<button class="menu-item" type="button" data-mock="Le PDF s’ouvre dans un nouvel onglet, avec le lecteur du navigateur. Non simulé dans la démo.">${ico('external')}Ouvrir dans le navigateur</button>` : ''}
         <button class="menu-item" type="button" data-mock="${pdf ? 'Le PDF s’ouvre dans un nouvel onglet, où le navigateur l’imprime. Non simulé dans la démo.' : 'Impression du contenu seul, précédé du titre, du statut, de la version et de la date : non simulée dans la démo.'}">${ico('print')}Imprimer</button>
         <div class="menu-sep"></div>
-        <button class="menu-item" type="button" data-mock="Archivage : non simulé.">${ico('archive')}Archiver</button>
+        <button class="menu-item" type="button" data-action="open" data-overlay="status" data-params="doc=${d.id}&st=archived">${ico('archive')}Archiver</button>
         <button class="menu-item danger" type="button" data-mock="Suppression : non simulée.">${ico('trash')}Supprimer</button>
       </div></div>`;
 
@@ -1151,13 +1152,13 @@ pg_restore -U postgres -d facturation_restore \\
       const types = [...new Set(D.audit.map((a) => a.type))];
       return settingsPage('audit', 'Journal d’audit', `
         <div class="target-chips" style="margin:18px 0 12px">
-          <select class="select select-sm" data-audit="type" aria-label="Type d’action"><option value="">Toutes les actions</option>${types.map((t) => `<option>${t}</option>`).join('')}</select>
+          <select class="select select-sm" data-audit="type" aria-label="Catégorie"><option value="">Toutes les catégories</option>${types.map((t) => `<option>${t}</option>`).join('')}</select>
           <select class="select select-sm" data-audit="who" aria-label="Personne"><option value="">Toutes les personnes</option>${[...new Set(D.audit.filter((a) => a.who).map((a) => a.who))].map((w) => `<option value="${w}">${esc(person(w).name)}</option>`).join('')}</select>
-          <select class="select select-sm" aria-label="Période"><option>7 derniers jours</option><option>30 derniers jours</option></select>
+          <select class="select select-sm" aria-label="Période"><option>7 derniers jours</option><option>30 derniers jours</option><option>12 derniers mois</option></select>
           <span style="flex:1"></span><button class="btn" type="button" data-mock="Export CSV : non simulé.">${ico('download')}Exporter en CSV</button>
         </div>
-        <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:820px"><thead><tr><th><span class="th">${ico('clock')}Date</span></th><th><span class="th">${ico('user')}Personne</span></th><th><span class="th">${ico('tag')}Action</span></th><th><span class="th">${ico('text')}Détail</span></th></tr></thead><tbody id="audit-rows"></tbody></table></div></div>
-        <p class="help" style="margin-top:10px">Consultations, imports, suppressions, téléchargements, changements de statut, de droits et de membres, connexions. Conservé 1 an.</p>`,
+        <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:820px"><thead><tr><th><span class="th">${ico('clock')}Date</span></th><th><span class="th">${ico('user')}Personne</span></th><th><span class="th">${ico('tag')}Catégorie</span></th><th><span class="th">${ico('text')}Opération</span></th></tr></thead><tbody id="audit-rows"></tbody></table></div></div>
+        <p class="help" style="margin-top:10px">Consultations, imports, téléchargements, changements de statut, de droits et de membres, connexions. Conservé 1 an. L’export reprend les filtres affichés, et il est lui-même inscrit au journal.</p>`,
         { wide: true, intro: 'Les opérations sensibles de toute l’organisation.', after: renderAudit });
     }
     if (k === 'assistant') {
@@ -1457,7 +1458,7 @@ pg_restore -U postgres -d facturation_restore \\
       return modal(`Nouvelle version de « ${esc(d.title)} »`, `
         <div class="drop">${ico('upload')}<p>Déposez le fichier de la version ${d.version + 1}, ou <button class="link" type="button" data-mock="Sélecteur de fichiers : non simulé.">choisissez-le</button>.</p><p class="help">Même format conseillé : ${esc(d.format)}. 50 Mo au maximum.</p></div>
         <div class="field"><label for="v-note">Ce qui change</label><textarea class="textarea" id="v-note" placeholder="Exemple : ajout de la vérification des rôles avant restauration"></textarea><span class="help">Visible dans l’historique des versions.</span></div>
-        <label class="check"><input type="checkbox" checked>Conserver le statut ${ST[d.status].label}</label>
+        ${d.status === 'published' ? '<label class="check"><input type="checkbox" checked>Conserver le statut Publié</label>' : d.status === 'obsolete' ? '<label class="check"><input type="checkbox">Repasser en Publié</label>' : ''}
         <div class="callout callout-mock">${ico('info')}<p>La version ${d.version} reste consultable et téléchargeable dans l’historique.</p></div>`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Importer la version ${d.version + 1}</button>`, { form: 'version' });
     },
@@ -1475,15 +1476,15 @@ pg_restore -U postgres -d facturation_restore \\
     },
     'status': (p) => {
       const d = docById(p.get('doc') || 'restaurer-pg');
-      const opt = (st, help, extra, dis) => `<label class="radio-card"${dis ? ' style="opacity:.55;cursor:not-allowed"' : ''}><input type="radio" name="st" value="${st}"${d.status === st ? ' checked' : ''}${dis ? ' disabled' : ''}><span><strong>${stIcon(st)}${ST[st].label}${extra || ''}</strong><span class="help">${help}</span></span></label>`;
+      const initial = p.get('st') || d.status;
+      const opt = (st, help, extra, dis) => `<label class="radio-card"${dis ? ' style="opacity:.55;cursor:not-allowed"' : ''}><input type="radio" name="st" value="${st}"${initial === st ? ' checked' : ''}${dis ? ' disabled' : ''}><span><strong>${stIcon(st)}${ST[st].label}${extra || ''}</strong><span class="help">${help}</span></span></label>`;
       return modal('Changer le statut', `
         <p class="help" style="margin-top:-4px">${esc(d.title)}</p>
         ${opt('draft', 'Visible par les membres de l’espace, signalé comme non finalisé.')}
-        ${opt('review', 'Soumis aux responsables de l’espace avant publication.', ' ' + vb('v0.2'), true)}
         ${opt('published', 'Version de référence.')}
-        ${opt('obsolete', 'Reste consultable et cherchable, mais classé en dernier. L’assistant ne l’utilise pas.')}
-        <div class="field" style="margin-left:34px"><label for="repl">Remplacé par</label><select class="select" id="repl"><option>Aucun document</option>${D.docs.filter((x) => x.id !== d.id && x.space === d.space).map((x) => `<option>${esc(x.title)}</option>`).join('')}</select></div>
-        ${opt('archived', 'Retiré des listes et de la recherche. Consultable par les responsables.')}`,
+        ${opt('obsolete', 'Reste consultable et cherchable, mais classé en dernier.')}
+        <div class="field" style="margin-left:34px"><label for="repl">Remplacé par</label><input class="input" id="repl" list="repl-list" placeholder="Tapez le titre d’un document" autocomplete="off"><datalist id="repl-list">${D.docs.filter((x) => x.id !== d.id && x.status !== 'obsolete' && x.status !== 'archived').map((x) => `<option value="${esc(x.title)}">${esc(spaceById(x.space).name)}</option>`).join('')}</datalist><span class="help">Un document que vous pouvez lire, dans n’importe lequel de vos espaces.</span></div>
+        ${opt('archived', 'Retiré des listes et de la recherche. Visible par les responsables de l’espace et les administrateurs.')}`,
         `${cancelBtn}<button class="btn btn-primary" type="submit">Enregistrer</button>`, { form: 'status' });
     },
     'create-space': () => {

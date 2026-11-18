@@ -63,11 +63,11 @@ Les erreurs suivent le format `application/problem+json`, avec un champ `code` s
 | 401 | `unauthenticated`, `invalid_credentials` | Pas de session ouverte, ou identifiants refusés |
 | 403 | `admin_only`, `owner_only`, `contributor_only`, `maintainer_only`, `maintainer_or_owner_only`, `csrf` | Action réservée à un autre rôle, ou jeton CSRF absent ou périmé |
 | 404 | `not_found`, `invalid_link` | Introuvable, ou lien d’invitation ou de réinitialisation périmé |
-| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `folder_not_empty`, `not_retryable`, `extraction_pending`, `no_rendering` | L’action contredit l’état actuel, par exemple retirer le dernier propriétaire, ou lire le contenu d’un document encore en cours d’extraction |
+| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `document_archived`, `same_content`, `folder_not_empty`, `not_retryable`, `extraction_pending`, `no_rendering` | L’action contredit l’état actuel, par exemple retirer le dernier propriétaire, ou lire le contenu d’un document encore en cours d’extraction |
 | 410 | `file_missing` | Le fichier d’un document est introuvable sur le disque du serveur |
 | 413 | `file_too_large` | Le fichier dépasse la taille maximale, indiquée en mégaoctets dans `maxMegabytes` |
 | 415 | `unsupported_media_type` | Le corps doit être en JSON |
-| 429 | `login_locked`, `too_many_searches` | Trop d’échecs de connexion : réessayez après le blocage ; ou deux de vos recherches sont déjà en cours |
+| 429 | `login_locked`, `too_many_searches`, `export_running` | Trop d’échecs de connexion : réessayez après le blocage ; deux de vos recherches sont déjà en cours ; ou l’un de vos exports du journal d’audit |
 | 503 | `search_timeout` | La recherche a dépassé 5 secondes : précisez-la |
 | 507 | `storage_full` | Il resterait moins de 100 Mo libres sur le disque du serveur |
 

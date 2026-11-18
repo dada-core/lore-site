@@ -8,7 +8,7 @@ description: "Les droits se décident dans l’organisation, puis dans chaque es
 | Rôle | Droits |
 | --- | --- |
 | Propriétaire | Tout, y compris attribuer ou retirer le rôle Propriétaire. Accès à tous les espaces, avec les droits d’un responsable. |
-| Administrateur | Gérer l’organisation : réglages, membres et invitations. Accès à tous les espaces, avec les droits d’un responsable. |
+| Administrateur | Gérer l’organisation : réglages, membres et invitations ; consulter et exporter le journal d’audit. Accès à tous les espaces, avec les droits d’un responsable. |
 | Membre | Créer des espaces, et accéder à ceux dont il fait partie, selon son rôle dans chacun. |
 
 Voir [Membres et invitations](members.md).
@@ -25,6 +25,10 @@ Voir [Membres et invitations](members.md).
 | Importer des documents | Non | Oui | Oui |
 | Modifier le titre, la description et la catégorie d’un document, le déplacer d’un dossier à l’autre | Non | Oui | Oui |
 | Changer la langue d’un document | Non | Oui | Oui |
+| Importer une nouvelle version d’un document | Non | Oui | Oui |
+| Changer le statut d’un document : Brouillon, Publié, Obsolète | Non | Oui | Oui |
+| Archiver un document, ou le sortir d’Archivé | Non | Non | Oui |
+| Voir un document archivé | Non | Non | Oui |
 | Relancer une extraction en échec | Non | Oui | Oui |
 | Restreindre un document, ou le rouvrir à tout l’espace | Non | Ceux dont il est responsable | Oui |
 | Changer le responsable d’un document | Non | Ceux dont il est responsable | Oui |
@@ -37,6 +41,12 @@ Voir [Membres et invitations](members.md).
 | Quitter l’espace | Oui | Oui | Oui, s’il reste un autre responsable |
 
 La page *Membres* de chaque espace rappelle ce que permet chaque rôle. Dans un espace archivé, plus rien ne se modifie : ni ses membres, ni ses dossiers, ni ses documents. La recherche n’en montre les documents qu’à ceux qui voient encore l’espace, et seulement s’ils le demandent.
+
+## Documents archivés
+
+Un document archivé n’est visible que des responsables de son espace, et des propriétaires et des administrateurs de l’organisation, comme un espace archivé. Pour tous les autres, son responsable compris s’il n’est que contributeur, il n’apparaît nulle part et répond comme un document qui n’existe pas. Ceux qui le voient ne le trouvent pas non plus dans les listes, les nombres ni la palette : ils l’affichent à part, dans la colonne Archivé du kanban, en bas de la grille ou avec le statut Archivé de la recherche.
+
+Un document archivé est en lecture seule : ni nouvelle version, ni titre, description, catégorie, langue, dossier, accès ou responsable. Seuls son statut et sa suppression restent possibles.
 
 Le responsable d’un document est d’abord la personne qui l’a importé. Les responsables de l’espace, et le responsable du document s’il est au moins contributeur, peuvent le confier à un autre membre actif de l’espace, qui a au moins le rôle Contributeur. Un document dont le responsable a quitté l’organisation ne peut être repris que par un responsable de l’espace.
 
