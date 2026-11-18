@@ -7,16 +7,25 @@ description: "Lore can be driven from the keyboard: search, import, panels, wind
 
 | Shortcut | Action |
 | --- | --- |
-| <kbd>Ctrl K</kbd> | Search, or go to a page, a space, a document |
-| <kbd>/</kbd> | Open search |
+| <kbd>Ctrl K</kbd> | Open the palette: search, or go to a page, a space, a document |
+| <kbd>/</kbd> | Open the Search page, with its field selected |
 | <kbd>I</kbd> | Import documents |
 | <kbd>[</kbd> | Show or hide the sidebar |
 | <kbd>]</kbd> | Show or hide the right panel |
-| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd> | Move through results and open one |
 | <kbd>Esc</kbd> | Close a window or a menu |
 | <kbd>Ctrl Enter</kbd> | Send a question to the assistant <span class="vb">v0.3</span> |
 
-On macOS, <kbd>Ctrl</kbd> is replaced by <kbd>⌘</kbd>.
+On macOS, <kbd>Ctrl</kbd> is replaced by <kbd>⌘</kbd>. <kbd>Ctrl K</kbd>, <kbd>/</kbd>, <kbd>I</kbd>, <kbd>[</kbd> and <kbd>]</kbd> do nothing while you type; nor do <kbd>Ctrl K</kbd> and <kbd>/</kbd> while a window is open.
+
+## In the palette
+
+| Shortcut | Action |
+| --- | --- |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Choose an item |
+| <kbd>Enter</kbd> | Open the item chosen: the first one, “Search the documents for “…””, runs the search |
+| <kbd>Esc</kbd> | Close the palette |
+
+See [The palette](search.md#the-palette).
 
 ## In the PDF viewer
 

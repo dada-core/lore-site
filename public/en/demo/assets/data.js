@@ -152,6 +152,7 @@ window.SL = (function () {
       id: 'schema-cablage', title: 'Server room B cabling diagram', space: 'infrastructure', folder: 'constructeur',
       format: 'PDF', size: '8.7 MB', pagesCount: 4, category: 'Technical documentation', status: 'published', owner: 'ey',
       updated: 'Oct 14', updatedRel: 'on Oct 14, 2026', age: 28, version: 1, lang: 'other', body: 'scan', flags: { scanned: true },
+      description: 'Diagram of racks B1 to B6 in room B, cabling to the network core, OM4 fiber between B3 and B4.',
       review: 'None',
       versions: [{ n: 1, date: 'Oct 14, 2026', short: 'Oct 14', by: 'ey', note: 'Scan of the paper diagram.', w: 50 }],
       passages: []

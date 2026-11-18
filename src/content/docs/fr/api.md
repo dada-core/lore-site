@@ -1,6 +1,6 @@
 ---
 title: "Présentation de l’API"
-description: "L’interface de Lore repose entièrement sur une API REST, décrite en OpenAPI. Elle couvre aujourd’hui la configuration, la connexion, le compte, l’administration de l’organisation, les espaces et les documents."
+description: "L’interface de Lore repose entièrement sur une API REST, décrite en OpenAPI. Elle couvre aujourd’hui la configuration, la connexion, le compte, l’administration de l’organisation, les espaces, les documents et la recherche."
 ---
 
 ## Adresse de base
@@ -21,8 +21,7 @@ La description OpenAPI complète est servie, sans authentification, à l’adres
 - **Administration** : `/api/v1/admin/organization`, `/api/v1/admin/members`, `/api/v1/admin/invitations` et `/api/v1/admin/storage`, réservées aux propriétaires et aux administrateurs.
 - **Espaces** : `/api/v1/spaces`, et pour chaque espace ses dossiers (`/{spaceId}/folders`) et ses membres (`/{spaceId}/members`).
 - **Documents** : `/api/v1/spaces/{spaceId}/documents`, `/api/v1/documents/{id}` et ses actions, le contenu et le fichier de chaque version (`/versions/{number}/rendering` et `/versions/{number}/file`), `/api/v1/documents/recent`, `/api/v1/imports/limits` et `/api/v1/imports/attention`. Voir [Documents](api-documents.md).
-
-La recherche s’y ajoutera avec la version 0.1.
+- **Recherche** : `GET /api/v1/search` et, pour la palette, `GET /api/v1/search/titles`.
 
 ## Authentification
 
@@ -60,7 +59,7 @@ Les erreurs suivent le format `application/problem+json`, avec un champ `code` s
 
 | Code HTTP | Exemples de `code` | Signification |
 | --- | --- | --- |
-| 400 | `invalid_request` | Requête invalide. Le champ `errors` liste les champs en cause, chacun avec son code, par exemple `invalid_email` ou `password_min_length` |
+| 400 | `invalid_request` | Requête invalide. Le champ `errors` liste les champs en cause, chacun avec son code, par exemple `invalid_email`, `password_min_length` ou `common_words_only` |
 | 401 | `unauthenticated`, `invalid_credentials` | Pas de session ouverte, ou identifiants refusés |
 | 403 | `admin_only`, `owner_only`, `contributor_only`, `maintainer_only`, `maintainer_or_owner_only`, `csrf` | Action réservée à un autre rôle, ou jeton CSRF absent ou périmé |
 | 404 | `not_found`, `invalid_link` | Introuvable, ou lien d’invitation ou de réinitialisation périmé |
@@ -68,7 +67,8 @@ Les erreurs suivent le format `application/problem+json`, avec un champ `code` s
 | 410 | `file_missing` | Le fichier d’un document est introuvable sur le disque du serveur |
 | 413 | `file_too_large` | Le fichier dépasse la taille maximale, indiquée en mégaoctets dans `maxMegabytes` |
 | 415 | `unsupported_media_type` | Le corps doit être en JSON |
-| 429 | `login_locked` | Trop d’échecs de connexion : réessayez après le blocage |
+| 429 | `login_locked`, `too_many_searches` | Trop d’échecs de connexion : réessayez après le blocage ; ou deux de vos recherches sont déjà en cours |
+| 503 | `search_timeout` | La recherche a dépassé 5 secondes : précisez-la |
 | 507 | `storage_full` | Il resterait moins de 100 Mo libres sur le disque du serveur |
 
 Le téléchargement d’un fichier répond aussi `206` pour une partie du fichier, `304` quand le navigateur l’a déjà, et `416` pour une plage hors du fichier, sans corps d’erreur. Voir [Télécharger l’original](api-documents.md#télécharger-loriginal).

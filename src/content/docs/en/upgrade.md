@@ -49,6 +49,14 @@ description: "An upgrade means installing the new version and restarting. Databa
    sudo journalctl -u lore -f
    ```
 
+## From the 0.1.0-alpha.3 preview
+
+The 0.1.0-alpha.4 preview, which brings search, computes at its first start the search index of the documents already imported: PostgreSQL rewrites the table of passages, keeping their text and their vectors apart from their row, then builds the indexes. No document is extracted again, and each keeps the language detected at its import.
+
+- **Duration.** About 6 minutes, measured on 300,000 passages, that is about 720 million characters in 10,000 documents.
+- **During the migration, Lore does not start yet**: neither the interface nor the API answers. Plan for this window, and follow the migration in the logs, as in the *Check* step.
+- **Room.** The vectors and their indexes take about 2.5 times the room of the text, in the database. For the time of the migration, rewriting the table of passages also needs the room of a copy of that table. See [Storage and extraction](storage.md#search-index).
+
 ## From the 0.1.0-alpha.2 preview
 
 The 0.1.0-alpha.3 preview, which brings the document reader, extracts again, at its first start, the current version of each Markdown, Word and text document already indexed: this is how it receives the laid-out content its page shows. These documents show *In progress* during their extraction, a few moments each, then go back to *Indexed*. PDFs and failed documents do not change.

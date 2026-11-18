@@ -197,9 +197,10 @@
     D.docs.forEach((d) => {
       if ((d.flags && d.flags.indexing) || d.status === 'archived') return;
       const titleMatch = groups.some((g) => groupMatch(norm(d.title), g));
+      const descMatch = !!d.description && groups.some((g) => groupMatch(norm(d.description), g));
       const matches = d.passages.filter((p) => groups.some((g) => groupMatch(norm(plain(p.text)), g)));
-      if (!titleMatch && !matches.length) return;
-      out.push({ doc: d, matches, titleMatch, score: matches.length * 2 + (titleMatch ? 3 : 0) });
+      if (!titleMatch && !descMatch && !matches.length) return;
+      out.push({ doc: d, matches, titleMatch, descMatch, score: matches.length * 2 + (titleMatch ? 3 : 0) + (descMatch ? 1 : 0) });
     });
     out.sort((a, b) => (a.doc.status === 'obsolete') - (b.doc.status === 'obsolete') || b.score - a.score);
     return out;
@@ -221,7 +222,7 @@
   /* =========================================================
      State and routing
      ========================================================= */
-  const state = { lastQ: null, ex: { space: new Set(), category: new Set(), status: new Set() }, date: 'all', pdfPage: {}, lastFocus: null, pal: { items: [], sel: 0 } };
+  const state = { lastQ: null, ex: { space: new Set(), category: new Set(), status: new Set(), format: new Set() }, date: 'all', shown: 0, recentCleared: false, focusSearch: false, pdfPage: {}, lastFocus: null, pal: { items: [], sel: 0 } };
 
   /* Same addresses as the application: home is the root (#/). */
   const ROUTES = [
@@ -759,7 +760,7 @@ pg_restore -U postgres -d billing_restore \\
       const r = docById(d.replacedBy);
       banners.push(`<div class="callout callout-warn">${ico('alert')}<p>This document has been outdated since ${esc(d.obsoleteSince)}. Use <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a> instead.</p></div>`);
     }
-    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Scanned document: its content is not searchable. Only its title and description are.</p><button class="btn" type="button" data-mock="Adding a description: not simulated.">Add a description</button></div>`);
+    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Scanned document: its content is not searchable. Only its title and description are.</p>${d.description ? '' : '<button class="btn" type="button" data-mock="Adding a description: not simulated.">Add a description</button>'}</div>`);
     if (d.flags && d.flags.indexing) banners.push(`<div class="callout">${ico('spinner', 'spin')}<p>Text extraction in progress: this document will appear in search results in a few moments.</p></div>`);
 
     const members = D.spaceMembers[d.space] || [];
@@ -808,6 +809,7 @@ pg_restore -U postgres -d billing_restore \\
           ${banners.join('')}
           <h1 class="doc-title"${d.lang === 'fr' ? ' lang="fr"' : ''}>${esc(d.title)}</h1>
           <div class="doc-sub">${status(d.status)}<span>Version ${d.version}</span><span>Updated ${esc(d.updatedRel)} by ${esc(person(d.versions[0].by).name)}</span>${d.restricted ? `<span class="status">${ico('lock')}Restricted access</span>` : ''}${d.lang === 'fr' ? '<span class="tag-lang">FR</span>' : ''}</div>
+          ${d.description ? `<p class="doc-desc">${esc(d.description)}</p>` : ''}
           ${d.format === 'Word' && !(d.flags && d.flags.indexing) ? '<p class="doc-note">Simplified view of the Word document: images and layout are not reproduced. <button class="link" type="button" data-mock="Downloading the original: not simulated.">Download the original</button></p>' : ''}
           <div style="margin-top:10px">${content}</div>
           ${docActivity(d)}
@@ -831,14 +833,29 @@ pg_restore -U postgres -d billing_restore \\
   const FACETS = {
     space: { label: 'Space', get: (d) => spaceById(d.space).name },
     category: { label: 'Category', get: (d) => d.category },
-    status: { label: 'Status', get: (d) => ST[d.status].label }
+    status: { label: 'Status', get: (d) => ST[d.status].label },
+    format: { label: 'Format', get: (d) => d.format }
   };
   const dateOk = (d) => state.date === 'all' || d.age <= parseInt(state.date, 10);
+  /* The application shows results 20 at a time; the demo, which has few documents, 3 at a time, to show “Show more results”. */
+  const PAGE = 3;
+  function resetFilters() {
+    state.ex = { space: new Set(), category: new Set(), status: new Set(), format: new Set() };
+    state.date = 'all';
+    state.shown = PAGE;
+  }
+  /* The / key opens the Search page, with its field selected. */
+  function focusSearchField() {
+    if (!state.focusSearch) return;
+    state.focusSearch = false;
+    const field = $('#sq');
+    if (field) field.focus();
+  }
 
   function screenSearch(m, p) {
     const q = (p.get('q') || '').trim();
     const mode = p.get('mode') === 'semantic' ? 'semantic' : 'keywords';
-    if (q !== state.lastQ) { state.ex = { space: new Set(), category: new Set(), status: new Set() }; state.date = 'all'; state.lastQ = q; }
+    if (q !== state.lastQ) { resetFilters(); state.lastQ = q; }
     const seg = `<div class="seg" role="group" aria-label="Type of search"><a href="#/search${mode === 'semantic' ? '?q=' + enc(DEFAULT_Q) : q ? '?q=' + enc(q) : ''}"${mode === 'keywords' ? ' aria-current="page"' : ''}>Keywords</a><a href="#/search?mode=semantic&q=${enc(D.semantic.question)}"${mode === 'semantic' ? ' aria-current="page"' : ''}>Keywords and meaning ${vb('v0.2')}</a></div>`;
     const head = `<div class="search-head"><h1 class="sr-only">Search</h1>
       <form class="search-box" role="search" data-form="search">${ico('search')}<label class="sr-only" for="sq">Search your documents</label><input id="sq" name="q" type="search" value="${esc(q)}" placeholder="Search your documents" autocomplete="off">${mode === 'semantic' ? '<input type="hidden" name="mode" value="semantic">' : ''}<button class="btn btn-primary" type="submit">Search</button></form>
@@ -848,15 +865,16 @@ pg_restore -U postgres -d billing_restore \\
     if (!q) {
       const recent = [DEFAULT_Q, 'kubernetes failover', 'ceph quota', 'certificate -vpn'];
       base.html = `${head}<div class="results"><div class="home" style="margin-top:24px">
-        <section><h2 class="section-title">Recent searches</h2><ul class="list">${recent.map((r) => `<li><a class="list-row" href="#/search?q=${enc(r)}">${ico('clock')}<div class="list-main"><div class="list-title" style="font-family:var(--mono);font-size:13px">${esc(r)}</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul></section>
+        ${state.recentCleared ? '' : `<section aria-labelledby="recent-searches"><div class="row-between section-head"><h2 class="section-title" id="recent-searches">Recent searches</h2><button class="link" type="button" data-action="clear-recent">Clear</button></div><ul class="list">${recent.map((r) => `<li><a class="list-row" href="#/search?q=${enc(r)}">${ico('clock')}<div class="list-main"><div class="list-title" style="font-family:var(--mono);font-size:13px">${esc(r)}</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul></section>`}
         <section><h2 class="section-title">Syntax</h2><div class="syntax">
           <code>"does not exist"</code><span>Exact phrase</span>
-          <code>-barman</code><span>Exclude a word</span>
-          <code>pg_restore or pg_dump</code><span>Either one</span>
-          <code>ERR_CONNECTION_REFUSED</code><span>Technical identifiers are found as they are</span>
-          <code>role</code><span>Accents and case are ignored: also finds “Role”</span>
+          <code>-barman</code><span>Leave a word out</span>
+          <code>pg_restore or pg_dump</code><span>One or the other</span>
+          <code>ERR_CONNECTION_REFUSED</code><span>Technical identifiers are found as you paste them</span>
+          <code>role</code><span>Accents and capitals ignored: also finds “rôle”</span>
         </div></section></div></div>`;
       base.title = 'Search';
+      base.after = focusSearchField;
       return base;
     }
 
@@ -918,18 +936,21 @@ pg_restore -U postgres -d billing_restore \\
     const terms = flatTerms(q);
     const all = computeResults(q);
     if (!all.length) {
-      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>No document matches “${esc(q)}”</h2><p>Check the spelling of identifiers, remove a word or the quotation marks. Scanned documents are only searchable by their title.</p>
+      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>No document matches “${esc(q)}”</h2><p>Check the spelling of identifiers, remove a word or the quotes. Scanned documents can only be found by their title and description.</p>
         <div class="actions"><a class="btn" href="#/search?mode=semantic&q=${enc(D.semantic.question)}">Search by meaning ${vb('v0.2')}</a><a class="btn" href="#/assistant?q=${enc(q)}">${ico('ask')}Ask the assistant ${vb('v0.3')}</a></div>
         <p class="help">Searches without results are counted in the dashboard to spot documentation gaps. ${vb('v0.2')}</p></div>`);
       return;
     }
     const visible = all.filter((r) => Object.keys(FACETS).every((k) => !state.ex[k].has(FACETS[k].get(r.doc))) && dateOk(r.doc));
-    const items = visible.map((r) => {
+    /* As in the application: the passage found; otherwise the title; otherwise an excerpt of the description. */
+    const items = visible.slice(0, state.shown).map((r) => {
       const d = r.doc;
       const s = spaceById(d.space);
       const best = r.matches[0];
       const href = `#/documents/${d.id}?from=search&q=${enc(q)}${best ? '&anchor=' + best.anchor : ''}`;
-      const excerpt = best ? `<p class="excerpt">… ${hl(best.text, terms)} …</p>` : `<p class="excerpt excerpt-meta">${d.flags && d.flags.scanned ? 'Scanned document: only its title matches.' : 'Match in the title.'}</p>`;
+      const excerpt = best ? `<p class="excerpt">… ${hl(best.text, terms)} …</p>`
+        : !r.titleMatch && r.descMatch ? `<p class="excerpt">${hl(d.description, terms)}</p>`
+        : `<p class="excerpt excerpt-meta">${d.flags && d.flags.scanned ? 'Scanned document: only its title matches.' : 'Match in the title.'}</p>`;
       const others = r.matches.slice(1);
       return `<article class="result${d.status === 'obsolete' ? ' is-obsolete' : ''}">${ico(fmtIco(d))}<div class="result-body">
         <a class="result-title" href="${href}"${d.lang === 'fr' ? ' lang="fr"' : ''}>${markText(d.title, terms)}</a>
@@ -939,9 +960,10 @@ pg_restore -U postgres -d billing_restore \\
         ${others.length ? `<div class="more"><button class="link" type="button" data-action="toggle" data-target="more-${d.id}" aria-expanded="false" style="font-size:12.5px">${others.length} other passage${others.length > 1 ? 's' : ''} in this document</button><ul id="more-${d.id}" hidden>${others.map((x) => `<li><a href="#/documents/${d.id}?from=search&q=${enc(q)}&anchor=${x.anchor}">${esc(x.loc)}</a></li>`).join('')}</ul></div>` : ''}
       </div></article>`;
     }).join('');
-    host.innerHTML = fr(`<div class="results-meta"><span>${visible.length} document${visible.length === 1 ? '' : 's'}${visible.length < all.length ? ' of ' + all.length : ''}</span><span>Sorted by relevance. Outdated documents come last.</span></div>
-      ${items || `<p class="help" style="padding:16px 0">No results with these filters.</p>`}
-      <ul class="notes"><li>${ico('lock')}Only the documents you have access to appear.</li><li>${ico('scan')}Scanned documents are only searchable by their title and metadata.</li></ul>`);
+    host.innerHTML = fr(`<div class="results-meta"><span>${visible.length} document${visible.length === 1 ? '' : 's'}${visible.length < all.length ? ' of ' + all.length : ''}</span><span>Ranked by relevance. Outdated documents come last.</span></div>
+      ${items || `<div class="row-between results-none"><p class="help">No result with these filters.</p><button class="btn" type="button" data-action="clear-filters">Remove the filters</button></div>`}
+      ${visible.length > state.shown ? `<div class="results-more"><button class="btn" type="button" data-action="more-results">Show more results</button></div>` : ''}
+      <ul class="notes"><li>${ico('lock')}Only the documents you have access to appear.</li><li>${ico('scan')}Scanned documents can only be found by their title and description.</li></ul>`);
     updateChipLabels(all);
   }
 
@@ -1516,7 +1538,7 @@ pg_restore -U postgres -d billing_restore \\
         ['Access', 'v0.1', [['Setup: organization', '#/setup'], ['Setup: administrator account', '#/setup?step=2'], ['Setup: done', '#/setup?step=3'], ['Sign in', '#/login'], ['Sign-in refused', '#/login?error=1'], ['Join with an invitation', '#/join'], ['Forgot your password', '#/forgot-password'], ['New password', '#/reset-password']]],
         ['Workspace', 'v0.1', [['Home', '#/'], ['All spaces', '#/spaces'], ['Library, grid view', '#/spaces/infrastructure'], ['Library, kanban view', '#/spaces/infrastructure?view=kanban'], ['Library filtered on a folder', '#/spaces/infrastructure?folder=runbooks'], ['Empty space', '#/spaces/applications'], ['Space members', '#/spaces/infrastructure/members'], ['Space settings', '#/spaces/infrastructure/settings'], ['My account', '#/account'], ['Page not found', '#/not-found']]],
         ['Documents', 'v0.1', [['Markdown', '#/documents/restaurer-pg'], ['Converted Word file', '#/documents/inc-2291'], ['PDF', '#/documents/guide-baie'], ['Scanned PDF', '#/documents/schema-cablage'], ['Restricted access', '#/documents/rotation-tls'], ['Outdated', '#/documents/barman'], ['Extraction in progress', '#/documents/plan-reprise'], ['Opened from search', `#/documents/restaurer-pg?from=search&q=${enc2}&anchor=s-4-2`], ['PDF opened at the page found', '#/documents/guide-baie?from=search&q=snapshot%20restore&anchor=page-112']]],
-        ['Search', 'v0.1', [['Search page', '#/search'], ['Results and filters', `#/search?q=${enc2}`], ['No results', '#/search?q=ceph%20quota'], ['Command palette (Ctrl K)', 'palette']]],
+        ['Search', 'v0.1', [['Search page', '#/search'], ['Results and filters', `#/search?q=${enc2}`], ['No results', '#/search?q=ceph%20quota'], ['Match in the description', '#/search?q=OM4%20fiber'], ['Command palette (Ctrl K)', 'palette']]],
         ['Windows', 'v0.1', [['Import documents', '#/spaces/infrastructure?open=import'], ['New version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Document access', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Change the status', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Create a space', '#/spaces?open=create-space'], ['New folder', '#/spaces/infrastructure?open=new-folder'], ['Add members to a space', '#/spaces/securite/members?open=add-members&space=securite'], ['Delete a space', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Invite to the organization', '#/admin/members?open=invite'], ['Reset link', '#/admin/members?open=reset-link&for=hc']]],
         ['Administration', 'v0.1', [['General', '#/admin/general'], ['Members', '#/admin/members'], ['Security and sign-in', '#/admin/security'], ['Storage and import', '#/admin/storage'], ['Audit log', '#/admin/audit']]],
         ['Knowledge base', 'v0.2', [['Kanban of the articles', '#/knowledge'], ['Grid of the articles', '#/knowledge?view=grid'], ['Approved article', '#/knowledge/pg-role-manquant'], ['Article to approve', '#/knowledge/vpn-mtu'], ['New article', '#/knowledge/new']]],
@@ -1719,7 +1741,16 @@ pg_restore -U postgres -d billing_restore \\
       el.parentElement.querySelectorAll('[data-action="feedback"]').forEach((b) => b.setAttribute('aria-pressed', String(b === el)));
       toast('Thank you. Your feedback counts toward the helpful-answer rate on the dashboard.');
     },
-    'pal-run': (el) => palRun(parseInt(el.dataset.i, 10))
+    'pal-run': (el) => palRun(parseInt(el.dataset.i, 10)),
+    'clear-recent': () => { state.recentCleared = true; render(); toast('Recent searches cleared'); },
+    'clear-filters': () => { resetFilters(); renderChips(); renderList(); },
+    'more-results': () => {
+      const before = state.shown;
+      state.shown += PAGE;
+      renderList();
+      const titles = $$('#results .result-title');
+      if (titles[before]) titles[before].focus();
+    }
   };
 
   const FORMS = {
@@ -1783,9 +1814,11 @@ pg_restore -U postgres -d billing_restore \\
     if (t.matches('[data-facet]')) {
       const set = state.ex[t.dataset.facet];
       if (t.checked) set.delete(t.value); else set.add(t.value);
+      state.shown = PAGE;
       renderList();
     } else if (t.matches('[data-date]')) {
       state.date = t.value;
+      state.shown = PAGE;
       renderList();
     } else if (t.matches('[data-audit]')) {
       renderAudit();
@@ -1834,7 +1867,7 @@ pg_restore -U postgres -d billing_restore \\
       return;
     }
     if (typing || e.ctrlKey || e.metaKey || e.altKey || overlayOpen) return;
-    if (e.key === '/') { e.preventDefault(); openOverlay('palette'); }
+    if (e.key === '/') { e.preventDefault(); state.focusSearch = true; go('#/search'); }
     else if ((e.key === 'i' || e.key === 'I') && $('.app')) { e.preventDefault(); openOverlay('import'); }
   });
 

@@ -150,6 +150,7 @@ window.SL = (function () {
       id: 'schema-cablage', title: 'Schéma de câblage de la salle serveurs B', space: 'infrastructure', folder: 'constructeur',
       format: 'PDF', size: '8,7 Mo', pagesCount: 4, category: 'Documentation technique', status: 'published', owner: 'ey',
       updated: '14 oct.', updatedRel: 'le 14 oct. 2026', age: 28, version: 1, lang: 'other', body: 'scan', flags: { scanned: true },
+      description: 'Schéma des baies B1 à B6 de la salle B, câblage vers le cœur de réseau, fibre OM4 entre B3 et B4.',
       review: 'Aucune',
       versions: [{ n: 1, date: '14 oct. 2026', short: '14 oct.', by: 'ey', note: 'Numérisation du schéma papier.', w: 50 }],
       passages: []

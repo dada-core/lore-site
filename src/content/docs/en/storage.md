@@ -1,6 +1,6 @@
 ---
 title: "Storage and extraction"
-description: "Where Lore keeps the imported files, how it extracts their text, and what to plan for on the server: disk, memory and settings."
+description: "Where Lore keeps the imported files, how it extracts their text and indexes it for search, and what to plan for on the server: disk, memory and settings."
 ---
 
 ## Files
@@ -85,6 +85,15 @@ For a Markdown, Word or text document, the extraction also produces, in the same
 | Content that is not of the announced format | `unsupported_content` | Fails at once. |
 
 Extraction is not recorded in the audit log. The state of *Apache Tika*, active or the cause of a failure to start a process, is shown in *Administration › Storage and import*.
+
+## Search index
+
+Search adds no service: it relies on PostgreSQL’s full-text search, in the same database.
+
+- **What is indexed.** The text of each passage, with the headings of its sections, as well as the title and the description of each document. Each of them twice: in the language of the document, French, English or other, to recognize the forms of words; and as written, without accents or capitals, for technical identifiers.
+- **Always up to date.** PostgreSQL computes the index again each time a text, a title, a description or a language is written: there is no job to follow, and no index to rebuild.
+- **Room.** The vectors and their indexes take about 2.5 times the room of the text, in the database: measured on 300,000 passages of 10,000 documents, about 720 million characters. The text and the vectors of each passage are kept apart from its row: this is what makes search fast. PostgreSQL does so only beyond about 2 KB a row: short passages stay in their row, and searching a very frequent word among them reads more.
+- **Backup.** `pg_dump` does not back up the vectors, which are computed from the text: PostgreSQL computes them again on restore. See [Backup and restore](backup.md).
 
 ## Memory to plan for
 

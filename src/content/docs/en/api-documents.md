@@ -175,7 +175,7 @@ Returns the document, its current version and what you may do with it (`actions`
 | --- | --- |
 | `extractionStatus` | `PENDING` (in progress), `INDEXED`, `SCANNED` or `FAILED` |
 | `extractionError` | For a failure: `encrypted`, `corrupt`, `unsupported_content` (final), `timeout`, `extractor_crashed`, `file_missing` (passing). See [Storage and extraction](storage.md#failures-and-new-attempts). |
-| `language` | `fr`, `en` or `other`, once the text is extracted |
+| `language` | `fr`, `en` or `other`: detected once the text is extracted, or chosen by a contributor |
 | `pageCount` | The number of pages of a PDF |
 | `sectionCount` | The number of passages the text was split into |
 | `textTruncated` | `true` if the text was over 10 million characters and was cut |
@@ -288,17 +288,21 @@ Field error: `size` (`out_of_range`, with `min` and `max`).
 
 `PATCH /api/v1/documents/{id}`
 
-Changes the title (200 characters at most), the description (2,000) or the category. A field left out does not change; an empty description or category is removed. Reserved for the space’s contributors and maintainers. Returns the document.
+Changes the title (200 characters at most), the description (2,000), the category or the language. A field left out does not change; an empty description or category is removed. Reserved for the space’s contributors and maintainers. Returns the document.
 
 ```json title="Request body"
 {
   "title": "Restore a PostgreSQL database",
   "description": "Procedure tested on PostgreSQL 18.",
-  "category": "RUNBOOK"
+  "category": "RUNBOOK",
+  "language": "en"
 }
 ```
 
-Field errors: `title` (`required`, `too_long`), `description` (`too_long`), `category` (`invalid_value`).
+- **Language.** `language` is `fr`, `en` or `other`. Changing it indexes the document again for search at once, in the same request; the language chosen is kept if the same version is extracted again. While the text is being extracted, the language cannot be changed: `409 extraction_pending`.
+- **Audit log.** Each change records `document.updated`, with the fields changed in `changes`; for the language, the former one in `previousLanguage`.
+
+Field errors: `title` (`required`, `too_long`), `description` (`too_long`), `category` and `language` (`invalid_value`).
 
 ## Move a document
 
