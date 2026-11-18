@@ -220,8 +220,9 @@ window.SL = (function () {
     { when: 'Aujourd’hui, 9 h 31', who: null, type: 'Connexion', text: '5 tentatives de connexion échouées pour herve.coulibaly@dada.group. Compte bloqué 15 minutes.' },
     { when: 'Aujourd’hui, 8 h 47', who: 'wk', type: 'Organisation', text: 'a créé l’espace « Applications métier ».' },
     { when: 'Hier, 18 h 04', who: 'as', type: 'Import', text: 'a importé la version 4 de « Restaurer une base PostgreSQL depuis une sauvegarde ».' },
-    { when: 'Hier, 16 h 20', who: 'as', type: 'Membres', text: 'a changé le rôle d’Eli Brou dans Infrastructure : Lecteur, auparavant Contributeur.' },
+    { when: 'Hier, 16 h 20', who: 'as', type: 'Droits', text: 'a changé le rôle d’Eli Brou dans Infrastructure : Lecteur, auparavant Contributeur.' },
     { when: 'Hier, 15 h 12', who: 'hc', type: 'Statut', text: 'a marqué « Sauvegardes nocturnes avec Barman » comme obsolète.' },
+    { when: 'Hier, 14 h 03', who: 'eb', type: 'Modification', text: 'a modifié la description de « Schéma de câblage de la salle serveurs B ».' },
     { when: 'Hier, 11 h 05', who: 'ck', type: 'Suppression', text: 'a supprimé « Procédure VPN (copie) » (1 version).' },
     { when: '9 nov., 8 h 15', who: 'ey', type: 'Téléchargement', text: 'a téléchargé l’original de « Schéma de câblage de la salle serveurs B ».' },
     { when: '8 nov., 17 h 40', who: 'as', type: 'Membres', text: 'a créé un lien d’invitation pour l’espace Infrastructure (rôle Contributeur).' }

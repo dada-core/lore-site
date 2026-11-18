@@ -96,7 +96,8 @@ Les mots de `q` sont surlignés dans la section ou la page désignée seulement,
 | Cas | Ce qui s’affiche |
 | --- | --- |
 | Un titre, une partie ou une page que le document n’a pas | Le document s’ouvre en haut, ou à sa première page pour un PDF, avec « Ce passage n’existe pas dans ce document. » |
-| Un lien fait pour une autre version que la version actuelle | Le document s’ouvre en haut, avec « Ce passage a changé depuis la version 1. » |
+| Un lien fait pour une version plus ancienne | La version actuelle s’ouvre à la section du même titre, avec « Ce lien visait la version 3 : voici la même section dans la version actuelle. » Si elle n’existe plus, en haut, avec « Ce passage a changé depuis la version 3. » Dans les deux cas, *Afficher la version 3* ouvre l’ancienne version. Un PDF s’ouvre à la même page, si elle existe encore. |
+| Un lien qui désigne une version que le document n’a pas encore | Le document s’ouvre en haut, avec « Ce passage a changé depuis la version 6. » |
 | Vous n’êtes pas connecté | Après la connexion, le document s’ouvre au même passage. |
 | Vous ne pouvez pas voir le document | *Cette page est introuvable*, comme pour un document qui n’existe pas. |
 
@@ -116,7 +117,7 @@ Le panneau de droite, affiché ou masqué avec <kbd>]</kbd>, dit tout du documen
 
 | Propriété | Ce qui s’affiche | Qui la modifie |
 | --- | --- | --- |
-| Statut | *Brouillon* ou *Publié* | Choisi à l’import |
+| Statut | *Brouillon*, *Publié*, *Obsolète* ou *Archivé* | Contributeurs et responsables de l’espace, avec *Changer le statut* ; Archivé, les responsables de l’espace seulement |
 | Responsable | Son nom, ou *Ancien membre* s’il a quitté l’organisation | Voir [Changer le responsable](#changer-le-responsable) |
 | Catégorie | Sa pastille, ou *Sans catégorie* | Contributeurs et responsables de l’espace |
 | Espace | Un lien vers ses documents | Personne |
@@ -125,7 +126,7 @@ Le panneau de droite, affiché ou masqué avec <kbd>]</kbd>, dit tout du documen
 | Format | Le format, le nombre de pages ou de sections et la taille, par exemple « PDF, 312 pages, 24,8 Mo » | Personne |
 | Indexation | L’état de l’extraction et sa date | *Relancer*, après un échec passager |
 
-Suivent *Accès*, qui dit qui voit le document, *Versions*, avec la carte de la version (date d’import, auteur, nom du fichier, *Empreinte SHA-256* à copier et *Télécharger*), puis *Sur cette page*.
+Suivent *Accès*, qui dit qui voit le document, *Versions*, l’historique en strates décrit ci-dessous, avec l’*Empreinte SHA-256* de la version choisie, à copier, puis *Sur cette page*.
 
 Sous le titre, une ligne rappelle le statut, la version, la date de mise à jour, l’accès restreint, et `EN` pour un document en anglais ; puis vient la description, ou *Ajouter une description* pour un contributeur. Dans un espace archivé, tout est en lecture seule.
 
@@ -154,12 +155,41 @@ Le document est réindexé aussitôt : « Langue mise à jour : le document est 
 - **Quand.** Pas pendant l’extraction du texte, ni dans un espace archivé.
 - **Journal d’audit.** Le changement y est inscrit, avec l’ancienne langue.
 
+## Versions et statut
+
+### Historique en strates
+
+Dans *Versions*, chaque version est une bande, la plus récente en haut et en couleur. L’épaisseur d’une bande dit l’ampleur des modifications apportées par la version : la part des passages ajoutés ou retirés par rapport à la version précédente. Une bande hachurée signale une ampleur inconnue, pour un document numérisé par exemple. Une version en cours ou en échec, plus récente que la version actuelle, est marquée *en cours* ou *en échec*.
+
+Choisissez une bande, à la souris ou avec les flèches <kbd>↑</kbd> et <kbd>↓</kbd> : dessous s’affichent sa date d’import et son auteur, *Ce qui change* (« Première version » pour la première), le nom de son fichier, *Afficher* pour une version plus ancienne et *Télécharger*. Les dix versions les plus récentes s’affichent d’abord, puis *Toutes les versions*.
+
+### Ancienne version
+
+*Afficher* ouvre une ancienne version dans sa propre page, `/documents/{id}/versions/3`, en lecture seule : son contenu mis en forme ou son PDF, son sommaire et les liens de ses sections. Un bandeau le rappelle : « Vous consultez la version 3 du 2 sept. 2026. La version actuelle est la 5. », avec *Revenir à la version actuelle*. L’ouvrir est une consultation, inscrite au journal d’audit avec son numéro, une fois par heure et par document. La recherche ne mène jamais à une ancienne version : elle ne cherche que dans la version actuelle.
+
+### Nouvelle version
+
+*Nouvelle version*, en haut de la page, ouvre la fenêtre d’import d’une nouvelle version, pour les contributeurs et les responsables de l’espace. Voir [Importer une nouvelle version](import.md#importer-une-nouvelle-version). Pendant son extraction, la page affiche « Une nouvelle version est en cours de traitement. » et se met à jour d’elle-même quand elle devient la version actuelle.
+
+### Statut
+
+*Changer le statut*, dans le menu *Autres actions* ou en cliquant sur le statut dans le panneau, ouvre une fenêtre qui décrit l’effet de chaque statut. *Archiver*, dans le même menu, ouvre la même fenêtre, Archivé déjà choisi, pour les responsables de l’espace.
+
+| Statut | Ce que voit le lecteur |
+| --- | --- |
+| Obsolète | « Ce document est obsolète depuis le 10 nov. 2026. Utilisez plutôt Restaurer une base PostgreSQL depuis une sauvegarde. », le titre en lien vers le document qui le remplace. Si vous ne pouvez pas le lire, ou s’il n’y en a pas, le bandeau s’arrête à la date. |
+| Archivé | « Ce document est archivé depuis le … : seuls les responsables de l’espace et les administrateurs le voient. Il ne peut plus être modifié. » Seuls son statut et sa suppression restent possibles. |
+
+### Activité
+
+Sous le contenu, *Activité* raconte ce qui a été fait au document, le plus récent d’abord : imports et nouvelles versions, changements de statut, d’accès, de responsable, de dossier, de titre, de description, de catégorie et de langue, avec la personne et la date ; *Afficher plus* pour les plus anciens. Les consultations et les téléchargements n’y figurent jamais. Un changement d’accès dit à combien de personnes le document est restreint, pas lesquelles, et le remplaçant d’un document obsolète n’y est nommé qu’à qui peut le lire.
+
 ## Télécharger l’original
 
 *Télécharger l’original*, l’icône en haut à droite, ou *Télécharger* dans la carte de la version, rend le fichier tel qu’il a été importé, sous son nom d’origine.
 
 - **Toute personne qui voit le document le télécharge**, lecteurs compris : afficher un PDF transfère de toute façon le fichier au navigateur. Dans un espace archivé, ceux qui le voient encore le téléchargent aussi.
-- **Pour vérifier une copie**, comparez son empreinte avec l’*Empreinte SHA-256* de la carte de la version, par exemple avec `sha256sum`.
+- **Pour vérifier une copie**, comparez son empreinte avec l’*Empreinte SHA-256* de sa version, dans *Versions*, par exemple avec `sha256sum`.
 - **Chaque téléchargement** est inscrit au journal d’audit.
 
 Si le fichier a disparu du disque du serveur, la page l’annonce : « Le fichier de ce document est introuvable sur le serveur. Prévenez la personne qui exploite Lore. » *Télécharger* disparaît alors ; le contenu d’un document Markdown, Word ou texte, gardé dans la base, reste lisible.

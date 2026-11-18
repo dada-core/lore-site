@@ -8,7 +8,7 @@ description: "Access is decided in the organization, then in each space. Lore ap
 | Role | Rights |
 | --- | --- |
 | Owner | Everything, including granting or withdrawing the Owner role. Access to every space, with the rights of a maintainer. |
-| Administrator | Managing the organization: settings, members and invitations. Access to every space, with the rights of a maintainer. |
+| Administrator | Managing the organization: settings, members and invitations; reading and exporting the audit log. Access to every space, with the rights of a maintainer. |
 | Member | Creating spaces, and accessing the ones they belong to, according to their role in each. |
 
 See [Members and invitations](members.md).
@@ -25,6 +25,10 @@ See [Members and invitations](members.md).
 | Import documents | No | Yes | Yes |
 | Change the title, description and category of a document, move it from one folder to another | No | Yes | Yes |
 | Change the language of a document | No | Yes | Yes |
+| Import a new version of a document | No | Yes | Yes |
+| Change the status of a document: Draft, Published, Outdated | No | Yes | Yes |
+| Archive a document, or take it out of Archived | No | No | Yes |
+| See an archived document | No | No | Yes |
 | Retry a failed extraction | No | Yes | Yes |
 | Restrict a document, or open it to the whole space again | No | The ones they own | Yes |
 | Change the owner of a document | No | The ones they own | Yes |
@@ -37,6 +41,12 @@ See [Members and invitations](members.md).
 | Leave the space | Yes | Yes | Yes, if another maintainer remains |
 
 The *Members* page of each space shows what each role allows. In an archived space, nothing can be changed any more: not its members, its folders or its documents. Search only shows its documents to those who still see the space, and only if they ask for them.
+
+## Archived documents
+
+An archived document is only seen by the maintainers of its space, and by the owners and administrators of the organization, as an archived space is. For everyone else, its owner included if they are only a contributor, it appears nowhere and answers as a document that does not exist. Those who see it do not find it in the lists, the counts or the palette either: they show it apart, in the Archived column of the board, at the bottom of the grid or with the Archived status of search.
+
+An archived document is read only: no new version, no title, description, category, language, folder, access or owner. Only its status and its deletion remain possible.
 
 The owner of a document is first the person who imported it. The space’s maintainers, and the document’s owner if they are at least a contributor, can hand it over to another active member of the space who has at least the Contributor role. A document whose owner left the organization can only be taken over by a maintainer of the space.
 

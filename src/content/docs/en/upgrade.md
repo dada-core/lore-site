@@ -49,6 +49,13 @@ description: "An upgrade means installing the new version and restarting. Databa
    sudo journalctl -u lore -f
    ```
 
+## From the 0.1.0-alpha.4 preview
+
+The 0.1.0-beta.1 preview, which brings versions, statuses and the screen of the audit log, adds a few columns, an index of the replacements and three indexes of the log at its first start. Only the date of the status is written on each document, and no document is extracted again: about 1 second for 10,000 documents, then 1.4 seconds for the indexes of a log of 1.3 million events. Lore only starts once the migration is over.
+
+- **Statuses.** Each document keeps its status; the date of that status is its creation date.
+- **Versions.** Each document keeps its single version, which stays its current version.
+
 ## From the 0.1.0-alpha.3 preview
 
 The 0.1.0-alpha.4 preview, which brings search, computes at its first start the search index of the documents already imported: PostgreSQL rewrites the table of passages, keeping their text and their vectors apart from their row, then builds the indexes. No document is extracted again, and each keeps the language detected at its import.

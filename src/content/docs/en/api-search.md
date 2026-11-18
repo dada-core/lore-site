@@ -16,7 +16,7 @@ The documents that match `q`, ranked by relevance, outdated documents last, with
 | `q` | The search, with the [syntax of the interface](search.md#syntax): 500 characters and 32 words at most. Required. |
 | `space` | One or more spaces, by their identifier |
 | `category` | One or more [categories](api-documents.md#categories), such as `RUNBOOK` |
-| `status` | One or more statuses: `DRAFT`, `PUBLISHED`, `OBSOLETE` or `ARCHIVED` |
+| `status` | One or more statuses: `DRAFT`, `PUBLISHED`, `OBSOLETE` or `ARCHIVED`. Without `status`, the archived documents are left out; with `ARCHIVED`, you only receive those you see, as a maintainer of their space, an owner or an administrator |
 | `format` | One or more types: `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `text/markdown` or `text/plain` |
 | `updated` | `30d` or `12m`: the documents updated in the last 30 days, or in the last 12 months |
 | `includeArchived` | `true` to add the documents of the archived spaces you still see |
@@ -100,14 +100,14 @@ The response below only shows the first of the three documents found.
 | Field | Values |
 | --- | --- |
 | `total` | The number of documents found, filters included |
-| `document` | The document, with its current version: its space (`archived` set to `true` for an archived space) and its folder, or `null` |
+| `document` | The document, with its current version: its space (`archived` set to `true` for an archived space) and its folder, or `null`; for an outdated document, `replacedBy` (`id` and `title`) names the one that replaces it, if you can read it, `null` otherwise |
 | `version` | The number of the current version, for the link of the passage |
 | `match` | What matches: `passage`, `title` or `description` |
 | `passage` | The best passage, the one that gathers the most terms: its anchor (`h-7-2`, `page-112`, `part-3`), its page for a PDF, the headings of its sections from the top, its excerpt and its `highlights`. `null` when `match` is `title` or `description` |
 | `description` | When `match` is `description`: an excerpt of the description (`text`) and its `highlights`; `null` otherwise |
 | `words` | The words found, as written in the title and the excerpt, 20 at most: the ones the reader highlights |
 | `otherPassages` | The number of the other passages found in the document (`total`), and the first five, in the order of the document |
-| `facets` | Each value present in the results without the filters, with its number of documents. `spaces` names an archived space to those who still see it; `categories`, `statuses` and `formats` only count its documents with `includeArchived=true` |
+| `facets` | Each value present in the results without the filters, with its number of documents. `spaces` names an archived space to those who still see it; `categories`, `statuses` and `formats` only count its documents with `includeArchived=true`. `statuses` gives `ARCHIVED` and its number to whoever sees archived documents; the other filters only count them with `status=ARCHIVED` |
 
 **Positions.** `titleHighlights` and `highlights` mark the words found with `[start, end[` pairs, start included and end excluded, in UTF-16 units, those of JavaScript: an emoji counts for two, an accented letter for one. Two words separated by a single `_`, `-`, `.` or `/` make a single highlight: `pg_restore`.
 
@@ -132,7 +132,7 @@ The response below only shows the first of the three documents found.
 
 `GET /api/v1/search/titles`
 
-The search of the palette: the documents you can read whose title has a word that begins with each of the words of `q`, accents and capitals ignored. The documents being extracted are included; those of archived spaces are not. The ones whose title begins with `q` come first, then the most recently updated.
+The search of the palette: the documents you can read whose title has a word that begins with each of the words of `q`, accents and capitals ignored. The documents being extracted are included; archived documents, and those of archived spaces, are not. The ones whose title begins with `q` come first, then the most recently updated.
 
 | Parameter | Description |
 | --- | --- |

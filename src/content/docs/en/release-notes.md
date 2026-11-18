@@ -16,6 +16,23 @@ First version: a complete workspace, without artificial intelligence.
 - Audit log
 - Installation with Docker Compose, .deb and .rpm packages or a universal archive
 
+## Version 0.1.0-beta.1 <span class="vb">Preview</span>
+
+Released on November 18, 2026: every feature of version 0.1 is in it. It keeps the data of a 0.1.0-alpha.4 installation: the upgrade only adds a migration, without extracting the documents again (see [Upgrading](upgrade.md#from-the-010-alpha4-preview)). Its data will carry over to version 0.1.0, which follows a pass on quality.
+
+- A new version of a document, with what changes and the status to take; the current version is still read and searched until the new one is extracted
+- History in strata, the thickness of each version showing how much it changed; older versions can be read and downloaded
+- A section link made for an older version opens at the section of the same title in the current version
+- Draft, Published, Outdated (with the document that replaces it) and Archived statuses; kanban view of the library
+- Archived documents seen only by the maintainers of the space and the administrators, read only
+- The activity of each document, and recent activity on the home page, without views or downloads
+- Audit log in the administration: filters by category, person and period, CSV export itself recorded in the log
+- Search: archived documents left out unless asked, “Replaced by” on an outdated document, a pasted error message found much faster
+
+See [Versions and statuses](versions.md) and [Audit log](audit.md).
+
+Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-beta.1).
+
 ## Version 0.1.0-alpha.4 <span class="vb">Preview</span>
 
 Released on November 18, 2026, to try search before version 0.1. It keeps the data of a 0.1.0-alpha.3 installation: the upgrade only adds a migration, which computes the search index of the documents already imported, without extracting them again (see [Upgrading](upgrade.md#from-the-010-alpha3-preview)). It is not meant for production: its data may not carry over to the next version.

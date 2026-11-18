@@ -63,11 +63,11 @@ Errors use the `application/problem+json` format, with a stable `code` field: re
 | 401 | `unauthenticated`, `invalid_credentials` | No open session, or credentials refused |
 | 403 | `admin_only`, `owner_only`, `contributor_only`, `maintainer_only`, `maintainer_or_owner_only`, `csrf` | Action reserved for another role, or CSRF token missing or expired |
 | 404 | `not_found`, `invalid_link` | Not found, or an expired invitation or reset link |
-| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `folder_not_empty`, `not_retryable`, `extraction_pending`, `no_rendering` | The action conflicts with the current state, for example removing the last owner, or reading the content of a document still being extracted |
+| 409 | `last_owner`, `own_account`, `setup_done`, `space_archived`, `document_archived`, `same_content`, `folder_not_empty`, `not_retryable`, `extraction_pending`, `no_rendering` | The action conflicts with the current state, for example removing the last owner, or reading the content of a document still being extracted |
 | 410 | `file_missing` | The file of a document cannot be found on the server’s disk |
 | 413 | `file_too_large` | The file is over the maximum size, given in megabytes in `maxMegabytes` |
 | 415 | `unsupported_media_type` | The body must be JSON |
-| 429 | `login_locked`, `too_many_searches` | Too many failed sign-ins: try again after the lockout; or two of your searches are already running |
+| 429 | `login_locked`, `too_many_searches`, `export_running` | Too many failed sign-ins: try again after the lockout; two of your searches are already running; or one of your exports of the audit log |
 | 503 | `search_timeout` | The search went beyond 5 seconds: make it more precise |
 | 507 | `storage_full` | Less than 100 MB would be left free on the server’s disk |
 

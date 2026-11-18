@@ -17,6 +17,7 @@ Les fichiers importés sont rangés dans le dossier indiqué par `LORE_FILES_PAT
 - Un fichier n’est jamais modifié après son import.
 - Un même contenu importé plusieurs fois dans une organisation n’est stocké qu’une fois. Chaque import crée tout de même son propre document.
 - Un fichier est effacé quand plus aucun document de l’organisation ne l’utilise : après la suppression d’un document, ou d’un espace avec ses documents.
+- **Versions.** Le fichier et le contenu mis en forme de chaque version sont gardés, pour l’afficher et la télécharger depuis l’historique ; ses passages, que seule la recherche lit, sont effacés quand elle cesse d’être la version actuelle. Un document à vingt versions garde donc vingt fichiers, mais l’index de recherche d’une seule.
 - Si un fichier manque sur le disque, par exemple après la restauration d’une base sans ses fichiers, la page du document l’annonce et ne propose plus de le télécharger. Lore l’écrit dans ses journaux, avec l’organisation et l’empreinte du fichier.
 
 ### Le dossier tmp
@@ -60,7 +61,7 @@ Derrière un proxy inverse, réglez sa limite de taille un peu au-dessus de cell
 Après l’import, le texte de chaque fichier est extrait en arrière-plan, avec Apache Tika pour les PDF et les documents Word, dans des processus séparés de l’application. Un fichier piégé ou trop lourd fait échouer sa propre extraction, sans jamais faire tomber Lore.
 
 - **Des processus lancés par Lore.** Lore les démarre lui-même, avec le même Java et le même programme : il n’y a rien d’autre à installer. Un processus démarre au premier fichier à traiter, s’arrête après 5 minutes sans travail, et est remplacé tous les 200 fichiers.
-- **Sans accès à la base.** Ces processus ne reçoivent que quelques variables du système (`PATH`, `HOME`, dossiers temporaires, langue) : ni le mot de passe de la base, ni aucune variable `LORE_*`, ni les options de Java de l’application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). Ils lisent le fichier, écrivent le texte extrait dans `tmp/extraction/`, et Lore enregistre le résultat.
+- **Sans les secrets de l’application.** Ces processus ne reçoivent que quelques variables du système (`PATH`, `HOME`, dossiers temporaires, langue) : ni le mot de passe de la base, ni aucune variable `LORE_*`, ni les options de Java de l’application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). Ils lisent le fichier, écrivent le texte extrait dans `tmp/extraction/`, et Lore enregistre le résultat. Ils tournent toutefois sous le même compte système que Lore : ils ne sont pas isolés de ce que ce compte peut lire, comme son fichier de configuration.
 - **En parallèle.** `LORE_EXTRACTION_WORKERS` extractions à la fois, une par processus : 2 par défaut, de 1 à 8.
 - **Limités en mémoire.** Chaque processus dispose de `LORE_EXTRACTION_MEMORY`, 512 Mo par défaut. S’il en manque, il s’arrête, et l’extraction est retentée.
 - **Limités en durée.** Une extraction qui dépasse `LORE_EXTRACTION_TIMEOUT`, 120 secondes par défaut, est arrêtée avec son processus, puis retentée.
@@ -92,6 +93,7 @@ La recherche n’ajoute aucun service : elle repose sur la recherche plein texte
 
 - **Ce qui est indexé.** Le texte de chaque passage, avec les titres de ses sections, ainsi que le titre et la description de chaque document. Chacun deux fois : dans la langue du document, français, anglais ou autre, pour reconnaître les formes des mots ; et tel qu’écrit, sans accents ni majuscules, pour les identifiants techniques.
 - **Toujours à jour.** PostgreSQL recalcule l’index à chaque écriture d’un texte, d’un titre, d’une description ou d’une langue : il n’y a ni tâche à suivre, ni index à reconstruire.
+- **Version actuelle seulement.** Une nouvelle version devient la version actuelle à la fin de son extraction, dans une seule transaction : ses passages et leurs vecteurs sont écrits, puis ceux de la version précédente effacés. Mesuré sur un document de 2 500 passages : 5,3 secondes, dont 4,9 pour écrire les passages et leurs vecteurs, ce que coûte toute extraction, et 0,4 pour le reste ; pendant ce temps, la recherche trouve toujours le document, dans l’une ou l’autre version. Garder les passages de chaque ancienne version coûterait environ 10 Ko par passage.
 - **Place.** Les vecteurs et leurs index occupent environ 2,5 fois la place du texte, dans la base : mesuré sur 300 000 passages de 10 000 documents, environ 720 millions de caractères. Le texte et les vecteurs de chaque passage sont rangés à part de sa ligne : c’est ce qui rend la recherche rapide. PostgreSQL ne le fait qu’au-delà d’environ 2 Ko par ligne : des passages courts restent dans leur ligne, et la recherche d’un mot très fréquent parmi eux lit davantage.
 - **Sauvegarde.** `pg_dump` ne sauvegarde pas les vecteurs, calculés à partir du texte : PostgreSQL les recalcule à la restauration. Voir [Sauvegarde et restauration](backup.md).
 

@@ -9,7 +9,7 @@ Passwords are hashed with Argon2id. Minimum length: 12 characters, which can be 
 
 ## Sign-in attempts
 
-By default, after 5 failures, sign-in is locked for 15 minutes. Failures are counted for each pair of email address and IP address; an email address is also locked, whatever the IP address, after four times as many failures. The number of failures and the lockout duration are set in *Administration › Security and sign-in*. Failures and lockouts are recorded in the audit log, which can be browsed in the administration from v0.1.
+By default, after 5 failures, sign-in is locked for 15 minutes. Failures are counted for each pair of email address and IP address; an email address is also locked, whatever the IP address, after four times as many failures. The number of failures and the lockout duration are set in *Administration › Security and sign-in*. Failures and lockouts are recorded in the audit log, which can be browsed in *Administration › Audit log*.
 
 ## Sessions
 
@@ -34,7 +34,16 @@ An imported file may be booby-trapped: Lore never runs it, and never serves it a
 
 ### Log of views
 
-Each opening of a document is recorded in the audit log, once an hour at most for the same person, as is each download: the log says who read what. This is personal data, kept for security, which only the organization’s owners and administrators can browse, in the administration from v0.1, and which is deleted after one year. Let the members of your organization know.
+Each opening of a document is recorded in the audit log, once an hour at most for the same person, as is each download: the log says who read what. This is personal data, kept for security, which only the organization’s owners and administrators can browse, in *Administration › Audit log*, and which is deleted after one year. Let the members of your organization know. It is never shown on the document: its *Activity* says what was changed, not who read it.
+
+### Audit log
+
+*Administration › Audit log* shows the operations of the organization, filtered by category, person and period, and exports them as CSV with the same filters.
+
+- **Who.** Owners and administrators only; the others are refused.
+- **Export.** The file is written as it is read, without loading everything in memory, one export at a time per person. The export itself is recorded in the log, with its filters and its number of lines.
+- **Formulas neutralized.** A value that starts with `=`, `+`, `-` or `@`, such as the title of a document written to trap a spreadsheet, is written after an apostrophe: opened in a spreadsheet, the file runs no formula.
+- **People who left.** The log shows the current name and email address of the account of whoever acted, even after they left the organization.
 
 ## Search
 

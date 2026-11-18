@@ -16,6 +16,23 @@ Première version : un environnement complet, sans intelligence artificielle.
 - Journal d’audit
 - Installation avec Docker Compose, des paquets .deb et .rpm ou une archive universelle
 
+## Version 0.1.0-beta.1 <span class="vb">Préversion</span>
+
+Publiée le 18 novembre 2026 : toutes les fonctions de la version 0.1 y sont. Elle reprend les données d’une installation 0.1.0-alpha.4 : la mise à jour n’ajoute qu’une migration, sans extraire de nouveau les documents (voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-alpha4)). Ses données seront reprises par la version 0.1.0, qui suivra une passe sur la qualité.
+
+- Nouvelle version d’un document, avec ce qui change et le statut à prendre ; la version actuelle reste lue et cherchée jusqu’à l’extraction de la nouvelle
+- Historique en strates, l’épaisseur de chaque version disant l’ampleur de ses changements ; anciennes versions consultables et téléchargeables
+- Lien de section fait pour une ancienne version, ouvert à la section du même titre dans la version actuelle
+- Statuts Brouillon, Publié, Obsolète (avec le document qui le remplace) et Archivé ; vue kanban de la bibliothèque
+- Documents archivés vus des seuls responsables de l’espace et administrateurs, en lecture seule
+- Activité de chaque document, et activité récente sur l’accueil, sans consultations ni téléchargements
+- Journal d’audit dans l’administration : filtres par catégorie, personne et période, export CSV inscrit lui-même au journal
+- Recherche : documents archivés exclus sauf demande, « Remplacé par » sur un document obsolète, message d’erreur collé trouvé bien plus vite
+
+Voir [Versions et statuts](versions.md) et [Journal d’audit](audit.md).
+
+Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-beta.1).
+
 ## Version 0.1.0-alpha.4 <span class="vb">Préversion</span>
 
 Publiée le 18 novembre 2026, pour essayer la recherche avant la version 0.1. Elle reprend les données d’une installation 0.1.0-alpha.3 : la mise à jour n’ajoute qu’une migration, qui calcule l’index de recherche des documents déjà importés, sans les extraire de nouveau (voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-alpha3)). Elle n’est pas faite pour la production : ses données ne seront pas forcément reprises par la version suivante.
