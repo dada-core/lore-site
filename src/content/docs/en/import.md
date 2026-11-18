@@ -77,9 +77,11 @@ A refused file is not imported: no document is created, and nothing is left on t
 
 The state of each document is shown in the import window, in the list of documents of the space and on the document’s page. Your own imports still in progress or failed are also listed on the home page.
 
-**Scanned document.** A page counts as having no text below 20 visible characters. The document is imported, its number of pages is known and the text of its other pages is kept; with search, planned for version 0.1, it will be found by its title and description.
+**Scanned document.** A page counts as having no text below 20 visible characters. The document is imported, its number of pages is known and the text of its other pages is kept; search finds it by its title and description: give it a description that says what it contains.
 
 **Truncated text.** Lore keeps up to 10 million characters of text per document. Beyond that, the rest is left out, and the document’s page says so.
+
+**Language.** The extraction also detects the language of the text: French, English or other. Search uses it to recognize the forms of words. If it was wrong, a contributor corrects it in the document’s panel: see [Change the language](reader.md#change-the-language).
 
 ### When extraction fails
 
@@ -100,6 +102,7 @@ The state of each document is shown in the import window, in the list of documen
 | Action | Who | What to know |
 | --- | --- | --- |
 | Change the title, description or category | The space’s contributors and maintainers | Title of 200 characters at most, description of 2,000. |
+| Change the language | The space’s contributors and maintainers | French, English or other: the document is indexed again at once. Not during the extraction. See [Change the language](reader.md#change-the-language). |
 | Move to another folder | The space’s contributors and maintainers | To a folder of the same space, or to its root. |
 | Restrict access, or open it to the space again | The space’s maintainers, the document’s owner | See [Restricted documents](permissions.md#restricted-documents). |
 | Change the owner | The space’s maintainers, the document’s owner | To an active member of the space, at least a contributor. The new owner sees the document, even a restricted one. See [Change the owner](reader.md#change-the-owner). |

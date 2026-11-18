@@ -1,6 +1,6 @@
 ---
 title: "Security and sign-in"
-description: "Accounts, sessions, sign-in and reading documents: the default settings, what you can adjust, and what Lore protects."
+description: "Accounts, sessions, sign-in, reading documents and search: the default settings, what you can adjust, and what Lore protects."
 ---
 
 ## Passwords
@@ -35,6 +35,25 @@ An imported file may be booby-trapped: Lore never runs it, and never serves it a
 ### Log of views
 
 Each opening of a document is recorded in the audit log, once an hour at most for the same person, as is each download: the log says who read what. This is personal data, kept for security, which only the organization’s owners and administrators can browse, in the administration from v0.1, and which is deleted after one year. Let the members of your organization know.
+
+## Search
+
+- **Access applied in the query.** The results, their number, the filters and their numbers, the excerpts, the other passages and the titles of the palette only come from the documents the person can read, chosen in the query itself, before anything is ranked or counted. Access is read again at each search: access removed takes effect at the next search.
+- **Searches never kept by the server.** No search is written down: neither in the audit log, nor in the server’s logs. Each person’s last eight searches are kept in their browser, for their account, and cleared when they sign out or with *Clear*.
+- **But present in addresses.** A search goes in the address: `/search?q=…` for the page, `/api/v1/search?q=…` and `/api/v1/search/titles?q=…` for the API, and `q` in the link of a result. It stays in the browser’s history, and may appear in the access logs of a reverse proxy. Lore sends the `Referrer-Policy: same-origin` header: a link to another site does not receive the address of the page, nor therefore the search.
+
+A search may contain a name, or a secret pasted by mistake. To remove it from the proxy’s access logs, write them without the parameters of the addresses. With Nginx:
+
+```nginx title="nginx.conf"
+# In the http block: an access log without the parameters of the addresses
+log_format without_parameters '$remote_addr [$time_local] "$request_method $uri $server_protocol" $status $body_bytes_sent';
+
+# In the server block of Lore
+access_log /var/log/nginx/lore.access.log without_parameters;
+```
+
+> [!WARNING]
+> **Known limit.** Before setting aside the documents the person cannot see, search goes through the index of every document: a word present in many documents they cannot see makes the response time a little longer. Neither the title nor the content of these documents appears.
 
 ## Identity provider <span class="vb">After v0.1</span>
 

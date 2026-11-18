@@ -175,7 +175,7 @@ Renvoie le document, sa version actuelle et ce que vous pouvez en faire (`action
 | --- | --- |
 | `extractionStatus` | `PENDING` (en cours), `INDEXED`, `SCANNED` (numérisé) ou `FAILED` |
 | `extractionError` | Pour un échec : `encrypted`, `corrupt`, `unsupported_content` (définitifs), `timeout`, `extractor_crashed`, `file_missing` (passagers). Voir [Stockage et extraction](storage.md#échecs-et-nouvelles-tentatives). |
-| `language` | `fr`, `en` ou `other`, une fois le texte extrait |
+| `language` | `fr`, `en` ou `other` : détectée une fois le texte extrait, ou choisie par un contributeur |
 | `pageCount` | Le nombre de pages d’un PDF |
 | `sectionCount` | Le nombre de passages découpés |
 | `textTruncated` | `true` si le texte dépassait 10 millions de caractères et a été coupé |
@@ -288,17 +288,21 @@ Erreur de champ : `size` (`out_of_range`, avec `min` et `max`).
 
 `PATCH /api/v1/documents/{id}`
 
-Change le titre (200 caractères au plus), la description (2 000) ou la catégorie. Un champ absent ne change pas ; une description ou une catégorie vide est retirée. Réservé aux contributeurs et aux responsables de l’espace. Renvoie le document.
+Change le titre (200 caractères au plus), la description (2 000), la catégorie ou la langue. Un champ absent ne change pas ; une description ou une catégorie vide est retirée. Réservé aux contributeurs et aux responsables de l’espace. Renvoie le document.
 
 ```json title="Corps de la requête"
 {
   "title": "Restaurer une base PostgreSQL",
   "description": "Procédure testée sur PostgreSQL 18.",
-  "category": "RUNBOOK"
+  "category": "RUNBOOK",
+  "language": "fr"
 }
 ```
 
-Erreurs de champ : `title` (`required`, `too_long`), `description` (`too_long`), `category` (`invalid_value`).
+- **Langue.** `language` vaut `fr`, `en` ou `other`. La changer réindexe aussitôt le document pour la recherche, dans la même requête ; la langue choisie est gardée si la même version est extraite de nouveau. Pendant l’extraction du texte, la langue ne se change pas : `409 extraction_pending`.
+- **Journal d’audit.** Chaque modification inscrit `document.updated`, avec les champs changés dans `changes` ; pour la langue, l’ancienne dans `previousLanguage`.
+
+Erreurs de champ : `title` (`required`, `too_long`), `description` (`too_long`), `category` et `language` (`invalid_value`).
 
 ## Déplacer un document
 

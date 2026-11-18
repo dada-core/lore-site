@@ -49,6 +49,14 @@ description: "Une mise à jour consiste à installer la nouvelle version et à r
    sudo journalctl -u lore -f
    ```
 
+## Depuis la préversion 0.1.0-alpha.3
+
+La préversion 0.1.0-alpha.4, qui apporte la recherche, calcule à son premier démarrage l’index de recherche des documents déjà importés : PostgreSQL réécrit la table des passages, en rangeant leur texte et leurs vecteurs à part de leur ligne, puis construit les index. Aucun document n’est extrait de nouveau, et chacun garde la langue détectée à son import.
+
+- **Durée.** Environ 6 minutes, mesurées sur 300 000 passages, soit environ 720 millions de caractères dans 10 000 documents.
+- **Pendant la migration, Lore ne démarre pas encore** : ni l’interface, ni l’API ne répondent. Prévoyez cette fenêtre, et suivez la migration dans les journaux, comme à l’étape *Vérifier*.
+- **Place.** Les vecteurs et leurs index occupent environ 2,5 fois la place du texte, dans la base. Le temps de la migration, la réécriture de la table des passages demande en plus la place d’une copie de cette table. Voir [Stockage et extraction](storage.md#index-de-recherche).
+
 ## Depuis la préversion 0.1.0-alpha.2
 
 La préversion 0.1.0-alpha.3, qui apporte le lecteur de documents, extrait de nouveau, à son premier démarrage, la version actuelle de chaque document Markdown, Word et texte déjà indexé : il reçoit ainsi le contenu mis en forme qu’affiche sa page. Ces documents passent *En cours* le temps de leur extraction, quelques instants chacun, puis reviennent à *Indexé*. Les PDF et les documents en échec ne changent pas.

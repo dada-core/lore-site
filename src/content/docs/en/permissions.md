@@ -21,8 +21,10 @@ See [Members and invitations](members.md).
 | See the documents open to the whole space | Yes | Yes | Yes |
 | See a restricted document | If they are among the people chosen, or the document’s owner | If they are among the people chosen, or the document’s owner | Yes |
 | Read and download the documents they see | Yes | Yes | Yes |
+| Search the documents they see | Yes | Yes | Yes |
 | Import documents | No | Yes | Yes |
 | Change the title, description and category of a document, move it from one folder to another | No | Yes | Yes |
+| Change the language of a document | No | Yes | Yes |
 | Retry a failed extraction | No | Yes | Yes |
 | Restrict a document, or open it to the whole space again | No | The ones they own | Yes |
 | Change the owner of a document | No | The ones they own | Yes |
@@ -34,7 +36,7 @@ See [Members and invitations](members.md).
 | See the space once archived | No | No | Yes |
 | Leave the space | Yes | Yes | Yes, if another maintainer remains |
 
-The *Members* page of each space shows what each role allows. In an archived space, nothing can be changed any more: not its members, its folders or its documents.
+The *Members* page of each space shows what each role allows. In an archived space, nothing can be changed any more: not its members, its folders or its documents. Search only shows its documents to those who still see the space, and only if they ask for them.
 
 The owner of a document is first the person who imported it. The space’s maintainers, and the document’s owner if they are at least a contributor, can hand it over to another active member of the space who has at least the Contributor role. A document whose owner left the organization can only be taken over by a maintainer of the space.
 
@@ -60,7 +62,7 @@ A restricted document is only visible to:
 - the document’s owner, who therefore does not lose access to what they have just restricted;
 - the organization’s owners and administrators.
 
-For everyone else, it appears nowhere: not in the list of documents, not in the number of documents of a space or a folder, not as a duplicate reported at import. Opened from its address, it behaves like a document that does not exist.
+For everyone else, it appears nowhere: not in the list of documents, not in the number of documents of a space or a folder, not in the search results, their number or their excerpts, not as a duplicate reported at import. Opened from its address, it behaves like a document that does not exist.
 
 - **At import.** In the import window, tick *Restrict access to some people*: the list of the space’s members opens, with the maintainers and yourself already ticked. The documents are restricted as soon as they are created: they are never visible to the others, not even for a moment. See [Importing documents](import.md#import).
 - **Later.** From the document, in *Document access*, you restrict it, change the people chosen, or open it to the whole space again, which removes the people chosen. This is reserved for the space’s maintainers and the document’s owner, if they are at least a contributor.
