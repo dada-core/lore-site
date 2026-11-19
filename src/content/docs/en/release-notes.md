@@ -18,7 +18,7 @@ First version: a complete workspace, without artificial intelligence.
 
 Since 0.1.0-beta.1: trusted proxies (`LORE_TRUSTED_PROXIES`), a fixed setup code of 12 characters or more, `__Host-` cookies over HTTPS: see [Upgrading](upgrade.md#from-the-010-beta1-preview).
 
-## Version 0.1.0-rc.1 <span class="vb">Preview</span>
+## Version 0.1.0-rc.2 <span class="vb">Preview</span>
 
 Released on November 19, 2026, a candidate for version 0.1.0. It takes over the data of a 0.1.0-beta.1 installation, without a migration: first read [what changes on upgrade](upgrade.md#from-the-010-beta1-preview), in particular for a reverse proxy.
 
@@ -33,7 +33,7 @@ Released on November 19, 2026, a candidate for version 0.1.0. It takes over the 
 - Tab titles separated by “·”
 - The Docker image tagged with its version only after its checks
 
-Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-rc.1).
+Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-rc.2).
 
 ## Version 0.1.0-beta.1 <span class="vb">Preview</span>
 

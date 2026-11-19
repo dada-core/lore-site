@@ -18,7 +18,7 @@ Première version : un environnement complet, sans intelligence artificielle.
 
 Depuis la 0.1.0-beta.1 : proxys de confiance (`LORE_TRUSTED_PROXIES`), code de configuration fixé d’au moins 12 caractères, cookies `__Host-` en HTTPS : voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-beta1).
 
-## Version 0.1.0-rc.1 <span class="vb">Préversion</span>
+## Version 0.1.0-rc.2 <span class="vb">Préversion</span>
 
 Publiée le 19 novembre 2026, candidate à la version 0.1.0. Elle reprend les données d’une installation 0.1.0-beta.1, sans migration : lisez d’abord [ce qui change à la mise à jour](upgrade.md#depuis-la-préversion-010-beta1), en particulier pour un proxy inverse.
 
@@ -33,7 +33,7 @@ Publiée le 19 novembre 2026, candidate à la version 0.1.0. Elle reprend les do
 - Titres des onglets séparés par « · »
 - Image Docker étiquetée de son numéro de version seulement après ses contrôles
 
-Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-rc.1).
+Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-rc.2).
 
 ## Version 0.1.0-beta.1 <span class="vb">Préversion</span>
 

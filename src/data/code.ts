@@ -3,7 +3,7 @@ import type { Lang } from '../i18n/routes';
 
 /* The preview the commands install while no stable version is out: GitHub's "latest" names a stable
    version only. Set to the newest preview at each one; null once 0.1.0 is published. */
-export const PREVIEW: string | null = '0.1.0-rc.1';
+export const PREVIEW: string | null = '0.1.0-rc.2';
 const DOWNLOAD = PREVIEW ? `download/v${PREVIEW}` : 'latest/download';
 const VERSION = PREVIEW ?? '0.1.0';
 
