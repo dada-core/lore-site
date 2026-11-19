@@ -26,14 +26,14 @@ Voir aussi [Importer des documents](import.md#importer-une-nouvelle-version).
 
 Une nouvelle version ne devient la version actuelle qu’une fois son texte extrait, d’un coup, pour la lecture comme pour la recherche :
 
-- **Pendant l’extraction**, tout le monde lit la version actuelle, et la recherche s’appuie sur elle. La page du document affiche « Une nouvelle version est en cours de traitement. », la liste des documents « Version 5 en cours », et votre accueil la rappelle dans *À traiter*.
+- **Pendant l’extraction**, tout le monde lit la version actuelle, et la recherche s’appuie sur elle. La page du document affiche « Une nouvelle version est en cours de traitement. », la liste des documents « Version 5 en cours », et, si vous l’avez importée vous-même, votre accueil la rappelle dans *À traiter*.
 - **À la fin de l’extraction**, la nouvelle version la remplace. Le statut demandé s’applique à ce moment-là, sauf si le statut du document a changé entre-temps : un document archivé pendant l’extraction le reste.
 - **En cas d’échec**, la version actuelle ne change pas. Les contributeurs voient « La version 5 n’a pas pu être traitée : … », avec *Relancer* pour une cause passagère, et *Importer une autre version*.
 - **Deux versions à la fois.** Si la version 6 finit avant la 5, elle devient la version actuelle ; la 5 reste dans l’historique.
 
 ## Historique en strates
 
-Dans le panneau de droite, *Versions* dessine l’historique en strates : une bande par version, la plus récente en haut et en couleur. L’épaisseur d’une bande dit l’ampleur des modifications apportées par la version : la part des passages ajoutés ou retirés par rapport à la précédente, de 0 (rien n’a changé) à 1 (tout a été réécrit). La première version compte comme entière ; une bande hachurée signale une ampleur inconnue : document numérisé, version en cours ou en échec, version jamais devenue actuelle.
+Dans le panneau de droite, *Versions* dessine l’historique en strates : une bande par version, la plus récente en haut et en couleur. L’épaisseur d’une bande dit l’ampleur des modifications apportées par la version : la part des passages ajoutés ou retirés par rapport à la précédente, de 0 (rien n’a changé) à 1 (tout a été réécrit). La première version, une fois extraite, compte comme entière. Une bande hachurée signale une ampleur inconnue : version en cours ou en échec, version jamais devenue actuelle, ou version dont le texte, ou celui de la précédente, n’a aucun passage, comme un PDF entièrement numérisé.
 
 Choisissez une bande, à la souris ou avec les flèches <kbd>↑</kbd> et <kbd>↓</kbd> : dessous s’affichent « Version 4, actuelle » ou « Version 3 », sa date d’import et son auteur, ce qui change (« Première version » pour la première), le nom de son fichier, son *Empreinte SHA-256* à copier, *Afficher* pour une version plus ancienne et *Télécharger*. Les dix versions les plus récentes s’affichent d’abord, puis *Toutes les versions*.
 
@@ -63,7 +63,7 @@ Choisissez une bande, à la souris ou avec les flèches <kbd>↑</kbd> et <kbd>�
 
 ### Obsolète et remplaçant
 
-Choisissez *Obsolète*, puis, si possible, le document qui le remplace : tapez son titre dans *Remplacé par*. Tout document que vous pouvez lire est proposé, dans n’importe lequel de vos espaces, sauf le document lui-même et les documents obsolètes ou archivés.
+Choisissez *Obsolète*, puis, si possible, le document qui le remplace : tapez son titre dans *Remplacé par*. Lore propose les documents dont le titre a un mot qui commence par chacun des mots tapés, huit au plus, parmi ceux que vous pouvez lire dans les espaces actifs, sauf le document lui-même et les documents obsolètes ou archivés.
 
 - **Bandeau.** Les lecteurs voient « Ce document est obsolète depuis le 10 nov. 2026. Utilisez plutôt Restaurer une base PostgreSQL depuis une sauvegarde. », le titre en lien.
 - **Confidentialité.** Un lecteur qui ne peut pas lire le remplaçant n’en apprend même pas le titre : son bandeau s’arrête à la date, et la recherche ne le nomme pas.
@@ -81,7 +81,7 @@ Un document archivé disparaît des listes, des nombres, de la recherche et de l
 
 Sous le contenu de chaque document, *Activité* raconte ce qui lui a été fait, le plus récent d’abord : imports et nouvelles versions, changements de statut, d’accès, de responsable, de dossier, de titre, de description, de catégorie et de langue, avec la personne et la date. Les consultations et les téléchargements n’y figurent jamais : seul le [journal d’audit](audit.md) les garde. Un changement d’accès dit à combien de personnes le document est restreint, pas lesquelles.
 
-Sur l’accueil, *Activité récente dans vos espaces* montre les huit derniers imports, nouvelles versions et changements de statut des documents que vous voyez.
+Sur l’accueil, *Activité récente dans vos espaces* montre les huit derniers imports, nouvelles versions et changements de statut des documents que vous voyez. Elle lit les 2 000 derniers imports, nouvelles versions et changements de statut de toute l’organisation, puis garde ceux des documents que vous voyez et qui ne sont pas archivés : si aucun ne concerne un document que vous voyez, la liste reste vide.
 
 ## Ce qui n’existe pas encore
 

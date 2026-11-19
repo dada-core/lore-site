@@ -58,7 +58,7 @@ Renvoie une page des documents de l’espace que vous voyez, regroupés par doss
 
 `newerVersion` décrit une version importée après la version actuelle, en cours d’extraction ou en échec : `number`, `extractionStatus`, `extractionError` et `createdAt` ; `null` quand la dernière version est la version actuelle.
 
-Erreurs de champ : `sort`, `direction` et `status` (`invalid_value`), `ids` (`too_many`).
+Erreurs de champ : `folder`, `sort`, `direction` et `status` (`invalid_value`), `ids` (`too_many`).
 
 ## Compter les documents d’un espace
 
@@ -439,7 +439,7 @@ Les détails ne donnent que ce que vous pouvez savoir : le nombre de personnes c
 
 `GET /api/v1/activity`
 
-Les 8 derniers imports, nouvelles versions et changements de statut des documents que vous voyez, archivés exclus : pour *Activité récente dans vos espaces*, sur l’accueil. Chacun avec `occurredAt`, `actor`, `action`, `document` (`id`, `title`), `space` et `details` (`version`, `before`, `after`).
+Les 8 derniers imports, nouvelles versions et changements de statut des documents que vous voyez, archivés exclus : pour *Activité récente dans vos espaces*, sur l’accueil. La réponse est un tableau, dont chaque élément a `id`, `occurredAt`, `actor`, `action`, `document` (`id`, `title`), `space` et `details` (`version`, `before`, `after`).
 
 ## Accès d’un document
 
@@ -551,7 +551,7 @@ Les opérations de l’organisation, les plus récentes d’abord. Réservé aux
 
 `GET /api/v1/admin/audit/export`
 
-Les mêmes filtres, sans `before` ni `size`, en CSV (`text/csv`, UTF-8 avec une marque d’ordre des octets, RFC 4180), écrit au fil de la lecture, en pièce jointe `lore-audit-2026-11-18.csv`. Colonnes : `occurred_at`, `actor_id`, `actor_name`, `actor_email`, `action`, `category`, `resource_type`, `resource_id`, `title`, `space`, `ip` et `details` (en JSON). Une valeur qui commence par `=`, `+`, `-` ou `@` est précédée d’une apostrophe, pour qu’un tableur ne la lise pas comme une formule. L’export est lui-même inscrit au journal (`audit.exported`, avec les filtres et le nombre de lignes). Un seul export à la fois par personne : `429 export_running`.
+Les mêmes filtres, sans `before` ni `size`, en CSV (`text/csv`, UTF-8 avec une marque d’ordre des octets, RFC 4180), écrit au fil de la lecture, en pièce jointe `lore-audit-2026-11-18.csv`. Colonnes : `occurred_at`, `actor_id`, `actor_name`, `actor_email`, `action`, `category`, `resource_type`, `resource_id`, `title`, `space`, `ip` et `details` (en JSON). Une valeur qui commence par `=`, `+`, `-`, `@`, une tabulation ou un retour chariot est précédée d’une apostrophe, pour qu’un tableur ne la lise pas comme une formule. Une valeur qui contient un point-virgule ou une tabulation est mise entre guillemets, comme celle qui contient une virgule, un guillemet ou un retour à la ligne, pour qu’un tableur réglé en français n’y coupe pas la cellule. L’export est lui-même inscrit au journal (`audit.exported`, avec les filtres et le nombre de lignes). Un seul export à la fois par personne : `429 export_running`.
 
 ## Espaces et dossiers
 

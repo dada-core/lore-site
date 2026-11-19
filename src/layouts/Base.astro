@@ -22,7 +22,7 @@ interface Props {
 const { lang, page, title, description, noindex, paths } = Astro.props;
 const alternates = paths ?? (page ? { fr: ROUTES[page].fr, en: ROUTES[page].en } : null);
 const t = ui(lang);
-const fullTitle = title ? `${title} – Lore` : t.siteTitle;
+const fullTitle = title ? `${title} · Lore` : t.siteTitle;
 const abs = (path: string) => new URL(path, SITE.url).href;
 /* A page left out of search engines (the error page, shown at any address) has no address of its own. */
 const canonical = noindex ? null : abs(alternates ? alternates[lang] : Astro.url.pathname);

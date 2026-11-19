@@ -17,13 +17,15 @@ Each operation belongs to a category, the one of the filter of the screen:
 | Deletion | A document permanently deleted, with its number of versions |
 | Rights | A document restricted or opened to the whole space again, people chosen added or removed; the owner of a document changed, with the former and the new one; a role changed, in the organization or in a space |
 | Members | An invitation created or revoked; an account joining, leaving, deactivated or activated again; a reset link; a member added to a space or removed |
-| Sign-in | A failed sign-in, an account locked; a password or an email address changed; a new password chosen through a reset link |
-| Organization | A space created, changed, archived, made active again or deleted, with its number of documents; a folder created, renamed or deleted; a setting changed, such as the maximum size of a file; an export of the log |
+| Sign-in | A failed sign-in, a wrong current password in *My account* included, and an account locked; a password or an email address changed; a new password chosen through a reset link |
+| Organization | The organization created, at the initial setup; a space created, changed, archived or made active again, or deleted with its number of documents; a folder created, renamed or deleted; a setting changed, such as the maximum size of a file; an export of the log |
 | Other | An operation that no other category covers |
+
+An owner or an administrator who becomes a member, is disabled or is removed loses the invitations and reset links they created that are still pending: they are revoked, and their number is given in the details of the operation (`revokedLinks`, `details` column of the export), when there are any. See [Members and invitations](members.md#change-a-role-disable-remove).
 
 A change of language keeps the former one: in the `document.updated` event, `changes` contains `language`, and `previousLanguage` gives the former language. What changes, written with a new version, is not copied into the log: it stays in the history of the document. Text extraction is not recorded.
 
-Searches are never recorded, neither in this log, nor in the server’s logs. Opening a document from a result is a view, recorded like the others. See [Searching](search.md#privacy).
+Searches are never recorded, neither in this log, nor in the server’s logs, even in `DEBUG` or `TRACE`. Opening a document from a result is a view, recorded like the others. See [Searching](search.md#privacy).
 
 A page opened again or reloaded within the hour adds no view, and a document the person cannot see never records one. Each download is recorded; the resumption of an interrupted download is not, nor is reading a PDF in the page or in a new tab, which is part of the view.
 
@@ -38,15 +40,15 @@ Each event keeps the title of the document and the name of its space at the time
 | Column | Content |
 | --- | --- |
 | Date | The day and time of the operation |
-| Person | Who acted, named even after they left the organization; *System* for an operation without an author, such as a failed sign-in |
+| Person | Who acted, named even after they left the organization; *System* for an operation without an author, such as a failed sign-in. A wrong current password in *My account* is a failed sign-in recorded with the person as the author. |
 | Category | The category of the operation |
 | Operation | A sentence, such as “Imported version 5 of “Disaster recovery plan 2026”” or “Changed the status of “…”: Outdated” |
-| IP address | Shown only when *Show the IP address* is ticked |
+| IP address | The one of the connection, or the one forwarded by a proxy declared in `LORE_TRUSTED_PROXIES`; `invalid` when it is not an IP address. Shown only when *Show the IP address* is ticked. See [HTTPS and reverse proxy](reverse-proxy.md#declare-the-proxy). |
 
 Three filters narrow the list, and the address of the page keeps them:
 
 - **Category**: one of the categories above, or all of them.
-- **Person**: a member of the organization, *System*, or everyone.
+- **Person**: a current member of the organization (the first 200), *System*, or everyone. A former member is filtered by their identifier, in the `actor` parameter of the address; this identifier can be read in the `actor_id` column of the export.
 - **Period**: the last 7 days, by default, the last 30 days or the last 12 months.
 
 When nothing matches: “No operation with these filters.”
@@ -69,11 +71,11 @@ When nothing matches: “No operation with these filters.”
 | `details` | The details of the operation, in JSON |
 
 - **Format.** UTF-8 with a BOM, so that a spreadsheet reads accents; commas, quotes and line ends as RFC 4180 sets them.
-- **Formulas neutralized.** A value that starts with `=`, `+`, `-` or `@` is written after an apostrophe: opened in a spreadsheet, the file runs no formula, even if the title of a document was written for that. A value that holds a semicolon is quoted: a spreadsheet set to cut cells at semicolons keeps it whole.
+- **Formulas neutralized.** A value that starts with `=`, `+`, `-`, `@`, a tab or a carriage return is written after an apostrophe: opened in a spreadsheet, the file runs no formula, even if the title of a document was written for that. A value that holds a semicolon or a tab is quoted: a spreadsheet set to cut cells at semicolons keeps it whole.
 - **One at a time.** The file is written as the log is read. A second export started by the same person before the end of the first is refused.
 - **Recorded in the log.** Each export is itself an operation, `audit.exported`, with its filters and its number of lines, in the Organization category.
 
-The export is also available through the API: see [Documents API](api-documents.md).
+The export is also available through the API: see [Documents API](api-documents.md#audit-log-administration).
 
 ## Retention
 

@@ -65,7 +65,7 @@ If the detection was wrong, for example for a guide in English detected as Frenc
 ## What is searched
 
 - **The current version** of each document: the text of its passages, with the headings of the sections that hold them, as well as its title and its description.
-- **A scanned or failed document**: its title and its description only. Give it a description that says what it contains. See [Extraction states](import.md#extraction-states).
+- **A failed document**: its title and its description only. **A scanned document**: its title, its description and the text of its pages that have some; its scanned pages are not searched. Give it a description that says what it contains. See [Extraction states](import.md#extraction-states).
 - **A truncated text**: the 10 million characters kept.
 
 Neither the file name nor the owner is searched. The category, the status and the format are [filters](#filters).
@@ -82,7 +82,7 @@ The number of documents found, “3 documents”, and the order, “Ranked by re
 
 The best passage is the one that gathers the most terms. A document found only by its title shows “Match in the title.”, or “Scanned document: only its title matches.”; found by its description, an excerpt of it.
 
-*Show more results*, at the bottom of the list, adds the next 20 documents. Then come two reminders: “Only the documents you have access to appear.” and “Scanned documents can only be found by their title and description.”
+*Show more results*, at the bottom of the list, adds the next 20 documents. Then come two reminders: “Only the documents you have access to appear.” and “Scanned pages are not searched: a scanned document is found by its title, its description and the text of its other pages.”
 
 ### Open a result
 
@@ -90,7 +90,7 @@ A click opens the document at the passage found, framed, the words highlighted, 
 
 ### No results
 
-The page says “No document matches “quota ceph””, then “Check the spelling of identifiers, remove a word or the quotes. Scanned documents can only be found by their title and description.”
+The page says “No document matches “quota ceph””, then “Check the spelling of identifiers, remove a word or the quotes. Scanned pages are not searched: a scanned document is found by its title, its description and the text of its other pages.”
 
 ## Filters
 
@@ -112,12 +112,7 @@ An archived document does not appear by default either, even for those who see i
 
 ## Result order
 
-1. A document whose title contains all the terms comes first.
-2. Then a document with a passage that gathers all the terms, first in their exact form.
-3. Then the others, according to the terms their best passage gathers. A section heading counts more than the text; the title and the description of the document count too.
-4. Outdated documents always come last, whatever their rank.
-
-With equal relevance, the most recently updated document comes first.
+Outdated documents always come last. The others are ranked by a score that adds up the relevance of their best passage, a bonus when that passage gathers all the terms (higher in their exact form), the relevance of the title and the description, counted twice, and a bonus when the title holds all the terms. A section heading counts more than the text. With an equal score, the document with the most passages found comes first, then the most recently updated.
 
 ## The palette
 
@@ -129,7 +124,7 @@ With equal relevance, the most recently updated document comes first.
 
 ## Recent searches
 
-Without a search, the *Search* page lists your last eight searches. They are kept in this browser, for your account, never on the server. *Clear* removes them (“Recent searches cleared”), and so does signing out: a shared computer does not show them to the next person.
+Without a search, the *Search* page lists your last eight searches. They are kept in this browser, for your account, never on the server. *Clear* removes them (“Recent searches cleared”), and so do signing out and an expired session that Lore, while open, notices: kept per account, they do not show for the next person.
 
 ## What never appears
 
@@ -155,6 +150,7 @@ The search goes in the address of the page, `/search?q=…`: it stays in the bro
 
 - **Excerpts.** They are plain text: a tag written in the text of a document, such as `<VirtualHost>` in a runbook, does not show in them.
 - **Web addresses.** An address written at the end of a sentence in a document, followed by a period, is only found by its host name, such as `wiki.dada.group`.
+- **Very common words.** A quoted expression made of words found in almost every document, like `"database connection"` over a large number of documents, can take more than 5 seconds: add a rarer word.
 - **Not in version 0.1**: searching for the beginning of a word in the content (`restaur*`), spelling suggestions, synonyms specific to an organization, filters by owner and by language, sorting by date, and recognizing the text of scanned documents.
 
 ## Search by meaning <span class="vb">v0.2</span>

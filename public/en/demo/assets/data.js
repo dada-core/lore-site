@@ -1,5 +1,5 @@
 /* Lore demo: sample data (organization, spaces, documents, members…).
-   English version of site/public/demo/assets/data.js: both files must stay in sync
+   English version of public/demo/assets/data.js: both files must stay in sync
    (same ids, structure and numbers; only the language differs). */
 window.SL = (function () {
   'use strict';
@@ -15,18 +15,19 @@ window.SL = (function () {
 
   var org = {
     name: 'DadaGroup',
-    url: 'https://lore.dada.group',
+    url: 'https://lore.example.com',
     members: 48,
     docs: 844,
     scanned: 37,
     storage: '2.4 GB'
   };
 
+  /* role: the one of Amenan Souaga. Administrator of the organization, she is a maintainer of every space. */
   var spaces = [
     { id: 'infrastructure', name: 'Infrastructure', color: '#13705E', desc: 'Operation of the servers, databases and backups.', docs: 9, members: 5, role: 'Maintainer', activity: 'Today' },
-    { id: 'reseau', name: 'Network', color: '#3F6C9A', desc: 'Network architecture, firewalls, VPN and DNS.', docs: 214, members: 9, role: 'Contributor', activity: 'Yesterday' },
-    { id: 'support', name: 'L2 Support', color: '#8A6A1F', desc: 'Troubleshooting procedures and standard support answers.', docs: 486, members: 15, role: 'Reader', activity: 'Today' },
-    { id: 'atlas', name: 'Atlas project', color: '#6B5A8E', desc: 'Rebuild of the billing platform.', docs: 97, members: 11, role: 'Contributor', activity: 'Nov 8' },
+    { id: 'reseau', name: 'Network', color: '#3F6C9A', desc: 'Network architecture, firewalls, VPN and DNS.', docs: 214, members: 9, role: 'Maintainer', activity: 'Yesterday' },
+    { id: 'support', name: 'L2 Support', color: '#8A6A1F', desc: 'Troubleshooting procedures and standard support answers.', docs: 486, members: 15, role: 'Maintainer', activity: 'Today' },
+    { id: 'atlas', name: 'Atlas project', color: '#6B5A8E', desc: 'Rebuild of the billing platform.', docs: 97, members: 11, role: 'Maintainer', activity: 'Nov 8' },
     { id: 'securite', name: 'Security', color: '#8E4B44', desc: 'Policies, hardening and security incident response.', docs: 38, members: 4, role: 'Maintainer', activity: 'Nov 4' },
     { id: 'applications', name: 'Business applications', color: '#4E7A5A', desc: 'Documentation of the internal applications.', docs: 0, members: 1, role: 'Maintainer', activity: 'Created today', empty: true }
   ];
@@ -42,11 +43,11 @@ window.SL = (function () {
     atlas: [{ id: 'decisions', name: 'Technical decisions' }]
   };
 
-  /* Documents. age: days since the last update (date filter of the search). */
+  /* Documents. age: days since the last update (date filter of the search). file: name of the imported file, shown in the version history. */
   var docs = [
     {
       id: 'plan-reprise', title: 'Disaster recovery plan 2026', space: 'infrastructure', folder: 'procedures',
-      format: 'Word', size: '1.2 MB', category: 'Operating procedure', status: 'draft', owner: 'as',
+      format: 'Word', file: 'recovery-plan-2026.docx', size: '1.2 MB', category: 'Operating procedure', status: 'draft', owner: 'as',
       updated: 'Today', updatedRel: 'today', age: 0, version: 1, lang: 'en', flags: { indexing: true },
       review: 'None',
       versions: [{ n: 1, date: 'Nov 11, 2026', short: 'Nov 11', by: 'as', note: 'First version, under review.', w: 50 }],
@@ -56,7 +57,7 @@ window.SL = (function () {
     },
     {
       id: 'restaurer-pg', title: 'Restore a PostgreSQL database from a backup', space: 'infrastructure', folder: 'runbooks',
-      format: 'Markdown', size: '18 KB', category: 'Runbook', status: 'published', owner: 'as',
+      format: 'Markdown', file: 'restore-postgresql-database.md', size: '18 KB', category: 'Runbook', status: 'published', owner: 'as',
       updated: 'Yesterday', updatedRel: 'yesterday', age: 1, version: 4, lang: 'en', body: 'restaurer', sections: 6,
       review: 'May 10, 2027',
       versions: [
@@ -75,7 +76,7 @@ window.SL = (function () {
     },
     {
       id: 'bascule-k8s', title: 'Fail the Kubernetes cluster over to the backup site', space: 'infrastructure', folder: 'runbooks',
-      format: 'Markdown', size: '26 KB', category: 'Runbook', status: 'published', owner: 'hc',
+      format: 'Markdown', file: 'kubernetes-failover.md', size: '26 KB', category: 'Runbook', status: 'published', owner: 'hc',
       updated: 'Nov 8', updatedRel: 'on Nov 8, 2026', age: 3, version: 7, lang: 'en', sections: 9,
       review: 'Nov 1, 2026 (overdue)',
       versions: [
@@ -94,7 +95,7 @@ window.SL = (function () {
     },
     {
       id: 'inc-2291', title: 'Incident INC-2291: full disk on pg-prod-02', space: 'infrastructure', folder: 'incidents',
-      format: 'Word', size: '96 KB', category: 'Incident report', status: 'published', owner: 'ck',
+      format: 'Word', file: 'INC-2291.docx', size: '96 KB', category: 'Incident report', status: 'published', owner: 'ck',
       updated: 'Nov 3', updatedRel: 'on Nov 3, 2026', age: 8, version: 2, lang: 'en', body: 'incident', sections: 6,
       review: 'None',
       versions: [
@@ -109,7 +110,7 @@ window.SL = (function () {
     },
     {
       id: 'rotation-tls', title: 'Rotating the internal TLS certificates', space: 'infrastructure', folder: 'procedures',
-      format: 'Markdown', size: '9 KB', category: 'Security documentation', status: 'draft', owner: 'ck',
+      format: 'Markdown', file: 'internal-tls-rotation.md', size: '9 KB', category: 'Security documentation', status: 'draft', owner: 'ck',
       updated: 'Oct 29', updatedRel: 'on Oct 29, 2026', age: 13, version: 1, lang: 'en', body: 'tls', sections: 3,
       restricted: true, grants: ['ck', 'ey'], review: 'None',
       versions: [{ n: 1, date: 'Oct 29, 2026', short: 'Oct 29', by: 'ck', note: 'First draft.', w: 44 }],
@@ -119,7 +120,7 @@ window.SL = (function () {
     },
     {
       id: 'guide-baie', title: 'Storage array administration guide', space: 'infrastructure', folder: 'constructeur',
-      format: 'PDF', size: '24.8 MB', pagesCount: 312, category: 'Vendor documentation', status: 'published', owner: 'eb',
+      format: 'PDF', file: 'storage-array-admin-guide.pdf', size: '24.8 MB', pagesCount: 312, category: 'Vendor documentation', status: 'published', owner: 'eb',
       updated: 'Oct 21', updatedRel: 'on Oct 21, 2026', age: 21, version: 1, lang: 'en', body: 'pdf', sections: 312,
       review: 'None',
       versions: [{ n: 1, date: 'Oct 21, 2026', short: 'Oct 21', by: 'eb', note: 'Import of the vendor guide, release 2026.1.', w: 56 }],
@@ -135,7 +136,7 @@ window.SL = (function () {
     },
     {
       id: 'archi-sauvegardes', title: 'Backup storage architecture', space: 'infrastructure', folder: 'architecture',
-      format: 'Word', size: '412 KB', category: 'Architecture documentation', status: 'published', owner: 'hc',
+      format: 'Word', file: 'backup-storage-architecture.docx', size: '412 KB', category: 'Architecture documentation', status: 'published', owner: 'hc',
       updated: 'Oct 17', updatedRel: 'on Oct 17, 2026', age: 25, version: 3, lang: 'en', sections: 8,
       review: 'Oct 15, 2026 (overdue)',
       versions: [
@@ -150,7 +151,7 @@ window.SL = (function () {
     },
     {
       id: 'schema-cablage', title: 'Server room B cabling diagram', space: 'infrastructure', folder: 'constructeur',
-      format: 'PDF', size: '8.7 MB', pagesCount: 4, category: 'Technical documentation', status: 'published', owner: 'ey',
+      format: 'PDF', file: 'room-b-cabling-diagram.pdf', size: '8.7 MB', pagesCount: 4, category: 'Technical documentation', status: 'published', owner: 'ey',
       updated: 'Oct 14', updatedRel: 'on Oct 14, 2026', age: 28, version: 1, lang: 'other', body: 'scan', flags: { scanned: true },
       description: 'Diagram of racks B1 to B6 in room B, cabling to the network core, OM4 fiber between B3 and B4.',
       review: 'None',
@@ -159,7 +160,7 @@ window.SL = (function () {
     },
     {
       id: 'barman', title: 'Nightly backups with Barman (old procedure)', space: 'infrastructure', folder: 'runbooks',
-      format: 'Markdown', size: '12 KB', category: 'Runbook', status: 'obsolete', obsoleteSince: 'Nov 10, 2026', replacedBy: 'restaurer-pg', owner: 'hc',
+      format: 'Markdown', file: 'barman-backups.md', size: '12 KB', category: 'Runbook', status: 'obsolete', obsoleteSince: 'Nov 10, 2026', replacedBy: 'restaurer-pg', owner: 'hc',
       updated: 'Mar 2, 2025', updatedRel: 'on Mar 2, 2025', age: 619, version: 3, lang: 'en', body: 'barman', sections: 4,
       review: 'None',
       versions: [
@@ -172,20 +173,20 @@ window.SL = (function () {
       ]
     },
     {
-      id: 'migration-pg18', title: 'Migration to PostgreSQL 18', space: 'atlas', folder: 'decisions',
-      format: 'PDF', size: '2.1 MB', pagesCount: 18, category: 'Architecture documentation', status: 'published', owner: 'hc',
-      updated: 'Sep 24', updatedRel: 'on Sep 24, 2026', age: 48, version: 2, lang: 'en', body: 'pdf', sections: 18,
+      id: 'migration-pg18', title: 'Migration vers PostgreSQL 18', space: 'atlas', folder: 'decisions',
+      format: 'PDF', file: 'migration-postgresql-18.pdf', size: '2.1 MB', pagesCount: 18, category: 'Architecture documentation', status: 'published', owner: 'hc',
+      updated: 'Sep 24', updatedRel: 'on Sep 24, 2026', age: 48, version: 2, lang: 'fr', body: 'pdf', sections: 18,
       review: 'Mar 24, 2027',
       versions: [
         { n: 2, date: 'Sep 24, 2026', short: 'Sep 24', by: 'hc', note: 'Decision approved by the architecture board.', w: 22 },
         { n: 1, date: 'Sep 8, 2026', short: 'Sep 8', by: 'hc', note: 'Initial proposal.', w: 46 }
       ],
       passages: [
-        { anchor: 'page-7', page: 7, loc: 'Page 7', text: 'Application roles must be created again before any `pg_restore`, otherwise the error `role … does not exist` stops the data migration.' }
+        { anchor: 'page-7', page: 7, loc: 'Page 7', text: 'Les rôles applicatifs doivent être recréés avant tout `pg_restore`, faute de quoi l’erreur `role … does not exist` interrompt la reprise des données.' }
       ],
       pages: {
-        1: { cover: true, heading: 'Migration to PostgreSQL 18', sub: 'Decision record, Atlas project' },
-        7: { heading: '3. Data migration', paras: ['The migration uses a logical backup and a restore on the new servers, one database at a time.', 'Application roles must be created again before any pg_restore, otherwise the error role … does not exist stops the data migration.', 'Each restored database is compared with production before the applications are switched over.'] }
+        1: { cover: true, heading: 'Migration vers PostgreSQL 18', sub: 'Dossier de décision, Projet Atlas' },
+        7: { heading: '3. Reprise des données', paras: ['La reprise s’effectue par sauvegarde logique et restauration sur les nouveaux serveurs, base par base.', 'Les rôles applicatifs doivent être recréés avant tout pg_restore, faute de quoi l’erreur role … does not exist interrompt la reprise des données.', 'Chaque base restaurée est comparée à la production avant la bascule des applications.'] }
       }
     }
   ];
@@ -207,27 +208,27 @@ window.SL = (function () {
   };
 
   var orgMembers = [
-    { id: 'wk', role: 'Owner', spaces: 'All', state: 'Active', last: 'Today' },
-    { id: 'as', role: 'Administrator', spaces: 'All', state: 'Active', last: 'Today' },
-    { id: 'hc', role: 'Member', spaces: 'Infrastructure, Atlas project', state: 'Active', last: 'Today' },
-    { id: 'ck', role: 'Member', spaces: 'Infrastructure, L2 Support, Security', state: 'Active', last: 'Yesterday' },
-    { id: 'ey', role: 'Member', spaces: 'Infrastructure, Network, L2 Support, Security', state: 'Active', last: 'Nov 9' },
-    { id: 'eb', role: 'Member', spaces: 'Infrastructure, Security', state: 'Active', last: 'Today' }
+    { id: 'wk', role: 'Owner', state: 'Active', last: 'Today' },
+    { id: 'as', role: 'Administrator', state: 'Active', last: 'Today' },
+    { id: 'hc', role: 'Member', state: 'Active', last: 'Today' },
+    { id: 'ck', role: 'Member', state: 'Active', last: 'Yesterday' },
+    { id: 'ey', role: 'Member', state: 'Active', last: 'Nov 9' },
+    { id: 'eb', role: 'Member', state: 'Active', last: 'Today' }
   ];
 
   var audit = [
     { when: 'Today, 10:42 AM', who: 'as', type: 'Rights', text: 'restricted access to “Rotating the internal TLS certificates” (2 people).' },
-    { when: 'Today, 10:15 AM', who: 'as', type: 'Import', text: 'imported “Disaster recovery plan 2026”, version 1.' },
+    { when: 'Today, 10:15 AM', who: 'as', type: 'Import', text: 'imported “Disaster recovery plan 2026” into Infrastructure.' },
     { when: 'Today, 9:58 AM', who: 'eb', type: 'View', text: 'viewed “Restore a PostgreSQL database from a backup”.' },
     { when: 'Today, 9:31 AM', who: null, type: 'Sign-in', text: '5 failed sign-in attempts for herve.coulibaly@dada.group. Account locked for 15 minutes.' },
     { when: 'Today, 8:47 AM', who: 'wk', type: 'Organization', text: 'created the “Business applications” space.' },
     { when: 'Yesterday, 6:04 PM', who: 'as', type: 'Import', text: 'imported version 4 of “Restore a PostgreSQL database from a backup”.' },
     { when: 'Yesterday, 4:20 PM', who: 'as', type: 'Rights', text: 'changed the role of Eli Brou in Infrastructure: Reader, previously Contributor.' },
-    { when: 'Yesterday, 3:12 PM', who: 'hc', type: 'Status', text: 'marked “Nightly backups with Barman” as outdated.' },
+    { when: 'Yesterday, 3:12 PM', who: 'hc', type: 'Status', text: 'changed the status of “Nightly backups with Barman (old procedure)”: Outdated.' },
     { when: 'Yesterday, 2:03 PM', who: 'eb', type: 'Change', text: 'changed the description of “Server room B cabling diagram”.' },
     { when: 'Yesterday, 11:05 AM', who: 'ck', type: 'Deletion', text: 'deleted “VPN procedure (copy)” (1 version).' },
     { when: 'Nov 9, 8:15 AM', who: 'ey', type: 'Download', text: 'downloaded the original of “Server room B cabling diagram”.' },
-    { when: 'Nov 8, 5:40 PM', who: 'as', type: 'Members', text: 'created an invitation link for the Infrastructure space (Contributor role).' }
+    { when: 'Nov 8, 5:40 PM', who: 'as', type: 'Members', text: 'created an invitation to the organization, with the Member role and the Infrastructure space.' }
   ];
 
   /* v0.2: knowledge articles */

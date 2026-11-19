@@ -88,7 +88,7 @@ https://lore.example.com/documents/0193a7c2-…?from=search&q=pg_restore%20role&
 
 The words of `q` are highlighted in the section or page pointed to only, regardless of accents and case; a phrase between straight quotes stays whole, and neither `or` nor the words left out, such as `-barman`, are highlighted. With `from=search`, a banner says so: “Passage found for “pg_restore role”, section 4.2 Common errors. It is highlighted below.”
 
-**From a search result.** The link of a result has this form, with the current version at the time of the search. A document found by its title or its description opens at the top, without a banner.
+**From a search result.** The link of a result has this form, with the current version at the time of the search. A document found by its title or its description opens at the top, without a banner, but with *Back to the results*.
 
 - **Forms found.** The reader also highlights the words that search found in another form, such as “serveur” for “serveurs”, twenty at most. A copied link only carries `q`: only the words written in `q` are highlighted.
 - **Back to the results.** The banner offers *Back to the results*. From the results page, it leads back there, with its filters; from a copied link or a new tab, it runs the search of `q` again.
@@ -96,7 +96,8 @@ The words of `q` are highlighted in the section or page pointed to only, regardl
 | Case | What is shown |
 | --- | --- |
 | A heading, a part or a page the document does not have | The document opens at the top, or at its first page for a PDF, with “This passage does not exist in this document.” |
-| A link made for an older version | The current version opens at the section of the same title, with “This link was made for version 3: here is the same section in the current version.” If it no longer exists, at the top, with “This passage changed since version 3.” In both cases, *Show version 3* opens the older version. A PDF opens at the same page, if it still exists. |
+| A link to a section or a page made for an older version | The current version opens at the section of the same title, with “This link was made for version 3: here is the same section in the current version.” If it no longer exists, at the top, with “This passage changed since version 3.” In both cases, *Show version 3* opens the older version. A PDF opens at the same page number, if it still exists, with “This link was made for page 2 of version 3: here is page 2 of the current version.” |
+| A link without a section made for an older version | The current version opens at the top, with “This link was made for version 3: here is the current version.” and *Show version 3*. |
 | A link that names a version the document does not have yet | The document opens at the top, with “This passage has changed since version 6.” |
 | You are not signed in | After signing in, the document opens at the same passage. |
 | You cannot see the document | *This page cannot be found*, as for a document that does not exist. |
@@ -122,13 +123,22 @@ The right panel, shown or hidden with <kbd>]</kbd>, tells everything about the d
 | Category | Its pill, or *No category* | The space’s contributors and maintainers |
 | Space | A link to its documents | Nobody |
 | Folder | Its name, or *No folder* | The space’s contributors and maintainers, with *Move* |
-| Language | French, English or other, detected at extraction | The space’s contributors and maintainers, see [Change the language](#change-the-language) |
+| Language | French, English or other, detected at extraction; *Not detected yet* as long as the first extraction has not succeeded | The space’s contributors and maintainers, see [Change the language](#change-the-language) |
 | Format | The format, the number of pages or sections and the size, for example “PDF, 312 pages, 24.8 MB” | Nobody |
-| Indexing | The state of the extraction and its date | *Retry*, after a passing failure |
+| Indexing | The state of the extraction and its date | Nobody. After a passing failure, *Retry* is in the failure banner, above the content |
 
 Then come *Access*, which says who sees the document, *Versions*, the history in strata described below, with the *SHA-256 fingerprint* of the version chosen, to copy, then *On this page*.
 
 Under the title, a line gives the status, the version, the date of the last update, restricted access, and `EN` for a document in English; then comes the description, or *Add a description* for a contributor. In an archived space, everything is read-only.
+
+### Change the title and the description
+
+The space’s contributors and maintainers change them from the document’s page:
+
+- **The title is edited in place.** The pencil *Edit the title*, next to the title, turns it into a field: <kbd>Enter</kbd> saves, <kbd>Esc</kbd> cancels. 200 characters at most.
+- **The description is edited in a window.** *Edit the description*, next to it, or *Add a description*, opens it; *Save* keeps the text, and a description left empty is removed. 2,000 characters at most.
+
+Both changes are recorded in the *Activity* of the document and in the audit log.
 
 ### Change the owner
 
@@ -159,9 +169,9 @@ The document is indexed again at once: “Language updated: the document is inde
 
 ### History in strata
 
-In *Versions*, each version is a band, the latest on top and in colour. The thickness of a band shows how much the version changed: the share of passages added or removed from the previous version. A hatched band marks a change that is unknown, for a scanned document for instance. A version in progress or failed, later than the current one, is marked *in progress* or *failed*.
+In *Versions*, each version is a band, the latest on top and in color. The thickness of a band shows how much the version changed: the share of passages added or removed from the previous version. The first version, once extracted, counts as whole. A hatched band marks a change that is unknown: a version in progress or failed, a version that never became current, or a version whose text, or that of the previous one, has no passage, such as a fully scanned PDF. A version in progress or failed, later than the current one, is marked *in progress* or *failed*.
 
-Choose a band, with the mouse or the arrows <kbd>↑</kbd> and <kbd>↓</kbd>: below it show its date of import and its author, *What changes* (“First version” for the first one), the name of its file, *Show* for an older version and *Download*. The ten latest versions show first, then *All the versions*.
+Choose a band, with the mouse or the arrows <kbd>↑</kbd> and <kbd>↓</kbd>: below it show its date of import and its author, what changes (“First version” for the first one), the name of its file, *Show* for an older version and *Download*. The ten latest versions show first, then *All the versions*.
 
 ### Older version
 
@@ -212,7 +222,7 @@ Lore keeps up to 10 million characters of text per document. Beyond that, the co
 
 The home page lists, under *Resume*, the last three documents you opened and still see, with their space, their folder, their status and when you read them. A document you no longer see, deleted or restricted since, disappears from it.
 
-These readings come from the audit log, which records the opening of a document once an hour at most for each person. They never show on the document: only the organization’s owners and administrators see them, in the audit log, which can be browsed in the administration from version 0.1.
+These readings come from the audit log, which records the opening of a document once an hour at most for each person. They never show on the document: only the organization’s owners and administrators see them, in *Administration › Audit log*. See [Audit log](audit.md).
 
 ## Limits
 
@@ -220,3 +230,4 @@ These readings come from the audit log, which records the opening of a document 
 - **Word documents.** The view is simplified: no layout, colors or fonts, and lists are numbered paragraphs.
 - **Code.** No syntax highlighting.
 - **Very long documents.** Shown part by part; the browser’s search and printing cover the part shown.
+- **Accessibility of PDFs.** The scanned pages of a PDF are only images, and a PDF shown in the page offers its text, not its structure (headings, tables). A text view of PDFs will come after version 0.1.

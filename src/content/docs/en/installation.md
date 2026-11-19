@@ -16,12 +16,14 @@ description: "Three ways to install Lore on your server: Docker Compose, a .deb 
 
 In every case, plan for 2 CPUs and 4 GB of memory for a team (as a guide), including about 1.3 GB for extracting the text of imported documents (below 4 GB: one extraction at a time, `LORE_EXTRACTION_WORKERS=1`), 10 GB of disk plus the size of your documents, and port 8080 or a reverse proxy for HTTPS.
 
+**Browsers.** Lore works with recent versions of Chrome, Edge, Firefox and Safari. Safari is only checked through WebKit, for lack of a Mac for testing.
+
 > [!TIP]
 > **No default password.** The first administrator account is created in the browser, during the [initial setup](initial-setup.md).
 
 ## Docker Compose
 
-Two containers, the application and PostgreSQL 18. The `docker-compose.yml` file is published with each release of Lore:
+Two containers, the application and PostgreSQL 18. The `docker-compose.yml` file is published with each release of Lore. The two images weigh about 350 MB compressed (Lore 185 MB, PostgreSQL 165 MB, on amd64 as on arm64): a little over 2 minutes at 20 Mbit/s. Once downloaded, the start, the initial setup, a first space, two documents imported and a first search take less than a minute of computing; the continuous integration checks at each release that the whole path, the download of the images included, takes less than three minutes of machine time.
 
 ```sh tab="Linux and macOS"
 curl -LO https://github.com/dada-core/lore/releases/latest/download/docker-compose.yml
@@ -65,6 +67,10 @@ services:
       # The address your team will use to open Lore: it appears in invitation links.
       LORE_PUBLIC_URL: ${LORE_PUBLIC_URL:-http://localhost:8080}
       LORE_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in the .env file next to docker-compose.yml}
+      # Behind a reverse proxy on this machine or in a container: 172.16.0.0/12, with the port of Lore
+      # published on 127.0.0.1 only, so that Lore sees the address of each person. See "HTTPS and
+      # reverse proxy" in the documentation.
+      LORE_TRUSTED_PROXIES: ${LORE_TRUSTED_PROXIES:-127.0.0.0/8, ::1/128}
     volumes:
       - files:/var/lib/lore/files
     depends_on:
@@ -91,6 +97,8 @@ volumes:
   files:
   db:
 ```
+
+Behind a reverse proxy, publish Lore’s port on 127.0.0.1 only and declare the proxy in `LORE_TRUSTED_PROXIES`: see [HTTPS and reverse proxy](reverse-proxy.md#with-docker-compose).
 
 To check that both containers are running:
 
@@ -125,10 +133,12 @@ Lore needs PostgreSQL 18 or later, with the `unaccent` extension, which ships wi
 | RHEL 10 | 16 | The distribution’s `postgresql18` packages |
 
 ```sh tab="Ubuntu 26.04"
+sudo apt update
 sudo apt install postgresql-18
 ```
 
 ```sh tab="Ubuntu 22.04, 24.04, Debian"
+sudo apt update
 sudo apt install postgresql-common gnupg
 sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 sudo apt install postgresql-18
@@ -209,7 +219,6 @@ curl -LO https://github.com/dada-core/lore/releases/download/v0.1.0/lore-0.1.0.t
 tar xzf lore-0.1.0.tar.gz
 cd lore-0.1.0
 cp conf/lore.env.example conf/lore.env
-bin/lore
 ```
 
 ```powershell tab="Windows"
@@ -217,10 +226,9 @@ Invoke-WebRequest https://github.com/dada-core/lore/releases/download/v0.1.0/lor
 Expand-Archive lore-0.1.0.zip .
 cd lore-0.1.0
 Copy-Item conf\lore.env.example conf\lore.env
-bin\lore.cmd
 ```
 
-Before you start Lore, set Lore’s address and the database access in `conf/lore.env`. Lore then runs in the foreground and prints the initial setup code in the terminal. For a permanent service on Linux, prefer the packages.
+Then set Lore’s address and the database access in `conf/lore.env`, and start `bin/lore` (`bin\lore.cmd` on Windows). Lore runs in the foreground and prints the initial setup code in the terminal. For a permanent service on Linux, prefer the packages.
 
 | File | Contents |
 | --- | --- |
@@ -246,5 +254,5 @@ Make a [backup](backup.md) first.
 | Method | Command | What stays |
 | --- | --- | --- |
 | Docker Compose | `docker compose down` | The database and files volumes. `docker compose down -v` deletes them too. |
-| Packages | `sudo apt remove lore` or `sudo dnf remove lore` | `/var/lib/lore`, the PostgreSQL database and the `lore` user. `sudo apt purge lore` also deletes `/etc/lore`. |
+| Packages | `sudo apt remove lore` or `sudo dnf remove lore` | `/var/lib/lore`, the PostgreSQL database, the `lore` user and `/etc/lore/lore.env` (`lore.env.rpmsave` with dnf), which holds the database password. `sudo apt purge lore` also deletes `/etc/lore`. |
 | Archive | Stop Lore, then delete its folder | The PostgreSQL database. The imported files, in `data/files`, are deleted with the folder. |

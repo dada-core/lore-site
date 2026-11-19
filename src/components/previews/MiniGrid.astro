@@ -15,7 +15,7 @@ const head = fr ? ['Titre', 'Statut', 'Catégorie', 'Responsable', 'Mis à jour'
 const rows = [
   { t: fr ? 'Restaurer une base PostgreSQL depuis une sauvegarde' : 'Restore a PostgreSQL database from a backup', s: 'published', c: 'Runbook', tone: 'blue', a: 'AS', col: '#13705E', d: fr ? 'Hier' : 'Yesterday', lock: false },
   { t: fr ? 'Incident INC-2291 : disque saturé sur pg-prod-02' : 'Incident INC-2291: disk full on pg-prod-02', s: 'published', c: fr ? 'Rapport d’incident' : 'Incident report', tone: 'red', a: 'CK', col: '#6B5A8E', d: fr ? '3 nov.' : 'Nov 3', lock: false },
-  { t: fr ? 'Rotation des certificats TLS internes' : 'Rotating internal TLS certificates', s: 'draft', c: fr ? 'Sécurité' : 'Security', tone: 'purple', a: 'CK', col: '#6B5A8E', d: fr ? '29 oct.' : 'Oct 29', lock: true },
+  { t: fr ? 'Rotation des certificats TLS internes' : 'Rotating internal TLS certificates', s: 'draft', c: fr ? 'Documentation de sécurité' : 'Security documentation', tone: 'purple', a: 'CK', col: '#6B5A8E', d: fr ? '29 oct.' : 'Oct 29', lock: true },
   { t: fr ? 'Sauvegardes nocturnes avec Barman' : 'Nightly backups with Barman', s: 'obsolete', c: 'Runbook', tone: 'blue', a: 'HC', col: '#3F6C9A', d: fr ? '2 mars' : 'Mar 2', lock: false }
 ] as const;
 ---

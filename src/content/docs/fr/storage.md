@@ -61,7 +61,8 @@ Derrière un proxy inverse, réglez sa limite de taille un peu au-dessus de cell
 Après l’import, le texte de chaque fichier est extrait en arrière-plan, avec Apache Tika pour les PDF et les documents Word, dans des processus séparés de l’application. Un fichier piégé ou trop lourd fait échouer sa propre extraction, sans jamais faire tomber Lore.
 
 - **Des processus lancés par Lore.** Lore les démarre lui-même, avec le même Java et le même programme : il n’y a rien d’autre à installer. Un processus démarre au premier fichier à traiter, s’arrête après 5 minutes sans travail, et est remplacé tous les 200 fichiers.
-- **Sans les secrets de l’application.** Ces processus ne reçoivent que quelques variables du système (`PATH`, `HOME`, dossiers temporaires, langue) : ni le mot de passe de la base, ni aucune variable `LORE_*`, ni les options de Java de l’application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). Ils lisent le fichier, écrivent le texte extrait dans `tmp/extraction/`, et Lore enregistre le résultat. Ils tournent toutefois sous le même compte système que Lore : ils ne sont pas isolés de ce que ce compte peut lire, comme son fichier de configuration.
+- **Sans les secrets de l’application.** Ces processus ne reçoivent que quelques variables du système (`PATH`, `HOME`, `JAVA_HOME`, dossiers temporaires, langue, et sous Windows celles du système) : ni le mot de passe de la base (`LORE_DB_PASSWORD`), ni aucune variable `LORE_*`, ni les options de Java de l’application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). Ils lisent le fichier, écrivent le texte extrait dans `tmp/extraction/`, et Lore enregistre le résultat. Ils tournent toutefois sous le même compte système que Lore : voir la limite connue ci-dessous.
+- **XML.** Dans le XML d’un fichier, ils ne vont chercher aucune DTD, aucune entité, aucun schéma ni aucune feuille de style externes : seul le contenu du fichier est lu.
 - **En parallèle.** `LORE_EXTRACTION_WORKERS` extractions à la fois, une par processus : 2 par défaut, de 1 à 8.
 - **Limités en mémoire.** Chaque processus dispose de `LORE_EXTRACTION_MEMORY`, 512 Mo par défaut. S’il en manque, il s’arrête, et l’extraction est retentée.
 - **Limités en durée.** Une extraction qui dépasse `LORE_EXTRACTION_TIMEOUT`, 120 secondes par défaut, est arrêtée avec son processus, puis retentée.
@@ -69,6 +70,11 @@ Après l’import, le texte de chaque fichier est extrait en arrière-plan, avec
 - **Repris après un arrêt.** Les extractions à faire sont gardées dans la base : après un redémarrage, ou un arrêt brutal du serveur, elles reprennent d’elles-mêmes.
 
 Les pièces jointes et les objets incorporés aux documents ne sont pas lus.
+
+> [!WARNING]
+> **Limite connue.** Les processus d’extraction tournent sous le même compte système que Lore. Ils protègent Lore d’un fichier qui fait planter, boucler ou déborder l’extraction, pas d’une faille qui permettrait à un fichier piégé d’exécuter du code dans Apache Tika, PDFBox ou POI. Ce code aurait les droits de Lore : lire le mot de passe de la base dans l’environnement du processus principal, se connecter à la base, lire et modifier les fichiers de tous les documents. Avec les paquets, `/etc/lore/lore.env` reste lisible par root et par le groupe `lore` : un processus de l’utilisateur `lore` peut lire ces réglages, comme l’environnement du processus principal.
+>
+> Un compte système dédié à l’extraction est prévu après la version 0.1. D’ici là, gardez Lore à jour, et ne donnez le droit d’importer (au moins le rôle Contributeur dans un espace) qu’à des personnes de confiance.
 
 ### Contenu mis en forme
 

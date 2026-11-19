@@ -9,7 +9,7 @@ interface Props {
 }
 const fr = Astro.props.lang === 'fr';
 const base = fr ? ['Restaurer une base PostgreSQL', 'Incident INC-2291', 'Migration vers PostgreSQL 18'] : ['Restore a PostgreSQL database', 'Incident INC-2291', 'Migration to PostgreSQL 18'];
-const results = (n: number) => (fr ? `${n} résultats pour « certificat »` : `${n} results for “certificate”`);
+const results = (n: number) => (fr ? `${n} documents visibles` : `${n} documents visible`);
 ---
 <div class="s-perm">
   <div>

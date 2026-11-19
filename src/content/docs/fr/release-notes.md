@@ -7,14 +7,16 @@ description: "Les changements de chaque version de Lore."
 
 Première version : un environnement complet, sans intelligence artificielle.
 
-- Comptes, organisations et invitations par lien
+- Comptes, organisation et invitations par lien
 - Espaces, dossiers et rôles
-- Import PDF, Word, texte et Markdown, jusqu’à 50 Mo
+- Import PDF, Word, texte et Markdown, 50 Mo par défaut, jusqu’à 1 Go
 - Lecteur ouvert au bon passage
 - Recherche plein texte, filtrée par les droits
 - Versions et statuts
 - Journal d’audit
 - Installation avec Docker Compose, des paquets .deb et .rpm ou une archive universelle
+
+Depuis la 0.1.0-beta.1 : proxys de confiance (`LORE_TRUSTED_PROXIES`), code de configuration fixé d’au moins 12 caractères, cookies `__Host-` en HTTPS : voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-beta1).
 
 ## Version 0.1.0-beta.1 <span class="vb">Préversion</span>
 
@@ -100,7 +102,7 @@ Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/rel
 
 | Version | Contenu prévu |
 | --- | --- |
-| 0.2 | Recherche par le sens, fiches de connaissances, tableau de bord |
+| 0.2 | Recherche par le sens, fiches de connaissances, tableau de bord, dates de révision et circuit de validation |
 | 0.3 | Assistant facultatif et historique des conversations |
 
 Chaque version publiée sera aussi annoncée sur la [page des versions du dépôt GitHub](https://github.com/dada-core/lore/releases).

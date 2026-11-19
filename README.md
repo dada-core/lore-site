@@ -13,6 +13,7 @@ npm install
 npm run dev       # development server on http://localhost:4321
 npm run check     # type-checks pages, components and scripts
 npm run build     # static site in dist/
+npm run links     # checks the internal links of the built site, after npm run build
 npm run preview   # serves dist/ to check the build
 ```
 
@@ -47,7 +48,7 @@ The documentation is served at `/docs/` (French) and `/en/docs/` (English), with
 - Change a page: edit both language files. The frontmatter holds the `title`, the `description` shown under it, and an optional `release` badge (`v0.2`) for a feature planned after version 0.1. Quote values that contain a colon.
 - Add a page: create both files, then add its key, its section and its address to `src/docs/nav.ts`. The build stops if a page is missing in one language.
 - A page written ahead of its feature goes in `DRAFTS`, in `src/docs/nav.ts`: it stays in the repository but out of the site. Take it out of the list in the release that brings the feature. `npm run links` reports a published page that links to a draft.
-- Link to another page by its file name, `[Installation](installation.md#check)`: the link points to the page in the same language, and works on GitHub too.
+- Link to another page by its file name, `[Installation](installation.md#docker-compose)`: the link points to the page in the same language, and works on GitHub too.
 
 The pages stay plain Markdown, readable on GitHub. The site adds a few presentations (`src/docs/markdown.ts`):
 
@@ -71,7 +72,7 @@ The search window reads `/docs/search.json` and `/en/docs/search.json`, built wi
 | `develop` | Reference branch, and the default one: every change arrives through a pull request |
 | `deploy` | Published branch: a pull request from `develop` publishes the site on lore.dada-core.com |
 
-The CI/CD workflow (`.github/workflows/ci-cd.yml`) checks every push and every pull request: no em dash in the sources, types, build and internal links. A push to `deploy`, that is a merged pull request, then publishes `dist/` with GitHub Pages.
+The CI/CD workflow (`.github/workflows/ci-cd.yml`) checks every push and every pull request: no em dash nor en dash in the sources, types, build and internal links. A push to `deploy`, that is a merged pull request, then publishes `dist/` with GitHub Pages.
 
 In the repository settings: Pages served by GitHub Actions with the `lore.dada-core.com` domain, the `github-pages` environment limited to the `deploy` branch, and merge commits only, so that the branches keep their history.
 

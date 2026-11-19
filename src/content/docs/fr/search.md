@@ -65,7 +65,7 @@ Si la détection s’est trompée, par exemple pour un guide en anglais détect�
 ## Ce qui est cherché
 
 - **La version actuelle** de chaque document : le texte de ses passages, avec les titres des sections qui les portent, ainsi que son titre et sa description.
-- **Un document numérisé ou en échec** : son titre et sa description seulement. Donnez-lui une description qui dit ce qu’il contient. Voir [États de l’extraction](import.md#états-de-lextraction).
+- **Un document en échec** : son titre et sa description seulement. **Un document numérisé** : son titre, sa description et le texte de ses pages qui en ont ; ses pages numérisées ne sont pas cherchées. Donnez-lui une description qui dit ce qu’il contient. Voir [États de l’extraction](import.md#états-de-lextraction).
 - **Un texte tronqué** : les 10 millions de caractères gardés.
 
 Ni le nom du fichier, ni le responsable ne sont cherchés. La catégorie, le statut et le format sont des [filtres](#filtres).
@@ -82,7 +82,7 @@ Le nombre de documents trouvés, « 3 documents », et l’ordre, « Classés pa
 
 Le meilleur passage est celui qui réunit le plus de termes. Un document trouvé seulement par son titre affiche « Correspondance dans le titre. », ou « Document numérisé : seul son titre correspond. » ; trouvé par sa description, un extrait de celle-ci.
 
-*Afficher plus de résultats*, en bas de la liste, ajoute les 20 documents suivants. Puis viennent deux rappels : « Seuls les documents auxquels vous avez accès apparaissent. » et « Les documents numérisés ne sont recherchables que par leur titre et leur description. »
+*Afficher plus de résultats*, en bas de la liste, ajoute les 20 documents suivants. Puis viennent deux rappels : « Seuls les documents auxquels vous avez accès apparaissent. » et « Les pages numérisées ne sont pas cherchées : un document numérisé est trouvé par son titre, sa description et le texte de ses autres pages. »
 
 ### Ouvrir un résultat
 
@@ -90,7 +90,7 @@ Un clic ouvre le document au passage trouvé, encadré, les mots surlignés, y c
 
 ### Aucun résultat
 
-La page indique « Aucun document ne correspond à « quota ceph » », puis « Vérifiez l’orthographe des identifiants, retirez un mot ou des guillemets. Les documents numérisés ne sont recherchables que par leur titre et leur description. »
+La page indique « Aucun document ne correspond à « quota ceph » », puis « Vérifiez l’orthographe des identifiants, retirez un mot ou des guillemets. Les pages numérisées ne sont pas cherchées : un document numérisé est trouvé par son titre, sa description et le texte de ses autres pages. »
 
 ## Filtres
 
@@ -112,12 +112,7 @@ Un document archivé n’apparaît pas non plus par défaut, même pour ceux qui
 
 ## Ordre des résultats
 
-1. Un document dont le titre contient tous les termes passe devant.
-2. Puis un document dont un passage réunit tous les termes, d’abord sous leur forme exacte.
-3. Puis les autres, selon les termes que réunit leur meilleur passage. Un titre de section compte davantage que le texte ; le titre du document et sa description comptent aussi.
-4. Les documents obsolètes viennent toujours en dernier, quel que soit leur rang.
-
-À pertinence égale, le document le plus récemment mis à jour vient d’abord.
+Les documents obsolètes viennent toujours en dernier. Les autres sont classés par un score qui additionne la pertinence de leur meilleur passage, un bonus quand ce passage réunit tous les termes (plus fort sous leur forme exacte), la pertinence du titre et de la description, comptée double, et un bonus quand le titre contient tous les termes. Un titre de section compte davantage que le texte. À score égal, le document qui a le plus de passages trouvés vient d’abord, puis le plus récemment mis à jour.
 
 ## La palette
 
@@ -129,7 +124,7 @@ Un document archivé n’apparaît pas non plus par défaut, même pour ceux qui
 
 ## Recherches récentes
 
-Sans recherche, la page *Recherche* rappelle vos huit dernières recherches. Elles sont gardées dans ce navigateur, pour votre compte, jamais sur le serveur. *Effacer* les retire (« Recherches récentes effacées »), et la déconnexion aussi : un poste partagé ne les montre pas à la personne suivante.
+Sans recherche, la page *Recherche* rappelle vos huit dernières recherches. Elles sont gardées dans ce navigateur, pour votre compte, jamais sur le serveur. *Effacer* les retire (« Recherches récentes effacées »), comme la déconnexion ou une session expirée que Lore, ouvert, constate : rangées par compte, elles ne s’affichent pas pour la personne suivante.
 
 ## Ce qui n’apparaît jamais
 
@@ -155,6 +150,7 @@ La recherche part dans l’adresse de la page, `/search?q=…` : elle reste dans
 
 - **Extraits.** Ils sont du texte brut : une balise écrite dans le texte d’un document, comme `<VirtualHost>` dans un runbook, n’y paraît pas.
 - **Adresses web.** Une adresse écrite en fin de phrase dans un document, suivie d’un point, n’est retrouvée que par son nom d’hôte, comme `wiki.dada.group`.
+- **Mots très fréquents.** Une expression entre guillemets faite de mots présents dans presque tous les documents, comme `"connexion à la base de données"` sur un grand nombre de documents, peut dépasser les 5 secondes : ajoutez un mot plus rare.
 - **Pas en version 0.1** : la recherche d’un début de mot dans le contenu (`restaur*`), les suggestions d’orthographe, les synonymes propres à une organisation, les filtres par responsable et par langue, le tri par date, et la reconnaissance du texte des documents numérisés.
 
 ## Recherche par le sens <span class="vb">v0.2</span>

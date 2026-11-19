@@ -88,7 +88,7 @@ https://lore.example.com/documents/0193a7c2-…?from=search&q=pg_restore%20role&
 
 Les mots de `q` sont surlignés dans la section ou la page désignée seulement, sans tenir compte des accents ni des majuscules ; une expression entre guillemets droits reste entière, et ni `or`, ni les mots exclus, comme `-barman`, ne sont surlignés. Avec `from=search`, un bandeau le rappelle : « Passage trouvé pour « pg_restore role », section 4.2 Erreurs fréquentes. Il est surligné ci-dessous. »
 
-**Depuis un résultat de recherche.** Le lien d’un résultat a cette forme, avec la version actuelle au moment de la recherche. Un document trouvé par son titre ou sa description s’ouvre en haut, sans bandeau.
+**Depuis un résultat de recherche.** Le lien d’un résultat a cette forme, avec la version actuelle au moment de la recherche. Un document trouvé par son titre ou sa description s’ouvre en haut, sans bandeau, mais avec *Retour aux résultats*.
 
 - **Formes trouvées.** Le lecteur surligne aussi les mots que la recherche a trouvés sous une autre forme, comme « serveur » pour « serveurs », vingt au plus. Un lien copié ne porte que `q` : seuls les mots écrits dans `q` y sont surlignés.
 - **Retour aux résultats.** Le bandeau propose *Retour aux résultats*. Depuis la page de résultats, il y ramène, avec ses filtres ; depuis un lien copié ou un nouvel onglet, il relance la recherche de `q`.
@@ -96,7 +96,8 @@ Les mots de `q` sont surlignés dans la section ou la page désignée seulement,
 | Cas | Ce qui s’affiche |
 | --- | --- |
 | Un titre, une partie ou une page que le document n’a pas | Le document s’ouvre en haut, ou à sa première page pour un PDF, avec « Ce passage n’existe pas dans ce document. » |
-| Un lien fait pour une version plus ancienne | La version actuelle s’ouvre à la section du même titre, avec « Ce lien visait la version 3 : voici la même section dans la version actuelle. » Si elle n’existe plus, en haut, avec « Ce passage a changé depuis la version 3. » Dans les deux cas, *Afficher la version 3* ouvre l’ancienne version. Un PDF s’ouvre à la même page, si elle existe encore. |
+| Un lien de section ou de page fait pour une version plus ancienne | La version actuelle s’ouvre à la section du même titre, avec « Ce lien visait la version 3 : voici la même section dans la version actuelle. » Si elle n’existe plus, en haut, avec « Ce passage a changé depuis la version 3. » Dans les deux cas, *Afficher la version 3* ouvre l’ancienne version. Un PDF s’ouvre au même numéro de page, s’il existe encore, avec « Ce lien visait la page 2 de la version 3 : voici la page 2 de la version actuelle. » |
+| Un lien sans section fait pour une version plus ancienne | La version actuelle s’ouvre en haut, avec « Ce lien visait la version 3 : voici la version actuelle. » et *Afficher la version 3*. |
 | Un lien qui désigne une version que le document n’a pas encore | Le document s’ouvre en haut, avec « Ce passage a changé depuis la version 6. » |
 | Vous n’êtes pas connecté | Après la connexion, le document s’ouvre au même passage. |
 | Vous ne pouvez pas voir le document | *Cette page est introuvable*, comme pour un document qui n’existe pas. |
@@ -122,13 +123,22 @@ Le panneau de droite, affiché ou masqué avec <kbd>]</kbd>, dit tout du documen
 | Catégorie | Sa pastille, ou *Sans catégorie* | Contributeurs et responsables de l’espace |
 | Espace | Un lien vers ses documents | Personne |
 | Dossier | Son nom, ou *Sans dossier* | Contributeurs et responsables de l’espace, avec *Déplacer* |
-| Langue | Français, anglais ou autre, détectée à l’extraction | Contributeurs et responsables de l’espace, voir [Changer la langue](#changer-la-langue) |
+| Langue | Français, anglais ou autre, détectée à l’extraction ; *Pas encore détectée* tant que la première extraction n’a pas abouti | Contributeurs et responsables de l’espace, voir [Changer la langue](#changer-la-langue) |
 | Format | Le format, le nombre de pages ou de sections et la taille, par exemple « PDF, 312 pages, 24,8 Mo » | Personne |
-| Indexation | L’état de l’extraction et sa date | *Relancer*, après un échec passager |
+| Indexation | L’état de l’extraction et sa date | Personne. Après un échec passager, *Relancer* est dans le bandeau d’échec, au-dessus du contenu |
 
 Suivent *Accès*, qui dit qui voit le document, *Versions*, l’historique en strates décrit ci-dessous, avec l’*Empreinte SHA-256* de la version choisie, à copier, puis *Sur cette page*.
 
 Sous le titre, une ligne rappelle le statut, la version, la date de mise à jour, l’accès restreint, et `EN` pour un document en anglais ; puis vient la description, ou *Ajouter une description* pour un contributeur. Dans un espace archivé, tout est en lecture seule.
+
+### Changer le titre et la description
+
+Les contributeurs et les responsables de l’espace les changent depuis la page du document :
+
+- **Le titre se modifie sur place.** Le crayon *Modifier le titre*, à côté du titre, le change en champ : <kbd>Entrée</kbd> enregistre, <kbd>Échap</kbd> annule. 200 caractères au plus.
+- **La description se modifie dans une fenêtre.** *Modifier la description*, à côté d’elle, ou *Ajouter une description*, l’ouvre ; *Enregistrer* garde le texte, et une description vidée est retirée. 2 000 caractères au plus.
+
+Les deux changements sont inscrits dans l’*Activité* du document et au journal d’audit.
 
 ### Changer le responsable
 
@@ -159,9 +169,9 @@ Le document est réindexé aussitôt : « Langue mise à jour : le document est 
 
 ### Historique en strates
 
-Dans *Versions*, chaque version est une bande, la plus récente en haut et en couleur. L’épaisseur d’une bande dit l’ampleur des modifications apportées par la version : la part des passages ajoutés ou retirés par rapport à la version précédente. Une bande hachurée signale une ampleur inconnue, pour un document numérisé par exemple. Une version en cours ou en échec, plus récente que la version actuelle, est marquée *en cours* ou *en échec*.
+Dans *Versions*, chaque version est une bande, la plus récente en haut et en couleur. L’épaisseur d’une bande dit l’ampleur des modifications apportées par la version : la part des passages ajoutés ou retirés par rapport à la version précédente. La première version, une fois extraite, compte comme entière. Une bande hachurée signale une ampleur inconnue : version en cours ou en échec, version jamais devenue actuelle, ou version dont le texte, ou celui de la précédente, n’a aucun passage, comme un PDF entièrement numérisé. Une version en cours ou en échec, plus récente que la version actuelle, est marquée *en cours* ou *en échec*.
 
-Choisissez une bande, à la souris ou avec les flèches <kbd>↑</kbd> et <kbd>↓</kbd> : dessous s’affichent sa date d’import et son auteur, *Ce qui change* (« Première version » pour la première), le nom de son fichier, *Afficher* pour une version plus ancienne et *Télécharger*. Les dix versions les plus récentes s’affichent d’abord, puis *Toutes les versions*.
+Choisissez une bande, à la souris ou avec les flèches <kbd>↑</kbd> et <kbd>↓</kbd> : dessous s’affichent sa date d’import et son auteur, ce qui change (« Première version » pour la première), le nom de son fichier, *Afficher* pour une version plus ancienne et *Télécharger*. Les dix versions les plus récentes s’affichent d’abord, puis *Toutes les versions*.
 
 ### Ancienne version
 
@@ -212,7 +222,7 @@ Lore garde jusqu’à 10 millions de caractères de texte par document. Au-delà
 
 L’accueil rappelle, sous *Reprendre*, les trois derniers documents que vous avez ouverts et que vous voyez encore, avec leur espace, leur dossier, leur statut et le moment de votre lecture. Un document que vous ne voyez plus, supprimé ou restreint depuis, en disparaît.
 
-Ces lectures viennent du journal d’audit, qui inscrit l’ouverture d’un document une fois par heure au plus pour chaque personne. Elles ne s’affichent jamais sur le document : seuls les propriétaires et les administrateurs de l’organisation les voient, dans le journal d’audit, consultable dans l’administration à partir de la version 0.1.
+Ces lectures viennent du journal d’audit, qui inscrit l’ouverture d’un document une fois par heure au plus pour chaque personne. Elles ne s’affichent jamais sur le document : seuls les propriétaires et les administrateurs de l’organisation les voient, dans *Administration › Journal d’audit*. Voir [Journal d’audit](audit.md).
 
 ## Limites
 
@@ -220,3 +230,4 @@ Ces lectures viennent du journal d’audit, qui inscrit l’ouverture d’un doc
 - **Documents Word.** L’affichage est simplifié : ni mise en page, ni couleurs, ni polices, et les listes sont des paragraphes numérotés.
 - **Code.** Sans coloration syntaxique.
 - **Documents très longs.** Affichés par parties ; la recherche du navigateur et l’impression portent sur la partie affichée.
+- **Accessibilité des PDF.** Les pages numérisées d’un PDF ne sont que des images, et un PDF affiché dans la page offre son texte, pas sa structure (titres, tableaux). Une vue texte des PDF viendra après la version 0.1.
