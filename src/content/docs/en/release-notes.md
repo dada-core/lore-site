@@ -18,6 +18,23 @@ First version: a complete workspace, without artificial intelligence.
 
 Since 0.1.0-beta.1: trusted proxies (`LORE_TRUSTED_PROXIES`), a fixed setup code of 12 characters or more, `__Host-` cookies over HTTPS: see [Upgrading](upgrade.md#from-the-010-beta1-preview).
 
+## Version 0.1.0-rc.1 <span class="vb">Preview</span>
+
+Released on November 19, 2026, a candidate for version 0.1.0. It takes over the data of a 0.1.0-beta.1 installation, without a migration: first read [what changes on upgrade](upgrade.md#from-the-010-beta1-preview), in particular for a reverse proxy.
+
+- End-to-end journeys in real browsers: all of them in Chromium, those of reading, search, keyboard and phone also in Firefox and WebKit; an accessibility audit (axe) of each screen, in light, in dark and on a phone, and the fixes they found: contrasts, names of buttons, focus, the drawer on a phone
+- Trusted reverse proxies declared in `LORE_TRUSTED_PROXIES`, the machine itself by default; Lore refuses to start with a malformed list, and reports a proxy left out in its logs
+- A sturdier sign-in lockout: guesses sent together count as guesses sent one by one, and the current password of *My account* also counts for the session
+- A fixed setup code of 12 characters or more
+- `__Host-` cookies behind a public address over HTTPS
+- Password computations bounded by the processors and the memory, with `503 server_busy` after ten seconds of wait
+- Passwords, links, searches and the session cookie kept out of the logs, even at the `TRACE` level
+- Scanned PDFs better recognized, including when the image of a page is written in the page or in an annotation
+- Tab titles separated by “·”
+- The Docker image tagged with its version only after its checks
+
+Its files are on its [release page](https://github.com/dada-core/lore/releases/tag/v0.1.0-rc.1).
+
 ## Version 0.1.0-beta.1 <span class="vb">Preview</span>
 
 Released on November 18, 2026: every feature of version 0.1 is in it. It keeps the data of a 0.1.0-alpha.4 installation: the upgrade only adds a migration, without extracting the documents again (see [Upgrading](upgrade.md#from-the-010-alpha4-preview)). Its data will carry over to version 0.1.0, which follows a pass on quality.
