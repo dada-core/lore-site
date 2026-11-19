@@ -18,6 +18,23 @@ Première version : un environnement complet, sans intelligence artificielle.
 
 Depuis la 0.1.0-beta.1 : proxys de confiance (`LORE_TRUSTED_PROXIES`), code de configuration fixé d’au moins 12 caractères, cookies `__Host-` en HTTPS : voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-beta1).
 
+## Version 0.1.0-rc.2 <span class="vb">Préversion</span>
+
+Publiée le 19 novembre 2026, candidate à la version 0.1.0. Elle reprend les données d’une installation 0.1.0-beta.1, sans migration : lisez d’abord [ce qui change à la mise à jour](upgrade.md#depuis-la-préversion-010-beta1), en particulier pour un proxy inverse.
+
+- Parcours de bout en bout dans de vrais navigateurs : tous dans Chromium, ceux de lecture, de recherche, de clavier et de téléphone aussi dans Firefox et WebKit ; audit d’accessibilité (axe) de chaque écran, en clair, en sombre et sur téléphone, et les corrections qu’ils ont trouvées : contrastes, noms des boutons, focus, tiroir sur téléphone
+- Proxys inverses de confiance déclarés dans `LORE_TRUSTED_PROXIES`, la machine elle-même par défaut ; Lore refuse de démarrer avec une liste mal écrite, et signale dans ses journaux un proxy oublié
+- Blocage de connexion plus solide : des essais envoyés ensemble comptent comme des essais envoyés un par un, et le mot de passe actuel de *Mon compte* compte aussi pour la session
+- Code de configuration fixé d’au moins 12 caractères
+- Cookies `__Host-` derrière une adresse publique en HTTPS
+- Calcul des mots de passe borné selon les processeurs et la mémoire, avec `503 server_busy` après dix secondes d’attente
+- Mots de passe, liens, recherches et cookie de session absents des journaux, même au niveau `TRACE`
+- PDF numérisés mieux reconnus, y compris quand l’image d’une page est écrite dans la page ou dans une annotation
+- Titres des onglets séparés par « · »
+- Image Docker étiquetée de son numéro de version seulement après ses contrôles
+
+Ses fichiers sont sur sa [page de version](https://github.com/dada-core/lore/releases/tag/v0.1.0-rc.2).
+
 ## Version 0.1.0-beta.1 <span class="vb">Préversion</span>
 
 Publiée le 18 novembre 2026 : toutes les fonctions de la version 0.1 y sont. Elle reprend les données d’une installation 0.1.0-alpha.4 : la mise à jour n’ajoute qu’une migration, sans extraire de nouveau les documents (voir [Mettre à jour](upgrade.md#depuis-la-préversion-010-alpha4)). Ses données seront reprises par la version 0.1.0, qui suivra une passe sur la qualité.
