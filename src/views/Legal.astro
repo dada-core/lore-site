@@ -11,7 +11,7 @@ interface Props {
 const { lang } = Astro.props;
 const fr = lang === 'fr';
 const todo = fr ? 'À compléter' : 'To be completed';
-const missing = (['publisher', 'address', 'phone', 'director', 'host', 'hostAddress', 'hostPhone'] as const).filter((k) => !LEGAL[k]);
+const missing = (['publisher', 'address', 'director', 'host', 'hostAddress', 'hostPhone'] as const).filter((k) => !LEGAL[k]);
 if (missing.length && lang === 'fr') console.warn(`[legal] Missing legal notice fields in src/config.ts: ${missing.join(', ')}`);
 const date = new Date(LEGAL.updated).toLocaleDateString(fr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 const T = fr
@@ -23,7 +23,7 @@ const T = fr
   <section class="s-sec-tight" style="padding-top:0">
     <div class="s-wrap s-legal">
       <h2>{T.publisher}</h2>
-      <p>{LEGAL.publisher || <span class="s-todo">{todo}</span>}<br />{LEGAL.address || <span class="s-todo">{todo}</span>}<br />{LEGAL.phone || <span class="s-todo">{todo}</span>}<br /><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+      <p>{LEGAL.publisher || <span class="s-todo">{todo}</span>}<br />{LEGAL.address || <span class="s-todo">{todo}</span>}<br /><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
 
       <h2>{T.director}</h2>
       <p>{LEGAL.director || <span class="s-todo">{todo}</span>}</p>

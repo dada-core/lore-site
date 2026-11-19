@@ -4,7 +4,7 @@ description: "Run Lore from source, to contribute to the code."
 ---
 
 > [!NOTE]
-> **Lore is under development.** Accounts, the initial setup, sign-in, the administration of the organization, spaces, document import and reading work; search comes next.
+> **Lore is under development.** Every feature of version 0.1 is in place: accounts, the initial setup, sign-in, the administration of the organization, spaces, document import, reading, search, versions, statuses and the audit log.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ description: "Run Lore from source, to contribute to the code."
 | --- | --- |
 | Java | 21 |
 | Maven | Provided by the repository (`./mvnw`) |
-| Node.js | 22.12 or later, for the interface |
+| Node.js | 24.15 or later (24 LTS), for the interface |
 | Docker | For PostgreSQL and the integration tests |
 
 ## Run locally
@@ -57,10 +57,25 @@ The files land in `build/dist/`. Add `--platform linux/arm64` for the arm64 pack
 | --- | --- |
 | `./mvnw verify` | Server tests, on a real PostgreSQL database (Testcontainers), and the boundaries between modules |
 | `npm test` | Interface tests |
-| `npm run lint` | Code rules of the interface, including no em dash |
+| `npm run lint` | Code rules of the interface, and no em dash or en dash anywhere in the repository |
 | `npm run typecheck` | TypeScript types |
+| `npm run e2e` | The end-to-end journeys in Chromium, with an accessibility audit (axe) of each screen of version 0.1, about fifty with the windows; those of reading, search, the keyboard and the phone in Firefox and WebKit too |
 
 Continuous integration runs these commands, then installs Lore with Docker Compose, with the archive, and with the packages on every supported distribution (on arm64, on some of them): each fresh installation must start and ask for the initial setup.
+
+### End-to-end journeys
+
+`npm run e2e`, in `web/`, runs the journeys (`web/e2e/`) against a fresh installation of Lore: in continuous integration, the Docker image of the branch. All of them run in Chromium; those of reading, search, the keyboard and the phone in Firefox and WebKit too, where the display of PDF files, selection and keys differ. The first journey performs the initial setup in the browser, with the code read from the logs:
+
+```sh
+docker compose -p lore-e2e up -d --build --wait
+cd web && npm ci && npx playwright install --with-deps chromium firefox webkit
+LORE_SETUP_CODE=$(docker compose -p lore-e2e logs --no-log-prefix lore | grep -A2 "enter this setup code" | tail -1 | tr -d ' ') npm run e2e
+```
+
+Here, `LORE_SETUP_CODE` is read by the journeys, not by Lore. `LORE_E2E_URL` points them to another address than `http://localhost:8080`. The journeys have their own Docker Compose project, `lore-e2e`, with its own data; it publishes port 8080: first stop another installation that uses it. To run them again, start from an empty installation: `docker compose -p lore-e2e down --volumes`, then the first command again.
+
+`sh packaging/five-minutes.sh docker-compose.yml` times the first journey from the download of `docker-compose.yml`, as continuous integration does, and fails above three minutes of machine time. It reuses the `lore:local` image built above and publishes port 8080: stop the installation of the journeys first (`docker compose -p lore-e2e down --volumes`).
 
 ## API and interface types
 
@@ -74,7 +89,7 @@ The command regenerates `web/openapi.json` and `web/src/api/schema.d.ts`. Contin
 
 ## Code layout
 
-Lore is a single application split into modules, one per Java package. An automated test checks that no module reaches into another module’s data.
+Lore is a single application split into modules, one per Java package. An automated test (Spring Modulith) checks that each module only uses the public types of the others, those of their base package, without any cycle between modules. No module reads the tables of another: this is a design rule, which the test does not check.
 
 | Module | Role |
 | --- | --- |
@@ -83,10 +98,12 @@ Lore is a single application split into modules, one per Java package. An automa
 | `library` | Spaces, folders and documents |
 | `storage` | Imported files on disk |
 | `ingestion` | Text extraction from the files, in separate processes |
+| `search` | Search in the documents: routes, analysis of what is typed, form of the results, limits |
 | `audit` | Log of sensitive operations |
 | `web` | Serving the interface, API errors, OpenAPI description |
+| `shared` | Types shared by every module: API errors, pagination, server commands |
 
-`search` will follow. The interface, in React and TypeScript, lives in `web/`.
+The interface, in React and TypeScript, lives in `web/`.
 
 Every address is in English, whatever the interface language: `/login`, `/admin/members`.
 

@@ -9,9 +9,9 @@ description: "Lore est open source. Retours, tickets, code, documentation et tra
 - Pour une modification importante, ouvrez d’abord un ticket pour en discuter.
 - Les tickets et les discussions peuvent être rédigés en français ou en anglais ; le code et les messages de commit sont en anglais.
 
-## Accord de contribution
+## Certificat d’origine
 
-Avant votre première contribution, vous signerez un accord de contribution (CLA), inspiré de celui de la fondation Apache ; son texte sera publié avant la première contribution externe. Vous resterez propriétaire de votre code ; l’accord permettra au projet de le distribuer aussi sous d’autres licences, ce qui finance son développement.
+Lore ne demande aucun accord de contribution. Chaque commit est signé selon le [Developer Certificate of Origin](https://developercertificate.org/) : la ligne `Signed-off-by`, ajoutée par `git commit -s`, certifie que vous avez écrit la modification, ou que vous avez le droit de la proposer sous la licence du projet. Vous restez propriétaire de votre code, publié sous AGPL-3.0 comme le reste de Lore.
 
 ## Proposer une modification
 

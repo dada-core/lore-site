@@ -1,5 +1,5 @@
 /* Lore demo: shared functions.
-   English version of site/public/demo/assets/common.js: both files must stay in sync
+   English version of public/demo/assets/common.js: both files must stay in sync
    (same behavior and storage keys; only the language differs). */
 window.SLC = (function () {
   'use strict';
@@ -14,7 +14,7 @@ window.SLC = (function () {
     return `<svg width="${size}" height="${size}" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="19" width="23" height="6" rx="1.5" fill="var(--s2)"/><rect x="6" y="11.5" width="20" height="6" rx="1.5" fill="var(--s3)"/><rect x="2" y="4" width="17" height="6" rx="1.5" fill="var(--accent)"/></svg>`;
   };
   const vb = (v) => {
-    const title = v === 'Later' ? 'Planned after v0.3' : v.indexOf('v0') === 0 ? 'Planned for ' + v : v === 'Paid plans' ? 'Paid plans only' : v;
+    const title = v === 'Later' ? 'Planned after v0.3' : v.indexOf('v0') === 0 ? 'Planned for ' + v : v;
     return `<span class="vb" title="${title}">${esc(v)}</span>`;
   };
 

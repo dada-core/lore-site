@@ -31,18 +31,18 @@ const CASES: Record<Lang, Case[]> = {
     { id: 'support', icon: 'message', tab: 'Support', title: 'Répondre à une demande récurrente', who: 'Équipes de support',
       text: 'Le même problème de connexion revient chaque semaine. La solution existe, quelque part.',
       before: 'Recommencer l’investigation à chaque fois, ou attendre l’expert.',
-      after: 'Chercher le symptôme et retrouver la fiche validée qui décrit la cause et la solution.',
-      query: 'vpn se fige', result: 'Connexions VPN qui se figent après quelques minutes', where: 'Fiche de connaissances, validée' },
+      after: 'Chercher le symptôme et retrouver le document publié qui décrit la cause et la solution.',
+      query: 'vpn se fige', result: 'Connexions VPN qui se figent après quelques minutes', where: 'Section Solution, document publié' },
     { id: 'development', icon: 'code', tab: 'Développement', title: 'Prendre ses marques dans un projet', who: 'Équipes de développement',
       text: 'Un développeur rejoint l’équipe et doit comprendre l’architecture d’une application existante.',
       before: 'Solliciter plusieurs collègues et parcourir des dépôts sans savoir quel document fait foi.',
-      after: 'Un espace projet regroupe l’architecture, les décisions techniques et les fiches, avec leur statut et leur responsable.',
+      after: 'Un espace projet regroupe l’architecture et les décisions techniques, avec leur statut et leur responsable.',
       query: 'migration postgresql 18', result: 'Migration vers PostgreSQL 18', where: 'Projet Atlas, décisions techniques' },
     { id: 'departures', icon: 'users', tab: 'Départs', title: 'Garder les connaissances quand quelqu’un part', who: 'Responsables d’équipe',
       text: 'Un expert change de poste. Ses procédures et ses retours d’expérience ne doivent pas partir avec lui.',
       before: 'Une passation rapide, et des connaissances qui disparaissent avec la personne.',
-      after: 'Les documents et fiches restent dans les espaces de l’équipe, avec un nouveau responsable désigné.',
-      query: 'responsable : Hervé Coulibaly', result: '12 documents à réattribuer', where: 'Filtre par responsable' }
+      after: 'Les documents restent dans les espaces de l’équipe, avec un nouveau responsable désigné depuis la page de chaque document.',
+      query: 'restauration', result: 'Restaurer une base PostgreSQL', where: 'Propriétés › Changer le responsable' }
   ],
   en: [
     { id: 'databases', icon: 'database', tab: 'Databases', title: 'Restoring a database in the middle of the night', who: 'Database administrators',
@@ -58,18 +58,18 @@ const CASES: Record<Lang, Case[]> = {
     { id: 'support', icon: 'message', tab: 'Support', title: 'Answering a recurring request', who: 'Support teams',
       text: 'The same connection problem comes back every week. The fix exists, somewhere.',
       before: 'Starting the investigation over every time, or waiting for the expert.',
-      after: 'Search for the symptom and find the approved record that describes the cause and the fix.',
-      query: 'vpn freezes', result: 'VPN connections that freeze after a few minutes', where: 'Knowledge record, approved' },
+      after: 'Search for the symptom and find the published document that describes the cause and the fix.',
+      query: 'vpn freezes', result: 'VPN connections that freeze after a few minutes', where: 'Solution section, published document' },
     { id: 'development', icon: 'code', tab: 'Development', title: 'Getting up to speed on a project', who: 'Development teams',
       text: 'A developer joins the team and needs to understand the architecture of an existing application.',
       before: 'Asking several colleagues and browsing repositories without knowing which document is authoritative.',
-      after: 'A project space gathers the architecture, the technical decisions and the records, each with its status and owner.',
+      after: 'A project space gathers the architecture and the technical decisions, each with its status and owner.',
       query: 'postgresql 18 migration', result: 'Migration to PostgreSQL 18', where: 'Atlas project, technical decisions' },
     { id: 'departures', icon: 'users', tab: 'Departures', title: 'Keeping knowledge when someone leaves', who: 'Team leads',
       text: 'An expert moves to another role. Their procedures and lessons learned must not leave with them.',
       before: 'A rushed handover, and knowledge that disappears with the person.',
-      after: 'Documents and records stay in the team’s spaces, with a new owner assigned.',
-      query: 'owner: Hervé Coulibaly', result: '12 documents to reassign', where: 'Filter by owner' }
+      after: 'Documents stay in the team’s spaces, with a new owner assigned from the page of each document.',
+      query: 'restore', result: 'Restore a PostgreSQL database', where: 'Properties › Change the owner' }
   ]
 };
 

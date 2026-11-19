@@ -61,7 +61,8 @@ Behind a reverse proxy, set its size limit a little above Lore’s: the request 
 After the import, the text of each file is extracted in the background, with Apache Tika for PDF and Word documents, in processes separate from the application. A malicious or oversized file makes its own extraction fail, without ever bringing Lore down.
 
 - **Processes started by Lore.** Lore starts them itself, with the same Java and the same program: there is nothing else to install. A process starts with the first file to handle, stops after 5 minutes without work, and is replaced every 200 files.
-- **Without the secrets of the application.** These processes receive only a few system variables (`PATH`, `HOME`, temporary folders, language): neither the database password, nor any `LORE_*` variable, nor the Java options of the application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). They read the file, write the extracted text to `tmp/extraction/`, and Lore records the result. They run, however, under the same system account as Lore: they are not isolated from what this account can read, such as its configuration file.
+- **Without the secrets of the application.** These processes receive only a few system variables (`PATH`, `HOME`, `JAVA_HOME`, temporary folders, language, and on Windows those of the system): neither the database password (`LORE_DB_PASSWORD`), nor any `LORE_*` variable, nor the Java options of the application (`LORE_JAVA_OPTS`, `JAVA_TOOL_OPTIONS`). They read the file, write the extracted text to `tmp/extraction/`, and Lore records the result. They run, however, under the same system account as Lore: see the known limit below.
+- **XML.** In the XML of a file, they never fetch an external DTD, entity, schema or style sheet: only the content of the file is read.
 - **In parallel.** `LORE_EXTRACTION_WORKERS` extractions at a time, one per process: 2 by default, from 1 to 8.
 - **Limited in memory.** Each process gets `LORE_EXTRACTION_MEMORY`, 512 MB by default. If it runs out, it stops, and the extraction is tried again.
 - **Limited in time.** An extraction that goes beyond `LORE_EXTRACTION_TIMEOUT`, 120 seconds by default, is stopped along with its process, then tried again.
@@ -69,6 +70,11 @@ After the import, the text of each file is extracted in the background, with Apa
 - **Resumed after a stop.** The extractions to run are kept in the database: after a restart, or a crash of the server, they resume on their own.
 
 Attachments and objects embedded in documents are not read.
+
+> [!WARNING]
+> **Known limit.** The extraction processes run under the same system account as Lore. They protect Lore from a file that makes the extraction crash, loop or overflow, not from a flaw that would let a booby-trapped file run code in Apache Tika, PDFBox or POI. Such code would have Lore’s rights: read the database password in the environment of the main process, connect to the database, read and change the files of every document. With the packages, `/etc/lore/lore.env` stays readable by root and the `lore` group: a process of the `lore` user can read these settings, like the environment of the main process.
+>
+> A system account dedicated to extraction is planned after version 0.1. Until then, keep Lore up to date, and give the right to import (at least the Contributor role in a space) only to people you trust.
 
 ### Laid-out content
 

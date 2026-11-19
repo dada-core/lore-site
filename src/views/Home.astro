@@ -43,11 +43,11 @@ const T = {
     points: [
       ['search', 'Retrouver en quelques secondes', 'La recherche comprend les identifiants techniques, ignore les accents et ouvre le document au passage exact.'],
       ['layers', 'Savoir si l’on peut s’y fier', 'Chaque document a un statut, un responsable et un historique de versions. Une procédure obsolète est signalée comme telle.'],
-      ['book', 'Garder la mémoire de l’équipe', 'Les retours d’expérience deviennent des fiches validées, qui restent disponibles quand les personnes changent de poste.']
+      ['book', 'Garder la mémoire de l’équipe', 'Les documents gardent leur responsable et leur historique quand les personnes changent de poste. Les fiches de retour d’expérience arrivent en v0.2.']
     ],
-    workspace: { h2: ['Un environnement complet pour vos', 'connaissances techniques', '.'], intro: 'Bibliothèque, recherche, versions, permissions et base de connaissances partagent les mêmes documents, les mêmes droits et le même historique.' },
+    workspace: { h2: ['Un environnement complet pour vos', 'connaissances techniques', '.'], intro: 'Bibliothèque, recherche, versions et permissions partagent les mêmes documents, les mêmes droits et le même historique ; la base de connaissances les rejoindra en v0.2.' },
     tiles: {
-      library: ['Bibliothèque', 'Espaces, dossiers et documents dans une grille que l’on filtre, trie et regroupe. PDF, Word, texte et Markdown sont indexés dès l’import.'],
+      library: ['Bibliothèque', 'Espaces, dossiers et documents dans une grille regroupée par dossier, que l’on filtre par dossier et trie, et un kanban par statut. PDF, Word, texte et Markdown sont indexés dès l’import.'],
       search: ['Recherche', 'Les identifiants techniques sont retrouvés tels quels, et chaque résultat ouvre le document au bon passage.'],
       versions: ['Versions', 'Chaque import crée une version. L’historique reste consultable, strate après strate.'],
       perms: ['Permissions', 'Un document restreint n’apparaît nulle part pour ceux qui n’y ont pas accès : ni dans les listes, ni dans la recherche, ni dans les extraits.'],
@@ -57,7 +57,7 @@ const T = {
     allFeatures: 'Voir toutes les fonctionnalités',
     host: {
       h2: 'Un service. Une base à sauvegarder.',
-      intro: 'Lore s’installe sur votre serveur en moins de cinq minutes, avec Docker, un paquet .deb ou .rpm, ou une archive. PostgreSQL est sa seule dépendance : pas de file de messages, pas de cache, pas de service d’authentification à maintenir.',
+      intro: 'Avec Docker Compose, Lore s’installe sur votre serveur en moins de cinq minutes ; il existe aussi en paquet .deb ou .rpm et en archive. PostgreSQL est sa seule dépendance : pas de file de messages, pas de cache, pas de service d’authentification à maintenir.',
       checks: ['<strong>Installation guidée.</strong> Un écran de configuration crée l’organisation et le premier compte. Aucun mot de passe par défaut.', '<strong>Sauvegarde simple.</strong> Une commande <code>pg_dump</code> et une copie du dossier des fichiers.', '<strong>Mises à jour sans surprise.</strong> Une nouvelle image ou un nouveau paquet ; les migrations de la base s’appliquent au démarrage.', '<strong>Vos données restent chez vous.</strong> Rien ne quitte votre infrastructure.'],
       guide: 'Guide d’installation',
       vars: 'Variables d’environnement',
@@ -75,9 +75,9 @@ const T = {
     },
     faqTitle: 'Questions fréquentes',
     faq: [
-      ['Faut-il une intelligence artificielle pour utiliser Lore ?', 'Non. Lore n’est pas un chatbot : la bibliothèque, la recherche, les versions, les permissions et la base de connaissances fonctionnent sans aucun modèle de langage. L’assistant conversationnel est un module facultatif, prévu en v0.3 et désactivé par défaut.'],
-      ['Combien coûte Lore ?', 'Rien. L’édition Community est gratuite et complète, sans limite de temps, d’utilisateurs ni de documents. Une offre hébergée, avec mises à jour et sauvegardes gérées, est envisagée après la version 0.1.'],
-      ['Quels formats de fichiers sont pris en charge ?', 'PDF, Word (DOCX), texte et Markdown dès la v0.1, jusqu’à 50 Mo par fichier par défaut. Les PDF numérisés sont importés, mais leur contenu n’est pas recherchable tant que la reconnaissance de texte n’est pas disponible.'],
+      ['Faut-il une intelligence artificielle pour utiliser Lore ?', 'Non. Lore n’est pas un chatbot : la bibliothèque, la recherche, les versions et les permissions fonctionnent sans aucun modèle de langage, comme la base de connaissances prévue en v0.2. L’assistant conversationnel est un module facultatif, prévu en v0.3 et désactivé par défaut.'],
+      ['Combien coûte Lore ?', 'Rien. Lore est gratuit et complet, sans limite de temps, d’utilisateurs ni de documents, et sans fonction payante.'],
+      ['Quels formats de fichiers sont pris en charge ?', 'PDF, Word (DOCX), texte et Markdown dès la v0.1, jusqu’à 50 Mo par fichier par défaut. Les PDF numérisés sont importés, mais le texte de leurs pages numérisées n’est pas recherchable tant que la reconnaissance de texte n’est pas disponible : ils sont trouvés par leur titre, leur description et leurs autres pages.'],
       ['Où sont stockés mes documents ?', 'Sur votre serveur : dans PostgreSQL et dans un dossier de fichiers. Rien ne quitte votre infrastructure.'],
       ['Quand la première version sera-t-elle disponible ?', 'La version 0.1 est en préparation. Une préversion contient déjà toutes ses fonctions : les comptes, les espaces, les permissions, l’import, le lecteur, la recherche, les versions et le journal d’audit. Ses données seront reprises par la version 0.1.']
     ] as [string, string][]
@@ -95,21 +95,21 @@ const T = {
     points: [
       ['search', 'Find it in seconds', 'Search understands technical identifiers, ignores accents and opens the document at the exact passage.'],
       ['layers', 'Know whether you can trust it', 'Every document has a status, an owner and a version history. An outdated procedure is flagged as such.'],
-      ['book', 'Keep your team’s memory', 'Lessons learned become approved records that stay available when people change roles.']
+      ['book', 'Keep your team’s memory', 'Documents keep their owner and history when people change roles. Lessons-learned articles arrive in v0.2.']
     ],
-    workspace: { h2: ['A complete workspace for your', 'technical knowledge', '.'], intro: 'Library, search, versions, permissions and knowledge base share the same documents, the same permissions and the same history.' },
+    workspace: { h2: ['A complete workspace for your', 'technical knowledge', '.'], intro: 'Library, search, versions and permissions share the same documents, the same permissions and the same history; the knowledge base joins them in v0.2.' },
     tiles: {
-      library: ['Library', 'Spaces, folders and documents in a grid you can filter, sort and group. PDF, Word, text and Markdown are indexed on import.'],
+      library: ['Library', 'Spaces, folders and documents in a grid grouped by folder, filtered by folder and sorted, and a board by status. PDF, Word, text and Markdown are indexed on import.'],
       search: ['Search', 'Technical identifiers are found exactly as typed, and every result opens the document at the right passage.'],
       versions: ['Versions', 'Every import creates a version. The history stays available, stratum after stratum.'],
       perms: ['Permissions', 'A restricted document appears nowhere for people without access: not in lists, not in search, not in excerpts.'],
-      knowledge: ['Knowledge base', 'An investigation or a resolved incident becomes a structured record, approved by the owners.'],
+      knowledge: ['Knowledge base', 'An investigation or a resolved incident becomes a structured article, approved by the owners.'],
       assistant: ['Optional assistant', 'Natural-language answers, always sourced, that only read what you are allowed to read.']
     },
     allFeatures: 'See all features',
     host: {
       h2: 'One service. One database to back up.',
-      intro: 'Lore installs on your server in under five minutes, with Docker, a .deb or .rpm package, or an archive. PostgreSQL is its only dependency: no message queue, no cache, no authentication service to maintain.',
+      intro: 'With Docker Compose, Lore installs on your server in under five minutes; it also comes as a .deb or .rpm package and as an archive. PostgreSQL is its only dependency: no message queue, no cache, no authentication service to maintain.',
       checks: ['<strong>Guided setup.</strong> A setup screen creates the organization and the first account. No default password.', '<strong>Simple backups.</strong> One <code>pg_dump</code> command and a copy of the files folder.', '<strong>Predictable updates.</strong> A new image or a new package; database migrations run at startup.', '<strong>Your data stays with you.</strong> Nothing leaves your infrastructure.'],
       guide: 'Installation guide',
       vars: 'Environment variables',
@@ -127,9 +127,9 @@ const T = {
     },
     faqTitle: 'Frequently asked questions',
     faq: [
-      ['Do I need artificial intelligence to use Lore?', 'No. Lore is not a chatbot: the library, search, versions, permissions and knowledge base work without any language model. The conversational assistant is an optional module, planned for v0.3 and off by default.'],
-      ['How much does Lore cost?', 'Nothing. The Community edition is free and complete, with no limit on time, users or documents. A hosted offer, with managed updates and backups, is being considered after version 0.1.'],
-      ['Which file formats are supported?', 'PDF, Word (DOCX), plain text and Markdown from v0.1, up to 50 MB per file by default. Scanned PDFs are imported, but their content cannot be searched until text recognition is available.'],
+      ['Do I need artificial intelligence to use Lore?', 'No. Lore is not a chatbot: the library, search, versions and permissions work without any language model, as will the knowledge base planned for v0.2. The conversational assistant is an optional module, planned for v0.3 and off by default.'],
+      ['How much does Lore cost?', 'Nothing. Lore is free and complete, with no limit on time, users or documents, and no paid feature.'],
+      ['Which file formats are supported?', 'PDF, Word (DOCX), plain text and Markdown from v0.1, up to 50 MB per file by default. Scanned PDFs are imported, but the text of their scanned pages cannot be searched until text recognition is available: they are found by their title, their description and their other pages.'],
       ['Where are my documents stored?', 'On your server: in PostgreSQL and in a files folder. Nothing leaves your infrastructure.'],
       ['When will the first version be available?', 'Version 0.1 is in progress. A preview already holds all its features: accounts, spaces, permissions, import, the reader, search, versions and the audit log. Its data will carry over to version 0.1.']
     ] as [string, string][]

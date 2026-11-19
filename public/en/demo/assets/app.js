@@ -1,5 +1,5 @@
 /* Lore demo: screens, navigation and interactions.
-   English version of site/public/demo/assets/app.js: both files must stay in sync
+   English version of public/demo/assets/app.js: both files must stay in sync
    (same routes, overlays, ids and behavior; only the language differs). */
 (function () {
   'use strict';
@@ -21,12 +21,15 @@
   const who = (id) => `<span class="who">${avatar(id)}<span>${esc(person(id).name)}</span></span>`;
   const docById = (id) => D.docs.find((d) => d.id === id);
   const spaceById = (id) => D.spaces.find((s) => s.id === id);
+  /* A date in the middle of a sentence: "yesterday", "today", or the date itself; onDate adds "on" before a date. */
+  const inText = (w) => String(w).replace(/^(Yesterday|Today)/, (m) => m.toLowerCase());
+  const onDate = (w) => (/^(Yesterday|Today)/.test(w) ? inText(w) : 'on ' + w);
   const folderName = (d) => { const f = (D.folders[d.space] || []).find((x) => x.id === d.folder); return f ? f.name : ''; };
   const spaceIco = (s, lg) => `<span class="space-ico${lg ? ' space-ico-lg' : ''}" style="--c:${s.color}" aria-hidden="true">${esc(s.name[0])}</span>`;
   const fmtIco = (d) => (d.format === 'PDF' ? 'file' : 'file-text');
   const pill = (t, c) => `<span class="pill ${c || 'p-gray'}">${esc(t)}</span>`;
   const vb = (v) => {
-    const title = v === 'Later' ? 'Planned after v0.3' : v.indexOf('v0') === 0 ? 'Planned for ' + v : v === 'Paid plans' ? 'Paid plans only' : 'Planned ' + v.toLowerCase();
+    const title = v === 'Later' ? 'Planned after v0.3' : v.indexOf('v0') === 0 ? 'Planned for ' + v : 'Planned ' + v.toLowerCase();
     return `<span class="vb" title="${title}">${esc(v)}</span>`;
   };
   const DEFAULT_Q = 'pg_restore role "does not exist"';
@@ -67,7 +70,7 @@
 
   function indexPill(d) {
     if (d.flags && d.flags.indexing) return `<span class="pill p-blue">${ico('spinner', 'spin')}In progress</span>`;
-    if (d.flags && d.flags.scanned) return `<span class="pill p-yellow" title="Only the title and the description are searchable">${ico('scan')}Scanned</span>`;
+    if (d.flags && d.flags.scanned) return `<span class="pill p-yellow" title="Its scanned pages are not searchable">${ico('scan')}Scanned</span>`;
     return `<span class="pill p-green">${ico('check')}Indexed</span>`;
   }
 
@@ -249,6 +252,8 @@
     [/^\/admin\/([\w-]+)$/, screenAdmin],
     [/^\/not-found$/, screen404]
   ];
+  /* Like the application: #/admin leads to the General page. */
+  const REDIRECTS = { '/admin': '/admin/general' };
 
   function currentRoute() {
     const h = location.hash.replace(/^#/, '');
@@ -262,7 +267,13 @@
   }
 
   function render() {
-    const { path, params } = currentRoute();
+    const route = currentRoute();
+    const params = route.params;
+    let path = route.path;
+    if (REDIRECTS[path]) {
+      path = REDIRECTS[path];
+      history.replaceState(null, '', '#' + path + (params.toString() ? '?' + params : ''));
+    }
     let view = null;
     for (const [re, fn] of ROUTES) {
       const m = path.match(re);
@@ -271,7 +282,7 @@
     if (!view) view = screen404();
     closeOverlay(true);
     $('#root').innerHTML = fr(view.auth ? view.html : shell(view));
-    document.title = (view.title ? view.title + ' – ' : '') + 'Lore demo';
+    document.title = (view.title ? view.title + ' · ' : '') + 'Lore demo';
     window.scrollTo(0, 0);
     const h1 = $('#root h1');
     if (h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
@@ -307,7 +318,7 @@
           <li><a class="nav-link" href="#/spaces/${s.id}/members"${sub === 'members' ? ' aria-current="page"' : ''}>${ico('users')}<span class="label">Members</span></a></li>
           <li><a class="nav-link" href="#/spaces/${s.id}/settings"${sub === 'settings' ? ' aria-current="page"' : ''}>${ico('settings')}<span class="label">Settings</span></a></li>
         </ul>` : '';
-      return `<li><a class="nav-link" href="#/spaces/${s.id}">${spaceIco(s)}<span class="label">${esc(s.name)}</span><span class="count">${s.docs}</span></a>${subList}</li>`;
+      return `<li><a class="nav-link" href="#/spaces/${s.id}">${spaceIco(s)}<span class="label">${esc(s.name)}</span></a>${subList}</li>`;
     }).join('');
     return `<aside class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="ws">
@@ -320,7 +331,6 @@
             <a class="menu-item" href="#/login">${ico('logout')}Sign out</a>
           </div>
         </div>
-        <button class="icon-btn" type="button" data-action="open" data-overlay="import" title="Import documents (I)" aria-label="Import documents">${ico('upload')}</button>
         <button class="icon-btn side-collapse" type="button" data-action="toggle-panel" data-panel="nav" data-label="the sidebar" data-key="[">${ico('sidebar-left')}</button>
       </div>
       <button class="search-trigger" type="button" data-action="palette">${ico('search')}<span>Search</span><span class="kbd">Ctrl K</span></button>
@@ -365,12 +375,13 @@
     const stepper = `<ol class="steps">${names.map((n, i) => `<li${i + 1 === step ? ' aria-current="step"' : ''}${i + 1 < step ? ' class="done"' : ''}><span class="n">${i + 1 < step ? '✓' : i + 1}</span>${n}</li>`).join('')}</ol>`;
     let inner;
     if (step === 1) {
-      inner = `<h1>Set up Lore</h1><p class="lead">First launch of this installation.</p>${stepper}
+      inner = `<h1>Set up Lore</h1><p class="lead">First start of this installation.</p>${stepper}
         <div class="auth-panel"><form class="form" data-form="setup1">
+          <div class="field"><label for="o-code">Setup code</label><input class="input input-mono" id="o-code" value="K7QM-4XRT-9HWC" autocomplete="off" spellcheck="false" required><span class="help">Printed in the server logs at startup: <code>docker compose logs lore</code></span></div>
           <div class="field"><label for="o-name">Organization name</label><input class="input" id="o-name" value="DadaGroup" required></div>
-          <div class="field"><label for="o-url">Public address</label><input class="input input-mono" id="o-url" value="${D.org.url}"><span class="help">The address your team will use to open Lore. Invitation links use it too.</span></div>
+          <div class="field"><label for="o-url">Public address</label><input class="input input-mono" id="o-url" value="${D.org.url}"><span class="help">The address at which your team will open Lore. It is also used in invitation links.</span></div>
           <div class="field"><label for="o-lang">Interface language</label><select class="select" id="o-lang"><option>English</option><option>Français</option></select></div>
-          <div class="callout">${ico('info')}<p>This screen only appears at the first launch. Lore has no default account or password.</p></div>
+          <div class="callout">${ico('info')}<p>This screen only appears on first start. Lore has no default account or password.</p></div>
           <button class="btn btn-primary btn-lg btn-block" type="submit">Continue</button>
         </form></div>`;
     } else if (step === 2) {
@@ -385,11 +396,10 @@
           <div class="row-between"><a class="btn btn-ghost" href="#/setup">Back</a><button class="btn btn-primary btn-lg" type="submit">Create the account</button></div>
         </form></div>`;
     } else {
-      inner = `<h1>DadaGroup is ready</h1><p class="lead">Here are the first three things to do.</p>${stepper}
+      inner = `<h1>DadaGroup is ready</h1><p class="lead">Here are the first things to do.</p>${stepper}
         <div class="auth-panel"><ul class="next-list">
-          <li><a href="#/spaces?open=create-space"><span class="cat-ico">${ico('grid')}</span><span><strong>Create a first space</strong><span class="help">One space per team or domain: Infrastructure, Network, Support…</span></span></a></li>
-          <li><a href="#/admin/members?open=invite"><span class="cat-ico">${ico('users')}</span><span><strong>Invite your team</strong><span class="help">With a link, no mail server needed.</span></span></a></li>
-          <li><a href="#/?open=import"><span class="cat-ico">${ico('upload')}</span><span><strong>Import documents</strong><span class="help">PDF, Word, text and Markdown.</span></span></a></li>
+          <li><a href="#/admin/members?open=invite"><span class="cat-ico">${ico('users')}</span><span><strong>Invite your team</strong><span class="help">By link, without a mail server.</span></span></a></li>
+          <li><a href="#/admin/security"><span class="cat-ico">${ico('shield')}</span><span><strong>Review security</strong><span class="help">Password length, lockout after failed attempts, session length.</span></span></a></li>
         </ul></div>
         <a class="btn btn-primary btn-lg btn-block" href="#/">Open Lore</a>`;
     }
@@ -410,40 +420,41 @@
       <p class="auth-alt">No account yet? Ask an administrator for an invitation link.</p>`);
   }
 
+  /* As in the application: the invitation brings the person into the organization, with a role, and possibly into spaces. */
   function screenInvitation() {
-    const s = spaceById('infrastructure');
-    return authPage('Invitation', `<h1>Join ${esc(D.org.name)}</h1><p class="lead">Amenan Souaga invites you to the ${esc(s.name)} space, with the Contributor role.</p>
+    const joined = [['infrastructure', 'Contributor'], ['securite', 'Reader']];
+    return authPage('Invitation', `<h1>Join ${esc(D.org.name)}</h1><p class="lead">Amenan Souaga invites you with the Member role.</p>
+      <div class="join-spaces"><p>You will also join these spaces:</p><ul>${joined.map(([id, role]) => { const s = spaceById(id); return `<li>${spaceIco(s)}${esc(s.name)}${pill(role, ROLE[role])}</li>`; }).join('')}</ul></div>
       <div class="auth-panel"><form class="form" data-form="join">
-        <div class="list-row" style="border:1px solid var(--border);border-radius:8px">${spaceIco(s, true)}<div class="list-main"><div class="list-title">${esc(s.name)}</div><div class="list-sub">${s.docs} documents, ${s.members} members</div></div>${pill('Contributor', ROLE.Contributor)}</div>
-        <div class="field"><label for="i-name">Full name</label><input class="input" id="i-name" placeholder="First name Last name"></div>
+        <div class="field"><label for="i-name">Full name</label><input class="input" id="i-name" placeholder="First Last"></div>
         <div class="field"><label for="i-mail">Work e-mail</label><input class="input" id="i-mail" type="email" placeholder="first.last@dada.group"></div>
-        <div class="field"><label for="i-pw">Password</label><input class="input" id="i-pw" type="password"><span class="help">At least 12 characters.</span></div>
-        <button class="btn btn-primary btn-lg btn-block" type="submit">Create my account and join the space</button>
+        <div class="form-2">
+          <div class="field"><label for="i-pw">Password</label><input class="input" id="i-pw" type="password"><span class="help">At least 12 characters.</span></div>
+          <div class="field"><label for="i-pw2">Confirmation</label><input class="input" id="i-pw2" type="password"></div>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Create my account</button>
       </form></div>
-      <p class="auth-alt">This link works only once and expires on Nov 18, 2026.</p>`);
+      <p class="auth-alt">This link works once and expires on Nov 18, 2026.</p>`, true);
   }
 
+  /* As in the application, the page names nobody: a visitor who is not signed in does not learn who administers the organization. */
   function screenForgot() {
-    return authPage('Forgot your password', `<h1>Forgot your password</h1><p class="lead">An administrator can give you a reset link.</p>
+    return authPage('Forgot password', `<h1>Forgot your password</h1><p class="lead">An administrator can give you a reset link.</p>
       <div class="auth-panel"><div class="form">
-        <div class="callout">${ico('info')}<p>Sending e-mails is not configured on this installation. Ask one of these people to create a reset link for your account.</p></div>
-        <ul class="list">
-          <li><div class="list-row">${avatar('wk', true)}<div class="list-main"><div class="list-title">Wilfried Kouakou</div><div class="list-sub">wilfried.kouakou@dada.group</div></div>${pill('Owner', ROLE.Owner)}</div></li>
-          <li><div class="list-row">${avatar('as', true)}<div class="list-main"><div class="list-title">Amenan Souaga</div><div class="list-sub">amenan.souaga@dada.group</div></div>${pill('Administrator', ROLE.Administrator)}</div></li>
-        </ul>
-        <p class="help">If sending e-mails is configured (SMTP option), this page offers to receive the link directly.</p>
+        <div class="callout">${ico('info')}<p>Sending e-mail is not configured on this installation. Ask an administrator of your organization to generate a reset link for your account.</p></div>
+        <div class="field"><p class="help">The only administrator of this installation? Run this command on the server, it prints a reset link:</p><code class="command">docker compose exec lore lore reset-password your@address</code></div>
       </div></div>
       <p class="auth-alt"><a class="link" href="#/login">Back to sign-in</a></p>`);
   }
 
   function screenReset() {
-    return authPage('New password', `<h1>Choose a new password</h1><p class="lead">For Hervé Coulibaly (herve.coulibaly@dada.group)</p>
+    return authPage('New password', `<h1>Choose a new password</h1><p class="lead">Account: Hervé Coulibaly, herve.coulibaly@dada.group</p>
       <div class="auth-panel"><form class="form" data-form="reset">
         <div class="field"><label for="r-pw">New password</label><input class="input" id="r-pw" type="password"><span class="help">At least 12 characters.</span></div>
         <div class="field"><label for="r-pw2">Confirmation</label><input class="input" id="r-pw2" type="password"></div>
         <button class="btn btn-primary btn-lg btn-block" type="submit">Save and sign in</button>
       </form></div>
-      <p class="auth-alt">This link, created by Amenan Souaga, works only once and expires in 24 hours.</p>`);
+      <p class="auth-alt">This link, generated by Amenan Souaga, works once and expires in 24 hours.</p>`);
   }
 
   /* =========================================================
@@ -456,8 +467,18 @@
 
   function screenHome() {
     const recent = [['restaurer-pg', 'Viewed 2 hours ago'], ['inc-2291', 'Viewed yesterday'], ['guide-baie', 'Viewed on Nov 8']];
-    const tiles = D.spaces.map((s) => `<a class="tile" href="#/spaces/${s.id}">${spaceIco(s, true)}<div><div class="tile-name">${esc(s.name)}</div><div class="tile-sub">${s.docs} documents</div><div class="tile-sub">Your role: ${s.role}</div></div></a>`).join('');
-    const feed = D.audit.filter((a) => a.who && a.type !== 'View').slice(0, 6).map((a) => `<li>${avatar(a.who)}<span><b>${esc(person(a.who).name)}</b> ${esc(a.text)}</span><time>${esc(a.when.split(',')[0])}</time></li>`).join('');
+    /* As in the application: "1 member" stays in the singular. */
+    const count = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+    const tiles = D.spaces.map((s) => `<a class="tile" href="#/spaces/${s.id}">${spaceIco(s, true)}<div><div class="tile-name">${esc(s.name)}</div><div class="tile-sub">${count(s.docs, 'document')}</div><div class="tile-sub">${count(s.members, 'member')}</div><div class="tile-sub">Your role: ${s.role}</div></div></a>`).join('');
+    /* As in the application: only imports, new versions and changes of status. */
+    const feed = D.audit.filter((a) => a.who && (a.type === 'Import' || a.type === 'Status')).slice(0, 6).map((a) => `<li>${avatar(a.who)}<span><b>${esc(person(a.who).name)}</b> ${esc(a.text)}</span><time>${esc(a.when.split(',')[0])}</time></li>`).join('');
+    /* As in the application, for an administrator: invite, review security, check the public address, then her account. */
+    const next = [
+      ['#/admin/members?open=invite', 'users', 'Invite your team', 'By link, without a mail server.'],
+      ['#/admin/security', 'shield', 'Review security', 'Password length, lockout after failed attempts, session length.'],
+      ['#/admin/general', 'globe', 'Check the public address', 'It is used in invitation and reset links.'],
+      ['#/account', 'user', 'Set up your account', 'Name, interface language, theme and password.']
+    ].map(([href, icon, title, help]) => `<li><a class="list-row" href="${href}"><span class="cat-ico">${ico(icon)}</span><div class="list-main"><div class="list-title">${title}</div><div class="list-sub">${help}</div></div>${ico('chevron-right')}</a></li>`).join('');
     return {
       nav: 'home', title: 'Home',
       crumbs: crumbs([{ label: 'Home' }]),
@@ -465,14 +486,15 @@
       html: `<div class="pad"><div class="home">
         <div class="stack">
           <div><h1 class="page-title">Hello, Amenan</h1><p class="page-intro">Wednesday, November 11, 2026</p></div>
-          <section><h2 class="section-title">Pick up where you left off</h2><ul class="list">${recent.map(([id, w]) => docRowLink(docById(id), w)).join('')}</ul></section>
+          <section><h2 class="section-title">Resume</h2><ul class="list">${recent.map(([id, w]) => docRowLink(docById(id), w)).join('')}</ul></section>
+          <section><h2 class="section-title">Recent activity in your spaces</h2><ul class="feed">${feed}</ul></section>
           <section><div class="row-between"><h2 class="section-title">Your spaces</h2><a class="link" href="#/spaces">All spaces</a></div>
             <div class="tiles">${tiles}<button class="tile tile-new" type="button" data-action="open" data-overlay="create-space"><span class="space-ico space-ico-lg">${ico('plus')}</span><span>Create a space</span></button></div></section>
-          <section><h2 class="section-title">Recent activity in your spaces</h2><ul class="feed">${feed}</ul></section>
+          <section><h2 class="section-title">Getting started</h2><ul class="list">${next}</ul></section>
         </div>
         <aside class="stack">
           <section><h2 class="section-title">To do</h2><div class="inbox">
-            <a href="#/?open=import">${ico('alert')}<span>Failed import</span><span class="n">2</span></a>
+            <a href="#/?open=import">${ico('alert')}<span>Failed import</span><span class="n">1</span></a>
             <a href="#/documents/plan-reprise">${ico('spinner', 'spin')}<span>Indexing in progress</span><span class="n">1</span></a>
             <a href="#/knowledge">${stIcon('review')}<span>Articles to approve</span>${vb('v0.2')}<span class="n">2</span></a>
             <a href="#/dashboard">${ico('clock')}<span>Overdue reviews</span>${vb('v0.2')}<span class="n">2</span></a>
@@ -483,24 +505,24 @@
             <li><span>Import documents</span><span class="kbd">I</span></li>
             <li><span>Show or hide the sidebar</span><span class="kbd">[</span></li>
             <li><span>Show or hide the right panel</span><span class="kbd">]</span></li>
-            <li><span>Close a window</span><span class="kbd">Esc</span></li>
+            <li><span>Close a window or a menu</span><span class="kbd">Esc</span></li>
           </ul></section>
         </aside>
       </div></div>`
     };
   }
 
-  function screenSpaces() {
+  function screenSpaces(m, p) {
+    const archived = p.get('archived') === 'true';
     const rows = D.spaces.map((s, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><div class="cell-title">${spaceIco(s)}<a href="#/spaces/${s.id}">${esc(s.name)}</a><a class="expand" href="#/spaces/${s.id}" aria-label="Open ${esc(s.name)}">${ico('expand')}</a></div></td><td>${esc(s.desc)}</td><td class="num">${s.docs}</td><td class="num">${s.members}</td><td>${pill(s.role, ROLE[s.role])}</td><td>${esc(s.activity)}</td></tr>`).join('');
     return {
       nav: 'spaces', title: 'Spaces',
       crumbs: crumbs([{ label: 'Spaces' }]),
       actions: `<button class="btn btn-primary" type="button" data-action="open" data-overlay="create-space">${ico('plus')}<span class="btn-label">Create a space</span></button>`,
       html: `<h1 class="sr-only">Spaces</h1>
-        <div class="toolbar"><div class="views"><a class="view-tab" href="#/spaces" aria-current="page">${ico('grid')}All spaces</a></div>
-          <div class="tools"><button class="tool" type="button" data-mock>${ico('filter')}Filter</button><button class="tool" type="button" data-mock>${ico('sort')}Sort</button></div></div>
-        <div class="grid-wrap"><table class="grid"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('text')}Name</span></th><th><span class="th">${ico('text')}Description</span></th><th><span class="th">${ico('hash')}Documents</span></th><th><span class="th">${ico('hash')}Members</span></th><th><span class="th">${ico('tag')}Your role</span></th><th><span class="th">${ico('calendar')}Last activity</span></th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="grid-foot"><span>${D.spaces.length} spaces</span><span>${D.org.docs} documents</span></div>`
+        <div class="toolbar"><nav class="views" aria-label="Active or archived spaces"><a class="view-tab" href="#/spaces"${archived ? '' : ' aria-current="page"'}>Active</a><a class="view-tab" href="#/spaces?archived=true"${archived ? ' aria-current="page"' : ''}>${ico('archive')}Archived</a></nav></div>
+        ${archived ? '<div class="empty"><p class="help">No archived space.</p></div>' : `<div class="grid-wrap"><table class="grid"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('text')}Name</span></th><th><span class="th">${ico('text')}Description</span></th><th><span class="th">${ico('hash')}Documents</span></th><th><span class="th">${ico('hash')}Members</span></th><th><span class="th">${ico('tag')}Your role</span></th><th><span class="th">${ico('calendar')}Last activity</span></th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="grid-foot"><span>${D.spaces.length} spaces</span><span>${D.org.docs} documents</span></div>`}`
     };
   }
 
@@ -534,7 +556,6 @@
     }
     const view = p.get('view') === 'kanban' ? 'kanban' : 'grid';
     const folder = p.get('folder');
-    const grouped = p.get('group') !== 'none';
     const folders = D.folders[s.id];
     const docs = D.docs.filter((d) => d.space === s.id && (!folder || d.folder === folder));
     const fName = folder ? (folders.find((f) => f.id === folder) || {}).name : '';
@@ -542,7 +563,6 @@
       const o = new URLSearchParams();
       if (view === 'kanban') o.set('view', 'kanban');
       if (folder) o.set('folder', folder);
-      if (!grouped) o.set('group', 'none');
       Object.entries(extra || {}).forEach(([k, v]) => (v === null ? o.delete(k) : o.set(k, v)));
       const str = o.toString();
       return '#/spaces/' + s.id + (str ? '?' + str : '');
@@ -550,7 +570,7 @@
     const toolbar = `<div class="toolbar">
       <div class="views">
         <a class="view-tab" href="${qs({ view: null })}"${view === 'grid' ? ' aria-current="page"' : ''}>${ico('grid')}Grid</a>
-        <a class="view-tab" href="${qs({ view: 'kanban' })}"${view === 'kanban' ? ' aria-current="page"' : ''}>${ico('kanban')}Kanban by status</a>
+        <a class="view-tab" href="${qs({ view: 'kanban' })}"${view === 'kanban' ? ' aria-current="page"' : ''}>${ico('kanban')}Board by status</a>
       </div>
       <div class="tools">
         <button class="tool" type="button" data-mock="Choosing the visible columns: not simulated.">${ico('eye-off')}Hide columns</button>
@@ -560,9 +580,7 @@
             <div class="menu-sep"></div>
             ${folders.map((f) => `<a class="menu-item" href="${qs({ folder: f.id })}">${ico('folder')}${esc(f.name)}<span class="kbd">${D.docs.filter((d) => d.folder === f.id).length}</span></a>`).join('')}
           </div></div>
-        ${view === 'grid' ? `<div class="menu"><button class="tool${grouped ? ' is-on' : ''}" type="button" data-action="menu" aria-expanded="false">${ico('group')}${grouped ? 'Grouped by folder' : 'Group'}</button>
-          <div class="popover popover-right" hidden><a class="menu-item" href="${qs({ group: null })}">${ico('folder')}By folder</a><a class="menu-item" href="${qs({ group: 'none' })}">${ico('x')}No grouping</a></div></div>` : ''}
-        <button class="tool is-on-green" type="button" data-mock="Sorting: not simulated.">${ico('sort')}Sorted by update</button>
+        <button class="tool is-on-green" type="button" data-mock="Sorting: not simulated.">${ico('sort')}Sort by: Last update</button>
         <span class="divider-v"></span>
         <button class="tool" type="button" data-action="palette" aria-label="Search">${ico('search')}</button>
       </div></div>`;
@@ -571,21 +589,22 @@
       const cols = ['draft', 'published', 'obsolete', 'archived'].map((st) => {
         const list = docs.filter((d) => d.status === st);
         const reserved = st === 'archived' ? '<p class="help" style="padding:0 6px 8px">Seen by the maintainers of the space and the administrators only.</p>' : '';
-        return `<section class="column"><div class="column-head">${stIcon(st)}${ST[st].label}<span class="count">${list.length}</span></div>${reserved}<div class="cards">${list.map((d) => `<a class="card" href="#/documents/${d.id}"><div class="card-title">${esc(d.title)}${d.restricted ? ` <svg class="ico lock" aria-hidden="true"><use href="#i-lock"/></svg>` : ''}</div><div class="card-pills">${catPill(d.category)}${(d.flags && (d.flags.indexing || d.flags.scanned)) ? indexPill(d) : ''}</div><div class="card-meta">${who(d.owner)}<span>Version ${d.version}, ${esc(d.updated)}</span></div></a>`).join('') || '<p class="column-empty">No documents</p>'}</div></section>`;
+        return `<section class="column"><div class="column-head">${stIcon(st)}${ST[st].label}<span class="count">${list.length}</span></div>${reserved}<div class="cards">${list.map((d) => `<a class="card" href="#/documents/${d.id}"><div class="card-title">${esc(d.title)}${d.restricted ? ` <svg class="ico lock" aria-hidden="true"><use href="#i-lock"/></svg>` : ''}</div><div class="card-pills">${catPill(d.category)}${(d.flags && (d.flags.indexing || d.flags.scanned)) ? indexPill(d) : ''}</div><div class="card-meta">${who(d.owner)}<span>Version ${d.version}, ${esc(inText(d.updated))}</span></div></a>`).join('') || '<p class="column-empty">No documents</p>'}</div></section>`;
       }).join('');
       body = `<div class="board">${cols}</div>`;
     } else {
       let n = 0, rows = '';
       const head = `<thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('text')}Title</span></th><th><span class="th">${ico('tag')}Status</span></th><th><span class="th">${ico('tag')}Category</span></th><th><span class="th">${ico('user')}Owner</span></th><th><span class="th">${ico('calendar')}Updated</span></th><th><span class="th">${ico('hash')}Version</span></th><th><span class="th">${ico('tag')}Indexing</span></th><th><span class="th">${ico('globe')}Language</span></th><th><span class="th">${ico('file')}Format</span></th></tr></thead>`;
-      if (grouped) {
-        folders.forEach((f) => {
-          const list = docs.filter((d) => d.folder === f.id);
-          if (!list.length) return;
-          rows += `<tr class="group-row"><td colspan="10"><div class="group-head">${ico('chevron')}<span class="lbl">Folder</span><strong>${esc(f.name)}</strong><span class="count">${list.length}</span></div></td></tr>`;
-          list.forEach((d) => { rows += libRow(d, ++n); });
-        });
-      } else docs.forEach((d) => { rows += libRow(d, ++n); });
-      body = `<div class="grid-wrap"><table class="grid">${head}<tbody>${rows}</tbody></table></div><div class="grid-foot"><span>${docs.length} document${docs.length > 1 ? 's' : ''}</span><span>1 being indexed</span><span>1 scanned, not searchable</span></div>`;
+      /* As in the application, the grid is always grouped by folder. */
+      folders.forEach((f) => {
+        const list = docs.filter((d) => d.folder === f.id);
+        if (!list.length) return;
+        rows += `<tr class="group-row"><td colspan="10"><div class="group-head">${ico('chevron')}<span class="lbl">Folder</span><strong>${esc(f.name)}</strong><span class="count">${list.length}</span></div></td></tr>`;
+        list.forEach((d) => { rows += libRow(d, ++n); });
+      });
+      const indexing = docs.filter((d) => d.flags && d.flags.indexing).length;
+      const scanned = docs.filter((d) => d.flags && d.flags.scanned).length;
+      body = `<div class="grid-wrap"><table class="grid">${head}<tbody>${rows}</tbody></table></div><div class="grid-foot"><span>${docs.length} document${docs.length > 1 ? 's' : ''}</span>${indexing ? `<span>${indexing} being indexed</span>` : ''}${scanned ? `<span>${scanned} scanned, partly not searchable</span>` : ''}</div>`;
     }
     base.html = `<h1 class="sr-only">${esc(s.name)}: documents</h1>${toolbar}${body}`;
     return base;
@@ -596,15 +615,28 @@
      ========================================================= */
   function strata(d) {
     const n = d.versions.length;
+    /* As in the application: while its text is being extracted, how much a version changed is not known,
+       and its stratum is hatched, at the middle thickness (21 px). */
+    const pending = !!(d.flags && d.flags.indexing);
     const bands = d.versions.map((v, i) => {
       const color = i === 0 ? 'var(--accent)' : i === n - 1 ? 'var(--s2)' : i % 2 ? 'var(--s4)' : 'var(--s3)';
-      return `<button class="stratum" type="button" data-action="stratum" data-doc="${d.id}" data-v="${v.n}" aria-pressed="${i === 0}" style="--h:${v.w}px;--c:${color}"><span class="band" aria-hidden="true"></span><span class="stratum-label"><span>Version ${v.n}</span><span>${esc(v.short)}</span></span></button>`;
+      const unknown = pending && i === 0;
+      return `<button class="stratum" type="button" data-action="stratum" data-doc="${d.id}" data-v="${v.n}" aria-pressed="${i === 0}" style="--h:${unknown ? 21 : v.w}px;--c:${color}"><span class="band${unknown ? ' is-unknown' : ''}" aria-hidden="true"></span><span class="stratum-label"><span>Version ${v.n}</span><span>${esc(v.short)}</span></span></button>`;
     }).join('');
-    return `<div class="strata" role="group" aria-label="Version history, from the most recent to the oldest">${bands}</div><div class="version-detail" id="vd" aria-live="polite">${versionDetail(d, d.versions[0])}</div><p class="caption">The thickness of a stratum shows how much the version changed.</p>`;
+    return `<div class="strata" role="group" aria-label="History of the versions, from the latest to the oldest">${bands}</div><div class="version-detail" id="vd" aria-live="polite">${versionDetail(d, d.versions[0])}</div><p class="caption">The thickness of a stratum shows how much the version changed.</p>`;
   }
+  /* Made-up SHA-256 fingerprint, shifted by the document and the version: two versions never share one. */
+  const SHA256 = '3f9c2a71d84be05c6a1f7e39b2d4c8e0915a7f3cb6e2d0498a5c1f7e3b9d2a64';
+  const fingerprint = (d, v) => {
+    let k = v.n * 7;
+    for (const c of d.id) k += c.charCodeAt(0);
+    k %= SHA256.length;
+    return SHA256.slice(k) + SHA256.slice(0, k);
+  };
   function versionDetail(d, v) {
     const cur = v.n === d.version;
-    return `<strong>Version ${v.n}${cur ? ', current' : ''}</strong><p>Imported on ${esc(v.date)} by ${esc(person(v.by).name)}</p><p>${esc(v.note)}</p><div class="actions">${cur ? '' : `<button class="btn" type="button" data-mock="Showing version ${v.n}: not simulated in the demo.">Show</button>`}<button class="btn" type="button" data-mock="Download: not simulated in the demo.">${ico('download')}Download</button></div>`;
+    const hash = fingerprint(d, v);
+    return `<strong>Version ${v.n}${cur ? ', current' : ''}</strong><p>Imported on ${esc(v.date)} by ${esc(person(v.by).name)}</p><p>${esc(v.note)}</p><p class="path">${esc(d.file)}</p><span class="fingerprint"><span class="help">SHA-256 fingerprint</span><code title="${hash}">${hash.slice(0, 16)}…</code><button class="icon-btn" type="button" data-mock="Fingerprint copied." aria-label="Copy the fingerprint" title="Copy the fingerprint">${ico('copy')}</button></span><div class="actions">${cur ? '' : `<button class="btn" type="button" data-mock="Showing version ${v.n}: not simulated in the demo.">Show</button>`}<button class="btn" type="button" data-mock="Download: not simulated in the demo.">${ico('download')}Download</button></div>`;
   }
 
   function bodyRestaurer() {
@@ -700,6 +732,8 @@ pg_restore -U postgres -d billing_restore \\
       </svg></div></div></div>`;
   }
   function renderBody(d, p) {
+    /* As in the application: until the extraction ends, no outline and no content. */
+    if (d.flags && d.flags.indexing) return { toc: null, html: '<p class="muted">The content will show as soon as the extraction ends.</p>' };
     if (d.body === 'restaurer') return bodyRestaurer();
     if (d.body === 'incident') return bodyIncident();
     if (d.body === 'tls') return bodyTls();
@@ -717,9 +751,12 @@ pg_restore -U postgres -d billing_restore \\
 
   /* Views never show here: they only go to the audit log. */
   function docActivity(d) {
-    const items = d.versions.map((v) => `<li>${avatar(v.by)}<span><b>${esc(person(v.by).name)}</b> imported version ${v.n}<time>${esc(v.date)}</time></span></li>`);
-    if (d.status === 'obsolete') items.unshift(`<li>${avatar('hc')}<span><b>Hervé Coulibaly</b> marked the document as outdated<time>${esc(d.obsoleteSince)}</time></span></li>`);
-    if (d.restricted) items.unshift(`<li>${avatar('as')}<span><b>Amenan Souaga</b> restricted access to 2 people<time>Nov 11, 2026</time></span></li>`);
+    const items = d.versions.map((v) => `<li>${avatar(v.by)}<span><b>${esc(person(v.by).name)}</b> ${v.n === 1 ? 'imported the document' : 'imported version ' + v.n}<time>${esc(v.date)}</time></span></li>`);
+    if (d.status === 'obsolete') {
+      const r = docById(d.replacedBy);
+      items.unshift(`<li>${avatar('hc')}<span><b>Hervé Coulibaly</b> changed the status: Outdated${r ? `. Replaced by <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a>` : ''}<time>${esc(d.obsoleteSince)}</time></span></li>`);
+    }
+    if (d.restricted) items.unshift(`<li>${avatar('as')}<span><b>Amenan Souaga</b> restricted the access to 2 people<time>Nov 11, 2026</time></span></li>`);
     return `<section class="activity"><h2 class="section-title">Activity</h2><ol>${items.join('')}</ol></section>`;
   }
 
@@ -761,13 +798,13 @@ pg_restore -U postgres -d billing_restore \\
       const r = docById(d.replacedBy);
       banners.push(`<div class="callout callout-warn">${ico('alert')}<p>This document has been outdated since ${esc(d.obsoleteSince)}. Use <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a> instead.</p></div>`);
     }
-    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Scanned document: its content is not searchable. Only its title and description are.</p>${d.description ? '' : '<button class="btn" type="button" data-mock="Adding a description: not simulated.">Add a description</button>'}</div>`);
-    if (d.flags && d.flags.indexing) banners.push(`<div class="callout">${ico('spinner', 'spin')}<p>Text extraction in progress: this document will appear in search results in a few moments.</p></div>`);
+    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Scanned document: the text of its scanned pages could not be extracted. The document is found by its title, its description and its other pages.</p>${d.description ? '<button class="btn" type="button" data-mock="Editing the description: not simulated.">Edit the description</button>' : '<button class="btn" type="button" data-mock="Adding a description: not simulated.">Add a description</button>'}</div>`);
+    if (d.flags && d.flags.indexing) banners.push(`<div class="callout" role="status">${ico('spinner', 'spin')}<p>Text extraction in progress. This page updates by itself.</p></div>`);
 
     const members = D.spaceMembers[d.space] || [];
     const access = d.restricted
       ? `<p class="access-note">Restricted access: only these people, the document’s owner, the space maintainers and the administrators see this document.</p>${d.grants.map((g) => `<div class="grant">${avatar(g)}${esc(person(g).name)}</div>`).join('')}<button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}" style="margin-top:8px">${ico('lock')}Change access</button>`
-      : `<p class="access-note">Visible to ${members.length ? 'the ' + members.length + ' members' : 'the members'} of the ${esc(s.name)} space.</p><button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Restrict access</button>`;
+      : `<p class="access-note">Visible to ${members.length ? 'the ' + members.length + ' members' : 'the members'} of the space ${esc(s.name)} and to the administrators.</p><button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Restrict access</button>`;
     const fmt = d.format === 'PDF' ? `PDF, ${d.pagesCount} pages, ${d.size}` : `${d.format}, ${d.size}`;
     const props = `<aside class="props" aria-label="Document properties">
       <section><h2>Properties</h2><dl>
@@ -937,7 +974,7 @@ pg_restore -U postgres -d billing_restore \\
     const terms = flatTerms(q);
     const all = computeResults(q);
     if (!all.length) {
-      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>No document matches “${esc(q)}”</h2><p>Check the spelling of identifiers, remove a word or the quotes. Scanned documents can only be found by their title and description.</p>
+      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>No document matches “${esc(q)}”</h2><p>Check the spelling of identifiers, remove a word or the quotes. Scanned pages are not searched: a scanned document is found by its title, its description and the text of its other pages.</p>
         <div class="actions"><a class="btn" href="#/search?mode=semantic&q=${enc(D.semantic.question)}">Search by meaning ${vb('v0.2')}</a><a class="btn" href="#/assistant?q=${enc(q)}">${ico('ask')}Ask the assistant ${vb('v0.3')}</a></div>
         <p class="help">Searches without results are counted in the dashboard to spot documentation gaps. ${vb('v0.2')}</p></div>`);
       return;
@@ -964,7 +1001,7 @@ pg_restore -U postgres -d billing_restore \\
     host.innerHTML = fr(`<div class="results-meta"><span>${visible.length} document${visible.length === 1 ? '' : 's'}${visible.length < all.length ? ' of ' + all.length : ''}</span><span>Ranked by relevance. Outdated documents come last.</span></div>
       ${items || `<div class="row-between results-none"><p class="help">No result with these filters.</p><button class="btn" type="button" data-action="clear-filters">Remove the filters</button></div>`}
       ${visible.length > state.shown ? `<div class="results-more"><button class="btn" type="button" data-action="more-results">Show more results</button></div>` : ''}
-      <ul class="notes"><li>${ico('lock')}Only the documents you have access to appear.</li><li>${ico('scan')}Scanned documents can only be found by their title and description.</li></ul>`);
+      <ul class="notes"><li>${ico('lock')}Only the documents you have access to appear.</li><li>${ico('scan')}Scanned pages are not searched: a scanned document is found by its title, its description and the text of its other pages.</li></ul>`);
     updateChipLabels(all);
   }
 
@@ -980,26 +1017,30 @@ pg_restore -U postgres -d billing_restore \\
     if (!s) return screen404();
     const list = D.spaceMembers[s.id] || [{ id: 'as', role: 'Maintainer', added: 'Nov 11, 2026' }];
     const roles = ['Reader', 'Contributor', 'Maintainer'];
-    const rows = list.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}${esc(person(x.id).name)}</span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${esc(x.added)}</td><td><button class="btn btn-ghost" type="button" data-mock="Removing a member: not simulated.">Remove</button></td></tr>`).join('');
+    /* As in the application: anyone can leave the space; on one's own row, "Leave the space" replaces "Remove". */
+    const action = (x) => (x.id === 'as'
+      ? '<button class="btn btn-ghost" type="button" data-mock="Leaving the space: not simulated.">Leave the space</button>'
+      : '<button class="btn btn-ghost" type="button" data-mock="Removing a member: not simulated.">Remove</button>');
+    const rows = list.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}<span>${esc(person(x.id).name)}${x.id === 'as' ? '<span class="muted"> (you)</span>' : ''}</span></span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${esc(x.added)}</td><td>${action(x)}</td></tr>`).join('');
     const restricted = D.docs.filter((d) => d.space === s.id && d.restricted);
     return {
-      nav: 'space:' + s.id + ':members', title: s.name + ': members',
+      nav: 'space:' + s.id + ':members', title: 'Members of ' + s.name,
       crumbs: spaceCrumbs(s, 'Members'),
       actions: `<button class="btn btn-primary" type="button" data-action="open" data-overlay="add-members" data-params="space=${s.id}">${ico('plus')}<span class="btn-label">Add members</span></button>`,
       html: `<div class="pad"><div class="stack" style="max-width:1040px;gap:0">
-        <div><h1 class="page-title">Members of ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} member${list.length > 1 ? 's' : ''}. The organization’s administrators can also access the whole space.</p>
+        <div><h1 class="page-title">Members of ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} member${list.length > 1 ? 's' : ''}. The administrators of the organization also have access to the whole space.</p>
           <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:680px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Member</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Role</span></th><th><span class="th">${ico('calendar')}Added on</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
-          <section style="margin-top:28px"><h2 class="section-title">Restricted documents in this space <span class="muted">${restricted.length}</span></h2>
-            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible to ${d.grants.map((g) => esc(person(g).name)).join(' and ')}, as well as the document’s owner, the space maintainers and the administrators</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">No restricted documents.</p>'}
+          <section style="margin-top:28px"><h2 class="section-title">Restricted documents of this space <span class="muted">${restricted.length}</span></h2>
+            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible to ${d.grants.map((g) => esc(person(g).name)).join(' and ')}, as well as the document’s owner, the space maintainers and the administrators</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">No restricted document in this space.</p>'}
           </section>
         </div>
-        <section style="margin-top:28px"><h2 class="section-title">What each role can do</h2>
+        <section style="margin-top:28px"><h2 class="section-title">What each role allows</h2>
           <dl class="roles">
-            <div><dt>${pill('Reader', ROLE.Reader)}</dt><dd>Reads, searches and downloads the documents of the space.</dd></div>
-            <div><dt>${pill('Contributor', ROLE.Contributor)}</dt><dd>Imports documents, edits them, moves them and creates new versions. Deletes what they imported as long as it has a single version.</dd></div>
-            <div><dt>${pill('Maintainer', ROLE.Maintainer)}</dt><dd>Also manages the members, archives and deletes. Sees the restricted documents of the space.</dd></div>
+            <div><dt>${pill('Reader', ROLE.Reader)}</dt><dd>Reads the folders and documents of the space, and sees its members.</dd></div>
+            <div><dt>${pill('Contributor', ROLE.Contributor)}</dt><dd>Also creates, renames and deletes folders, imports and edits documents.</dd></div>
+            <div><dt>${pill('Maintainer', ROLE.Maintainer)}</dt><dd>Also manages the members and the settings, archives and deletes the space.</dd></div>
           </dl>
-          <p class="help" style="margin-top:10px">To keep a document from the space maintainers too, put it in a dedicated space with hand-picked members.</p>
+          <p class="help" style="margin-top:10px">The owners and administrators of the organization have the rights of a maintainer in every space.</p>
         </section>
       </div></div>`
     };
@@ -1060,22 +1101,21 @@ pg_restore -U postgres -d billing_restore \\
   function screenAccount() {
     return settingsPage('account', 'Profile and preferences', `
       <form class="set-sec" data-form="save"><h2>Profile</h2><div class="set-box">
-        ${row('Photo', '', `${avatar('as', true)}<button class="btn" type="button" data-mock="Uploading a photo: not simulated.">Change</button>`)}
         ${row('Full name', '', '<input class="input" value="Amenan Souaga" aria-label="Full name">')}
         ${row('E-mail', 'Used to sign in.', '<input class="input" value="amenan.souaga@dada.group" aria-label="E-mail">')}
       </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save</button></div></form>
       <section class="set-sec"><h2>Preferences</h2><div class="set-box">
         ${row('Interface language', '', '<select class="select" aria-label="Interface language"><option>English</option><option>Français</option></select>')}
-        ${row('Theme', 'Follows your system setting by default.', '<select class="select" data-theme-select aria-label="Theme"><option value="auto">System</option><option value="light">Light</option><option value="dark">Dark</option></select>')}
+        ${row('Theme', 'Kept in this browser. By default, it follows your system setting.', '<select class="select" data-theme-select aria-label="Theme"><option value="auto">System</option><option value="light">Light</option><option value="dark">Dark</option></select>')}
       </div></section>
       <form class="set-sec" data-form="save"><h2>Password</h2><div class="set-box">
         ${row('Current password', '', '<input class="input" type="password" aria-label="Current password">')}
         ${row('New password', 'At least 12 characters.', '<input class="input" type="password" aria-label="New password">')}
-      </div><div style="margin-top:12px"><button class="btn" type="submit">Change the password</button></div></form>
+      </div><div style="margin-top:12px"><button class="btn" type="submit">Change password</button></div></form>
       <section class="set-sec"><h2>Open sessions</h2><div class="set-box">
-        ${row('Chrome on Windows', 'This session, Abidjan, active now.', pill('This session', 'p-green'))}
-        ${row('Firefox on Ubuntu', 'Opened 2 days ago.', '<button class="btn" type="button" data-mock="Session closed.">Sign out</button>')}
-      </div><div style="margin-top:12px"><button class="btn" type="button" data-mock="All the other sessions are closed.">Sign out of all other sessions</button></div></section>`,
+        ${row('Chrome on Windows', 'IP address 10.0.3.17, active now.', pill('This session', 'p-green'))}
+        ${row('Firefox on Ubuntu', 'IP address 10.0.3.42, last active 2 days ago.', '<button class="btn" type="button" data-mock="Session closed.">Sign out</button>')}
+      </div><div style="margin-top:12px"><button class="btn" type="button" data-mock="All the other sessions are closed.">Sign out all other sessions</button></div></section>`,
       { nav: 'account' });
   }
 
@@ -1086,8 +1126,8 @@ pg_restore -U postgres -d billing_restore \\
         <form class="set-sec" data-form="save"><h2>Organization</h2><div class="set-box">
           ${row('Name', '', `<input class="input" value="${esc(D.org.name)}" aria-label="Organization name">`)}
           ${row('Public address', 'Used in invitation and reset links.', `<input class="input input-mono" value="${D.org.url}" aria-label="Public address">`)}
-          ${row('Default language', 'For new accounts.', '<select class="select" aria-label="Default language"><option>English</option><option>Français</option></select>')}
-          ${row('Time zone', '', '<select class="select" aria-label="Time zone"><option>GMT (UTC)</option><option>Europe/London</option></select>')}
+          ${row('Default language', 'For accounts that have not chosen a language.', '<select class="select" aria-label="Default language"><option>English</option><option>Français</option></select>')}
+          ${row('Time zone', 'Dates are displayed in this time zone.', '<select class="select" aria-label="Time zone"><option>GMT (UTC)</option><option>Europe/London</option></select>')}
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save</button></div></form>
         <section class="set-sec"><h2>Modules</h2><p class="help">Lore works fully without these modules.</p><div class="set-box">
           ${row('Search by meaning', 'Combines exact word matching and closeness in meaning.', sw(false, true, 'Search by meaning'), vb('v0.2'))}
@@ -1095,17 +1135,20 @@ pg_restore -U postgres -d billing_restore \\
         </div></section>`);
     }
     if (k === 'members') {
-      const roles = ['Member', 'Administrator', 'Owner'];
-      const rows = D.orgMembers.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}${esc(person(x.id).name)}</span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${pill(x.state, STATE[x.state])}</td><td>${esc(x.spaces)}</td><td>${esc(x.last)}</td>
-        <td style="overflow:visible"><div class="menu"><button class="icon-btn" type="button" data-action="menu" aria-expanded="false" aria-label="Actions for ${esc(person(x.id).name)}">${ico('dots')}</button><div class="popover popover-right" hidden>
+      /* As in the application: Amenan Souaga, an administrator but not an owner, changes neither her own account nor
+         an owner's, and can only grant the Member and Administrator roles. */
+      const roles = ['Member', 'Administrator'];
+      const manageable = (x) => x.id !== 'as' && x.role !== 'Owner';
+      const rows = D.orgMembers.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}<span>${esc(person(x.id).name)}${x.id === 'as' ? '<span class="muted"> (you)</span>' : ''}</span></span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${manageable(x) ? roleCell(x.role, roles) : pill(x.role, ROLE[x.role])}</td><td>${pill(x.state, STATE[x.state])}</td><td>${esc(x.last)}</td>
+        <td style="overflow:visible">${manageable(x) ? `<div class="menu"><button class="icon-btn" type="button" data-action="menu" aria-expanded="false" aria-label="Actions for ${esc(person(x.id).name)}">${ico('dots')}</button><div class="popover popover-right" hidden>
           <button class="menu-item" type="button" data-action="open" data-overlay="reset-link" data-params="for=${x.id}">${ico('key')}Create a reset link</button>
           <button class="menu-item" type="button" data-mock="Disabling: not simulated.">${ico('x')}Disable the account</button>
-          <div class="menu-sep"></div><button class="menu-item danger" type="button" data-mock="Removing: not simulated.">${ico('trash')}Remove from the organization</button></div></div></td></tr>`).join('');
+          <div class="menu-sep"></div><button class="menu-item danger" type="button" data-mock="Removing: not simulated.">${ico('trash')}Remove from the organization</button></div></div>` : ''}</td></tr>`).join('');
       return settingsPage('members', 'Members', `
         <div class="row-between" style="margin-top:20px"><div class="search-box" style="height:34px;max-width:300px;flex:1">${ico('search')}<input placeholder="Search for a member" aria-label="Search for a member"></div><button class="btn btn-primary" type="button" data-action="open" data-overlay="invite">${ico('plus')}Invite</button></div>
-        <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:900px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Member</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Role</span></th><th><span class="th">${ico('tag')}State</span></th><th><span class="th">${ico('grid')}Spaces</span></th><th><span class="th">${ico('clock')}Last sign-in</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="grid-foot" style="border-bottom:0"><span>Showing 6 of ${D.org.members} members</span></div></div>`,
-        { wide: true, intro: `${D.org.members} members. Owners and administrators can access every space.` });
+        <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:760px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Member</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Role</span></th><th><span class="th">${ico('tag')}Status</span></th><th><span class="th">${ico('clock')}Last sign-in</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="grid-foot" style="border-bottom:0"><span>6 members shown out of ${D.org.members}</span></div></div>`,
+        { wide: true, intro: `${D.org.members} members. Owners and administrators manage the organization.` });
     }
     if (k === 'security') {
       return settingsPage('security', 'Security and sign-in', `
@@ -1113,26 +1156,21 @@ pg_restore -U postgres -d billing_restore \\
           ${row('Minimum length', 'Passwords are hashed with Argon2id.', '<input class="input" type="number" value="12" aria-label="Minimum length" style="width:90px"> characters')}
           ${row('Attempts before lockout', '', '<input class="input" type="number" value="5" aria-label="Attempts before lockout" style="width:90px">')}
           ${row('Lockout duration', '', '<select class="select" aria-label="Lockout duration"><option>15 minutes</option><option>1 hour</option></select>')}
-          ${row('Expiry after inactivity', '', '<select class="select" aria-label="Expiry after inactivity"><option>8 hours</option><option>24 hours</option><option>7 days</option></select>')}
-          ${row('Invitation link validity', '', '<select class="select" aria-label="Invitation link validity"><option>7 days</option><option>48 hours</option><option>30 days</option></select>')}
+          ${row('Expiry after inactivity', 'At most 8 hours, the ceiling set by LORE_SESSION_TIMEOUT.', '<select class="select" aria-label="Expiry after inactivity"><option>15 minutes</option><option>30 minutes</option><option>1 hour</option><option>2 hours</option><option>4 hours</option><option selected>8 hours</option></select>')}
+          ${row('Invitation link validity', '', '<select class="select" aria-label="Invitation link validity"><option>1 day</option><option>2 days</option><option selected>7 days</option><option>14 days</option><option>30 days</option></select>')}
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save</button></div></form>
-        <section class="set-sec"><h2 style="display:flex;align-items:center;gap:8px">Identity provider ${vb('After v0.1')}</h2><p class="help">Sign-in with the company account through OpenID Connect: Keycloak, Authentik, Google, GitLab, Entra ID… Included in the Community edition.</p><div class="set-box">
+        <section class="set-sec"><h2 style="display:flex;align-items:center;gap:8px">Identity provider ${vb('After v0.1')}</h2><p class="help">Sign-in with the company account through OpenID Connect: Keycloak, Authentik, Google, GitLab, Entra ID…</p><div class="set-box">
           ${row('Enable OpenID Connect', '', sw(false, true, 'Enable OpenID Connect'))}
           ${row('Issuer URL', '', '<input class="input input-mono" disabled placeholder="https://sso.dada.group/realms/dadagroup" aria-label="Issuer URL">')}
           ${row('Client ID', '', '<input class="input input-mono" disabled placeholder="lore" aria-label="Client ID">')}
-        </div></section>
-        <section class="set-sec"><h2 style="display:flex;align-items:center;gap:8px">Enterprise SSO ${vb('Paid plans')}</h2><div class="set-box">
-          ${row('SAML, LDAP and Active Directory', 'Sign-in with the company directory.', `<button class="btn" type="button" data-mock="Paid plans.">Learn more</button>`)}
-          ${row('SCIM provisioning and group sync', 'Accounts created and disabled automatically.', `<button class="btn" type="button" data-mock="Paid plans.">Learn more</button>`)}
-          ${row('Mandatory SSO', 'Blocks password sign-in.', `<button class="btn" type="button" data-mock="Paid plans.">Learn more</button>`)}
         </div></section>`);
     }
     if (k === 'storage') {
       return settingsPage('storage', 'Storage and import', `
         <section class="set-sec"><h2>Usage</h2><div class="set-box">
-          ${row('Stored volume', 'No quota when self-hosted.', `<strong class="num">${D.org.storage}</strong>`)}
+          ${row('Stored volume', 'The same content is stored once. No quota: only the disk space counts.', `<strong class="num">${D.org.storage}</strong>`)}
           ${row('Documents', `In ${D.spaces.length} spaces.`, `<strong class="num">${D.org.docs}</strong>`)}
-          ${row('Scanned documents', 'Content not searchable: only the title and the description are.', `<strong class="num">${D.org.scanned}</strong><a class="btn" href="#/documents/schema-cablage">See an example</a>`)}
+          ${row('Scanned documents', 'Scanned pages not searchable: describe these documents.', `<strong class="num">${D.org.scanned}</strong><a class="btn" href="#/documents/schema-cablage">See an example</a>`)}
         </div></section>
         <form class="set-sec" data-form="save"><h2>Import</h2><div class="set-box">
           ${row('Maximum file size', '50 MB by default. Ceiling set by <code>LORE_MAX_UPLOAD_SIZE</code> on the server: 1,024 MB. Above it, the import is refused with a clear message.', '<input class="input" type="number" value="50" min="1" max="1024" aria-label="Maximum size in megabytes" style="width:90px"> MB')}
@@ -1144,7 +1182,7 @@ pg_restore -U postgres -d billing_restore \\
           ${row('Text recognition (OCR)', 'Not in v0.1: PDF files without text are detected and reported.', pill('Not available', 'p-gray'))}
         </div></section>
         <section class="set-sec"><h2>Files</h2><div class="set-box">
-          ${row('Location', 'Local volume of the container, set by <code>LORE_FILES_PATH</code>.', '<code style="font-size:12.5px">/var/lib/lore/files</code>')}
+          ${row('Location', 'Set by <code>LORE_FILES_PATH</code> on the server.', '<code style="font-size:12.5px">/var/lib/lore/files</code>')}
           ${row('S3-compatible storage', '', sw(false, true, 'S3-compatible storage'), vb('Later'))}
         </div></section>`);
     }
@@ -1189,7 +1227,7 @@ pg_restore -U postgres -d billing_restore \\
 
   function screenSources() {
     const rows = D.sources.map((s) => `<li><div class="list-row">${ico(s.kind === 'GitLab' ? 'branch' : 'server')}<div class="list-main"><div class="list-title">${esc(s.kind)}: <span style="font-family:var(--mono);font-size:13px">${esc(s.name)}</span></div><div class="list-sub">${esc(s.detail)}, into ${esc(s.target)}. ${s.files.toLocaleString('en-US')} files.</div></div><div class="list-side">${s.state === 'ok' ? pill('Synced ' + s.sync, 'p-green') : pill(s.warn, 'p-yellow')}<button class="btn" type="button" data-mock="Sync started.">${ico('refresh')}Sync</button></div></div></li>`).join('');
-    const cat = [['GitLab', 'branch', ''], ['GitHub', 'branch', ''], ['Shared folder', 'server', ''], ['Confluence', 'book', 'Paid plans'], ['SharePoint', 'folder', 'Paid plans'], ['Google Drive', 'folder', 'Paid plans'], ['OneDrive', 'folder', 'Paid plans']];
+    const cat = [['GitLab', 'branch', ''], ['GitHub', 'branch', ''], ['Shared folder', 'server', ''], ['Confluence', 'book', ''], ['SharePoint', 'folder', ''], ['Google Drive', 'folder', ''], ['OneDrive', 'folder', '']];
     return settingsPage('sources', 'Connected sources', `
       <div class="callout" style="margin-top:18px">${ico('info')}<p>Planned after v0.3. First source planned: the Markdown files of Git repositories.</p></div>
       <section class="set-sec"><h2>Sources of the organization</h2><ul class="list" style="margin-top:12px">${rows}</ul></section>
@@ -1206,14 +1244,14 @@ pg_restore -U postgres -d billing_restore \\
   function screenKnowledge(m, p) {
     const view = p.get('view') === 'grid' ? 'grid' : 'kanban';
     const toolbar = `<div class="toolbar"><div class="views">
-        <a class="view-tab" href="#/knowledge"${view === 'kanban' ? ' aria-current="page"' : ''}>${ico('kanban')}Kanban by status</a>
+        <a class="view-tab" href="#/knowledge"${view === 'kanban' ? ' aria-current="page"' : ''}>${ico('kanban')}Board by status</a>
         <a class="view-tab" href="#/knowledge?view=grid"${view === 'grid' ? ' aria-current="page"' : ''}>${ico('grid')}Grid</a></div>
       <div class="tools"><button class="tool" type="button" data-mock="Filter: not simulated.">${ico('filter')}Filter</button><button class="tool is-on" type="button" data-mock="Grouping: not simulated.">${ico('group')}Grouped by status</button><button class="tool" type="button" data-mock="Sorting: not simulated.">${ico('sort')}Sort</button></div></div>`;
     let body;
     if (view === 'kanban') {
       body = `<div class="board">${['draft', 'review', 'validated'].map((st) => {
         const list = D.fiches.filter((f) => f.status === st);
-        return `<section class="column"><div class="column-head">${stIcon(st)}${st === 'draft' ? 'Drafts' : st === 'review' ? 'Awaiting review' : 'Approved'}<span class="count">${list.length}</span></div><div class="cards">${list.map((f) => `<a class="card" href="#/knowledge/${f.id}"><div class="card-title">${esc(f.title)}</div><div class="card-pills">${techPills(f)}</div><div class="card-meta">${who(f.author)}<span>${esc(spaceById(f.space).name)}, ${esc(f.updated)}</span></div></a>`).join('')}</div></section>`;
+        return `<section class="column"><div class="column-head">${stIcon(st)}${st === 'draft' ? 'Drafts' : st === 'review' ? 'Awaiting review' : 'Approved'}<span class="count">${list.length}</span></div><div class="cards">${list.map((f) => `<a class="card" href="#/knowledge/${f.id}"><div class="card-title">${esc(f.title)}</div><div class="card-pills">${techPills(f)}</div><div class="card-meta">${who(f.author)}<span>${esc(spaceById(f.space).name)}, ${esc(inText(f.updated))}</span></div></a>`).join('')}</div></section>`;
       }).join('')}</div>`;
     } else {
       const rows = D.fiches.map((f, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><div class="cell-title">${ico('book')}<a href="#/knowledge/${f.id}">${esc(f.title)}</a><a class="expand" href="#/knowledge/${f.id}" aria-label="Open the article">${ico('expand')}</a></div></td><td>${status(f.status)}</td><td>${techPills(f)}</td><td>${esc(spaceById(f.space).name)}</td><td>${who(f.author)}</td><td>${f.validator ? who(f.validator) : '<span class="muted">Not yet</span>'}</td><td>${esc(f.updated)}</td><td class="num">${f.resources.length}</td></tr>`).join('');
@@ -1235,14 +1273,14 @@ pg_restore -U postgres -d billing_restore \\
     const review = f.status === 'review';
     return {
       nav: 'knowledge', title: f.title,
-      crumbs: crumbs([{ label: 'Knowledge base', href: '#/knowledge' }, { label: f.title }]),
+      crumbs: crumbs([{ label: 'Knowledge base', href: '#/knowledge' }, { label: f.title, badge: ' ' + vb('v0.2') }]),
       actions: (review
         ? `<button class="btn" type="button" data-mock="Change request sent to the author." title="Request changes">${ico('edit')}<span class="btn-label">Request changes</span></button><button class="btn btn-primary" type="button" data-mock="Article approved: it is now suggested in search." title="Approve the article">${ico('check')}<span class="btn-label">Approve the article</span></button>`
         : `<button class="btn" type="button" data-mock="Editing: not simulated.">${ico('edit')}<span class="btn-label">Edit</span></button>`) + panelBtn('props', 'the properties', 'sidebar-right', ']'),
       html: `<div class="record"><div class="record-main"><div class="record-inner">
           ${review ? `<div class="callout" style="margin-bottom:14px">${stIcon('review')}<p>This article is awaiting approval. The maintainers of the ${esc(s.name)} space can approve it or request changes.</p></div>` : ''}
           <h1 class="doc-title">${esc(f.title)}</h1>
-          <div class="doc-sub" style="margin-bottom:12px">${status(f.status)}<span>By ${esc(person(f.author).name)}</span><span>Updated ${esc(f.updated)}</span></div>
+          <div class="doc-sub" style="margin-bottom:12px">${status(f.status)}<span>By ${esc(person(f.author).name)}</span><span>Updated ${esc(onDate(f.updated))}</span></div>
           ${field('info', 'Context', f.context)}${field('eye', 'Symptoms', f.symptoms)}${field('search', 'Causes', f.causes)}${field('check', 'Solution', f.solution)}${field('alert', 'Precautions', f.precautions)}
         </div></div>
         <aside class="props" aria-label="Article properties">
@@ -1309,7 +1347,7 @@ pg_restore -U postgres -d billing_restore \\
       actions: `<select class="select select-sm" aria-label="Period"><option>Last 30 days</option><option>Last 90 days</option></select><button class="btn" type="button" data-mock="Export: not simulated.">${ico('download')}<span class="btn-label">Export</span></button>`,
       html: `<div class="pad"><h1 class="page-title" style="margin-bottom:16px">Dashboard</h1>
         <div class="kpis">
-          ${kpi('Documents', D.org.docs, D.org.scanned + ' scanned, not searchable')}
+          ${kpi('Documents', D.org.docs, D.org.scanned + ' scanned, partly not searchable')}
           ${kpi('Active members', '41', 'of ' + D.org.members + ' members')}
           ${kpi('Searches', '944', 'Last 30 days')}
           ${kpi('No results', '6%', '57 searches')}
@@ -1447,7 +1485,7 @@ pg_restore -U postgres -d billing_restore \\
           ${file('file-text', 'recovery-plan-2026.docx', '1.2 MB', `<span class="file-state is-busy">${ico('spinner', 'spin')}Text extraction in progress</span>`)}
           ${file('file-text', 'runbook-redis.md', '14 KB', `<span class="file-state is-ok">${ico('check')}Indexed: 5 sections</span>`)}
           ${file('file', 'rack-inventory-2026.pdf', '18.4 MB', `<span class="file-state is-busy">${ico('upload')}Uploading… 42%</span><span class="progress" aria-hidden="true"><span style="width:42%"></span></span>`)}
-          ${file('file', 'room-b-cabling-diagram.pdf', '8.7 MB', `<span class="file-state is-warn">${ico('scan')}Scanned document: imported, but only its title and description are searchable.</span>`)}
+          ${file('file', 'room-b-cabling-diagram.pdf', '8.7 MB', `<span class="file-state is-warn">${ico('scan')}Scanned document: imported, but its scanned pages are not searchable. Describe it.</span>`)}
           ${file('file', 'logs-export-october.pdf', '72 MB', `<span class="file-state is-err">${ico('alert')}Not imported: the file is 72 MB, the limit is 50 MB.</span>`)}
           ${file('file-text', 'vpn-procedure.docx', '340 KB', `<span class="file-state is-err">${ico('alert')}Extraction failed: the file is password protected. Remove the protection, then import it again.</span>`)}
         </div>`,
@@ -1512,7 +1550,7 @@ pg_restore -U postgres -d billing_restore \\
       const candidates = D.orgMembers.filter((x) => inSpace.indexOf(x.id) < 0);
       return modal('Add members', `
         <p class="help" style="margin-top:-4px">Members of the organization who are not in the ${esc(s.name)} space yet.</p>
-        <div class="search-box" style="height:34px">${ico('search')}<input placeholder="Search by name or email address" aria-label="Search by name or email address"></div>
+        <div class="search-box" style="height:34px">${ico('search')}<input placeholder="Search for a person of the organization" aria-label="Search for a person of the organization"></div>
         ${candidates.length ? `<div class="people-pick" role="group" aria-label="People">${candidates.map((x, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role help">${esc(person(x.id).email)}</span></label>`).join('')}</div>` : '<p class="help">Everyone in the organization is already a member of the space.</p>'}
         <div class="field"><label for="am-role">Role in the space</label><select class="select" id="am-role"><option>Reader</option><option selected>Contributor</option><option>Maintainer</option></select></div>
         <p class="help">To bring a new person into the organization, an administrator creates an invitation.</p>`,
@@ -1520,10 +1558,10 @@ pg_restore -U postgres -d billing_restore \\
     },
     'invite': () => modal('Invite to the organization', `
       <p class="help" style="margin-top:-4px">Create a link and pass it on yourself. No mail server is needed.</p>
-      <div class="form-2"><div class="field"><label for="io-role">Role in the organization</label><select class="select" id="io-role"><option>Member</option><option>Administrator</option></select></div>
-        <div class="field"><label for="io-exp">Validity</label><select class="select" id="io-exp"><option>7 days, single use</option><option>48 hours, single use</option></select></div></div>
-      <div class="field"><span class="field-label">Spaces to join</span><div class="people-pick">${D.spaces.filter((s) => !s.empty).map((s, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${spaceIco(s)}${esc(s.name)}<span class="role"><select class="select select-sm" aria-label="Role in ${esc(s.name)}"><option>Reader</option><option selected>Contributor</option><option>Maintainer</option></select></span></label>`).join('')}</div></div>
-      <div id="invite-result" hidden><div class="target-chips"><label class="sr-only" for="inv-url">Invitation link</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#P3n8-Lw2c-9QxA" style="flex:1"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copy</button></div></div>`,
+      <div class="field"><label for="io-role">Role in the organization</label><select class="select" id="io-role"><option>Member</option><option>Administrator</option></select></div>
+      <div class="field"><label for="io-mail">Person’s e-mail (optional)</label><input class="input" id="io-mail" type="email" autocomplete="off"><span class="help">Optional. Reserves the link to this address and shows it in pending invitations. Required to bring a former member back with their account.</span></div>
+      <div class="field"><span class="field-label">Spaces to join (optional)</span><div class="people-pick">${D.spaces.filter((s) => !s.empty).map((s, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${spaceIco(s)}${esc(s.name)}<span class="role"><select class="select select-sm" aria-label="Role in ${esc(s.name)}"><option>Reader</option><option selected>Contributor</option><option>Maintainer</option></select></span></label>`).join('')}</div><span class="help">The person becomes a member on arrival, with the chosen role.</span></div>
+      <div id="invite-result" hidden><div class="target-chips"><label class="sr-only" for="inv-url">Invitation link</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#P3n8-Lw2c-9QxA" style="flex:1"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copy</button></div><p class="help" style="margin-top:6px">This link works once and expires on Nov 18, 2026. It will not be shown again.</p></div>`,
       `${cancelBtn}<button class="btn btn-primary" type="button" data-action="invite-create">${ico('link')}Create the link</button>`),
     'reset-link': (p) => {
       const pp = person(p.get('for') || 'hc');
@@ -1537,12 +1575,12 @@ pg_restore -U postgres -d billing_restore \\
       const enc2 = enc(DEFAULT_Q);
       const groups = [
         ['Access', 'v0.1', [['Setup: organization', '#/setup'], ['Setup: administrator account', '#/setup?step=2'], ['Setup: done', '#/setup?step=3'], ['Sign in', '#/login'], ['Sign-in refused', '#/login?error=1'], ['Join with an invitation', '#/join'], ['Forgot your password', '#/forgot-password'], ['New password', '#/reset-password']]],
-        ['Workspace', 'v0.1', [['Home', '#/'], ['All spaces', '#/spaces'], ['Library, grid view', '#/spaces/infrastructure'], ['Library, kanban view', '#/spaces/infrastructure?view=kanban'], ['Library filtered on a folder', '#/spaces/infrastructure?folder=runbooks'], ['Empty space', '#/spaces/applications'], ['Space members', '#/spaces/infrastructure/members'], ['Space settings', '#/spaces/infrastructure/settings'], ['My account', '#/account'], ['Page not found', '#/not-found']]],
+        ['Workspace', 'v0.1', [['Home', '#/'], ['All spaces', '#/spaces'], ['Library, grid view', '#/spaces/infrastructure'], ['Library, board view', '#/spaces/infrastructure?view=kanban'], ['Library filtered on a folder', '#/spaces/infrastructure?folder=runbooks'], ['Empty space', '#/spaces/applications'], ['Space members', '#/spaces/infrastructure/members'], ['Space settings', '#/spaces/infrastructure/settings'], ['My account', '#/account'], ['Page not found', '#/not-found']]],
         ['Documents', 'v0.1', [['Markdown', '#/documents/restaurer-pg'], ['Converted Word file', '#/documents/inc-2291'], ['PDF', '#/documents/guide-baie'], ['Scanned PDF', '#/documents/schema-cablage'], ['Restricted access', '#/documents/rotation-tls'], ['Outdated', '#/documents/barman'], ['Extraction in progress', '#/documents/plan-reprise'], ['Opened from search', `#/documents/restaurer-pg?from=search&q=${enc2}&anchor=s-4-2`], ['PDF opened at the page found', '#/documents/guide-baie?from=search&q=snapshot%20restore&anchor=page-112']]],
         ['Search', 'v0.1', [['Search page', '#/search'], ['Results and filters', `#/search?q=${enc2}`], ['No results', '#/search?q=ceph%20quota'], ['Match in the description', '#/search?q=OM4%20fiber'], ['Command palette (Ctrl K)', 'palette']]],
         ['Windows', 'v0.1', [['Import documents', '#/spaces/infrastructure?open=import'], ['New version', '#/documents/restaurer-pg?open=version&doc=restaurer-pg'], ['Document access', '#/documents/rotation-tls?open=access&doc=rotation-tls'], ['Change the status', '#/documents/restaurer-pg?open=status&doc=restaurer-pg'], ['Create a space', '#/spaces?open=create-space'], ['New folder', '#/spaces/infrastructure?open=new-folder'], ['Add members to a space', '#/spaces/securite/members?open=add-members&space=securite'], ['Delete a space', '#/spaces/infrastructure/settings?open=delete-space&space=infrastructure'], ['Invite to the organization', '#/admin/members?open=invite'], ['Reset link', '#/admin/members?open=reset-link&for=hc']]],
         ['Administration', 'v0.1', [['General', '#/admin/general'], ['Members', '#/admin/members'], ['Security and sign-in', '#/admin/security'], ['Storage and import', '#/admin/storage'], ['Audit log', '#/admin/audit']]],
-        ['Knowledge base', 'v0.2', [['Kanban of the articles', '#/knowledge'], ['Grid of the articles', '#/knowledge?view=grid'], ['Approved article', '#/knowledge/pg-role-manquant'], ['Article to approve', '#/knowledge/vpn-mtu'], ['New article', '#/knowledge/new']]],
+        ['Knowledge base', 'v0.2', [['Board of the articles', '#/knowledge'], ['Grid of the articles', '#/knowledge?view=grid'], ['Approved article', '#/knowledge/pg-role-manquant'], ['Article to approve', '#/knowledge/vpn-mtu'], ['New article', '#/knowledge/new']]],
         ['Insights and search', 'v0.2', [['Dashboard', '#/dashboard'], ['Search by keywords and meaning', `#/search?mode=semantic&q=${enc(D.semantic.question)}`]]],
         ['Assistant', 'v0.3', [['New question', '#/assistant'], ['Sourced answer', '#/assistant/c1'], ['Short answer', '#/assistant/c3'], ['No reliable answer', '#/assistant/c2'], ['Article prefilled by the assistant', '#/knowledge/new?from=assistant'], ['Assistant settings', '#/admin/assistant']]],
         ['Connected sources', 'Later', [['Connected sources', '#/sources']]],
@@ -1591,7 +1629,7 @@ pg_restore -U postgres -d billing_restore \\
     add('Actions', 'ask', 'Ask the assistant a question', () => go('#/assistant'), vb('v0.3'));
     add('Actions', 'theme', 'Change theme', () => { closeOverlay(); cycleTheme(); });
     add('Actions', 'map', 'Demo map', () => openOverlay('plan'));
-    [['home', 'Home', '#/'], ['search', 'Search', '#/search'], ['grid', 'All spaces', '#/spaces'], ['book', 'Knowledge base', '#/knowledge'], ['chart', 'Dashboard', '#/dashboard'], ['settings', 'Administration', '#/admin/general'], ['list', 'Audit log', '#/admin/audit'], ['user', 'My account', '#/account']].forEach(([i, l, h]) => add('Go to', i, l, () => go(h)));
+    [['home', 'Home', '#/'], ['search', 'Search', '#/search'], ['grid', 'All spaces', '#/spaces'], ['book', 'Knowledge base', '#/knowledge', vb('v0.2')], ['chart', 'Dashboard', '#/dashboard', vb('v0.2')], ['settings', 'Administration', '#/admin/general'], ['list', 'Audit log', '#/admin/audit'], ['user', 'My account', '#/account']].forEach(([i, l, h, b]) => add('Go to', i, l, () => go(h), b));
     D.spaces.forEach((s) => add('Spaces', null, s.name, () => go('#/spaces/' + s.id), `${s.docs} documents`));
     D.docs.forEach((d) => add('Documents', fmtIco(d), d.title, () => go('#/documents/' + d.id), esc(spaceById(d.space).name)));
     return items;
@@ -1608,7 +1646,11 @@ pg_restore -U postgres -d billing_restore \\
     if (nq) {
       items = items.slice(0, 12);
       items.unshift({ group: 'Search', icon: 'search', label: `Search for “${q.trim()}” in the documents`, run: () => go('#/search?q=' + enc(q.trim())), hint: '<span class="kbd">Enter</span>' });
-    } else items = items.filter((it) => it.group !== 'Documents' || ['restaurer-pg', 'inc-2291', 'bascule-k8s'].some((id) => docById(id).title === it.label));
+    } else {
+      /* As in the application: with nothing typed, the recent documents, the same as "Resume" on the home page. */
+      items = items.filter((it) => it.group !== 'Documents' || ['restaurer-pg', 'inc-2291', 'guide-baie'].some((id) => docById(id).title === it.label))
+        .map((it) => (it.group === 'Documents' ? Object.assign({}, it, { group: 'Recent documents' }) : it));
+    }
     state.pal.items = items;
     state.pal.sel = 0;
     let html = '', last = '';

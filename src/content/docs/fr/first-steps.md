@@ -3,10 +3,10 @@ title: "Premiers pas"
 description: "Après la configuration initiale : inviter votre équipe, régler la sécurité, vérifier l’adresse publique et préparer votre compte."
 ---
 
-À la fin de la [configuration initiale](initial-setup.md), Lore propose ces quatre gestes. Votre compte est propriétaire de l’organisation : il a accès à tout.
+À la fin de la [configuration initiale](initial-setup.md), Lore propose les deux premiers gestes ; l’accueil les rappelle tous les quatre sous *Pour commencer*. Votre compte est propriétaire de l’organisation : il a accès à tout.
 
 1. **Inviter votre équipe**
-   Cliquez sur *Inviter des personnes* dans la barre latérale, choisissez le rôle, puis transmettez le lien vous-même, par messagerie ou par e-mail. Aucun serveur de messagerie n’est nécessaire. Voir [Membres et invitations](members.md).
+   Cliquez sur le nom de l’organisation, en haut de la barre latérale, puis sur *Inviter des personnes* ; ou bien sur *Inviter*, dans *Administration › Membres*. Choisissez le rôle, puis transmettez le lien vous-même, par messagerie ou par e-mail. Aucun serveur de messagerie n’est nécessaire. Voir [Membres et invitations](members.md).
 2. **Régler la sécurité**
    Dans *Administration › Sécurité et connexion* : longueur minimale des mots de passe, tentatives avant blocage, durée du blocage, expiration des sessions et validité des liens d’invitation. Voir [Sécurité et connexion](security.md).
 3. **Vérifier l’adresse publique**

@@ -26,14 +26,14 @@ See also [Importing documents](import.md#import-a-new-version).
 
 A new version only becomes the current one once its text is extracted, at once, for reading as for search:
 
-- **During the extraction**, everyone reads the current version, and search relies on it. The document’s page shows “A new version is being processed.”, the list of documents “Version 5 in progress”, and your home page lists it under *To do*.
+- **During the extraction**, everyone reads the current version, and search relies on it. The document’s page shows “A new version is being processed.”, the list of documents “Version 5 in progress”, and, if you imported it yourself, your home page lists it under *To do*.
 - **At the end of the extraction**, the new version takes its place. The status asked applies then, unless the status of the document changed in the meantime: a document archived during the extraction stays archived.
 - **After a failure**, the current version does not change. Contributors see “Version 5 could not be processed: …”, with *Retry* for a passing cause, and *Import another version*.
 - **Two versions at once.** If version 6 ends before version 5, it becomes the current one; version 5 stays in the history.
 
 ## History in strata
 
-In the right panel, *Versions* draws the history as strata: one band per version, the latest on top and in colour. The thickness of a band shows how much the version changed: the share of passages added or removed from the previous one, from 0 (nothing changed) to 1 (all rewritten). The first version counts as whole; a hatched band marks a change that is unknown: a scanned document, a version in progress or failed, a version that never became current.
+In the right panel, *Versions* draws the history as strata: one band per version, the latest on top and in color. The thickness of a band shows how much the version changed: the share of passages added or removed from the previous one, from 0 (nothing changed) to 1 (all rewritten). The first version, once extracted, counts as whole. A hatched band marks a change that is unknown: a version in progress or failed, a version that never became current, or a version whose text, or that of the previous one, has no passage, such as a fully scanned PDF.
 
 Choose a band, with the mouse or the arrows <kbd>↑</kbd> and <kbd>↓</kbd>: below it show “Version 4, current” or “Version 3”, its date of import and its author, what changes (“First version” for the first one), the name of its file, its *SHA-256 fingerprint* to copy, *Show* for an older version and *Download*. The ten latest versions show first, then *All the versions*.
 
@@ -59,11 +59,11 @@ Choose a band, with the mouse or the arrows <kbd>↑</kbd> and <kbd>↓</kbd>: b
 | Contributors | Move a document between Draft, Published and Outdated |
 | Maintainers of the space, owners and administrators | Also archive a document, and take it out of Archived |
 
-*Change the status*, in the *More actions* menu or by clicking the status in the panel, opens a window that describes the effect of each status. For a contributor, Archived is greyed out there: “Reserved to the maintainers of the space.” *Archive*, in the same menu, opens the same window with Archived already chosen: the effect is read before saving. Each change of status is recorded in the audit log and in the *Activity* of the document.
+*Change the status*, in the *More actions* menu or by clicking the status in the panel, opens a window that describes the effect of each status. For a contributor, Archived is grayed out there: “Reserved to the maintainers of the space.” *Archive*, in the same menu, opens the same window with Archived already chosen: the effect is read before saving. Each change of status is recorded in the audit log and in the *Activity* of the document.
 
 ### Outdated and replacement
 
-Choose *Outdated*, then, if possible, the document that replaces it: type its title in *Replaced by*. Any document you can read is offered, in any of your spaces, except the document itself and outdated or archived documents.
+Choose *Outdated*, then, if possible, the document that replaces it: type its title in *Replaced by*. Lore offers the documents whose title has a word that begins with each of the words typed, eight at most, among those you can read in the active spaces, except the document itself and outdated or archived documents.
 
 - **Banner.** Readers see “This document is outdated since Nov 10, 2026. Use instead Restore a PostgreSQL database from a backup.”, the title as a link.
 - **Privacy.** A reader who cannot read the replacement does not even learn its title: their banner stops at the date, and search does not name it.
@@ -81,7 +81,7 @@ An archived document disappears from the lists, the counts, the search and the p
 
 Below the content of each document, *Activity* tells what was done to it, the latest first: imports and new versions, changes of status, access, owner, folder, title, description, category and language, with the person and the date. Views and downloads never appear there: only the [audit log](audit.md) keeps them. A change of access says to how many people the document is restricted, not who.
 
-On the home page, *Recent activity in your spaces* shows the eight latest imports, new versions and changes of status of the documents you see.
+On the home page, *Recent activity in your spaces* shows the eight latest imports, new versions and changes of status of the documents you see. It reads the latest 2,000 imports, new versions and changes of status across the whole organization, then keeps those of the documents you see that are not archived: if none of them concerns a document you see, the list stays empty.
 
 ## What does not exist yet
 

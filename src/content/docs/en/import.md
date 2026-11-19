@@ -25,7 +25,7 @@ Each passage keeps its place in the document: its page, or its heading and the h
 Contributors and maintainers of a space import documents into it, as do the organization’s owners and administrators. An archived space no longer accepts any.
 
 1. **Open the import window**
-   The *Import* button on a space’s *Documents* page or on the home page, or the <kbd>I</kbd> key. From the home page, choose the space first.
+   The *Import* button on a space’s *Documents* page or on the home page, or the <kbd>I</kbd> key. Outside the pages of a space, choose the space first, unless you contribute to only one: it is then already chosen.
 2. **Choose the destination**
    The folder, or *No folder* to keep the documents at the root of the space; the status, *Draft* (the default) or *Published*; the category, which is optional.
 3. **Restrict access, if needed**
@@ -77,7 +77,7 @@ A refused file is not imported: no document is created, and nothing is left on t
 
 The state of each document is shown in the import window, in the list of documents of the space and on the document’s page. Your own imports still in progress or failed are also listed on the home page.
 
-**Scanned document.** A page counts as having no text below 20 visible characters. The document is imported, its number of pages is known and the text of its other pages is kept; search finds it by its title and description: give it a description that says what it contains.
+**Scanned document.** A page counts as an image without text when it has fewer than 20 visible characters and holds an image, whatever it is. A page without any image never counts, even when nearly empty (a slide with a short title, a form, a drawn diagram); a slide with a short title and a logo does. The document is imported, its number of pages is known and the text of its other pages is kept, and searched; what its images show is not: give it a description that says what it contains.
 
 **Truncated text.** Lore keeps up to 10 million characters of text per document. Beyond that, the rest is left out, and the document’s page says so.
 
@@ -106,7 +106,7 @@ A document is updated by importing a new version of its file: *New version*, at 
 - **Format.** It may change from one version to the next; the window says so (“The format changes: Markdown, then PDF.”).
 - **Status.** A published document offers *Keep the Published status*, ticked; unticked, it goes back to Draft. An outdated document offers *Back to Published*. The choice applies when the version becomes the current one, and not if the status changed in the meantime.
 - **During the extraction.** Everyone still reads the current version, and search relies on it; the document’s page shows “A new version is being processed.”, the list of documents “Version 5 in progress”. Once its text is extracted, the new version becomes the current one at once, for reading as for search.
-- **After a failure.** The current version does not change. Contributors see “Version 5 could not be processed”, with *Retry* for a passing cause and *Import another version*.
+- **After a failure.** The current version does not change. Contributors see “Version 5 could not be processed: …”, with *Retry* for a passing cause and *Import another version*.
 - **Language.** It is detected again, unless someone chose the one of the current version: the new version takes it over.
 
 The previous version stays readable and downloadable in the history of the document. An archived document accepts no new version: give it another status first.

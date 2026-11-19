@@ -7,14 +7,16 @@ description: "What changes in each version of Lore."
 
 First version: a complete workspace, without artificial intelligence.
 
-- Accounts, organizations and invitations by link
+- Accounts, the organization and invitations by link
 - Spaces, folders and roles
-- PDF, Word, text and Markdown import, up to 50 MB
+- PDF, Word, text and Markdown import, 50 MB by default, up to 1 GB
 - Reader that opens at the right passage
 - Full-text search, filtered by access rights
 - Versions and statuses
 - Audit log
 - Installation with Docker Compose, .deb and .rpm packages or a universal archive
+
+Since 0.1.0-beta.1: trusted proxies (`LORE_TRUSTED_PROXIES`), a fixed setup code of 12 characters or more, `__Host-` cookies over HTTPS: see [Upgrading](upgrade.md#from-the-010-beta1-preview).
 
 ## Version 0.1.0-beta.1 <span class="vb">Preview</span>
 
@@ -39,7 +41,7 @@ Released on November 18, 2026, to try search before version 0.1. It keeps the da
 
 - Full-text search with PostgreSQL alone: words, phrases between quotes, words left out, `or`, identifiers, addresses and error codes found as they are pasted
 - Accents and capitals ignored, the forms of a word found together (“redemarrer” finds “Redémarrage”)
-- Ranked results, obsolete documents last, with the excerpt of the best passage, its words highlighted, and the other passages found
+- Ranked results, outdated documents last, with the excerpt of the best passage, its words highlighted, and the other passages found
 - Filters by space, category, status, format and date, each with its number of documents
 - Permissions applied in the query: a document you cannot see appears neither in the results, nor in the counts, nor in the excerpts
 - <kbd>Ctrl K</kbd> palette, <kbd>/</kbd> shortcut, recent searches kept in the browser
@@ -100,7 +102,7 @@ Its files are on its [release page](https://github.com/dada-core/lore/releases/t
 
 | Version | Planned content |
 | --- | --- |
-| 0.2 | Search by meaning, knowledge articles, dashboard |
+| 0.2 | Search by meaning, knowledge articles, dashboard, review dates and approval workflow |
 | 0.3 | Optional assistant and conversation history |
 
 Each released version will also be announced on the [releases page of the GitHub repository](https://github.com/dada-core/lore/releases).

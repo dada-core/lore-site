@@ -9,13 +9,13 @@ description: "Lore se pilote au clavier : recherche, import, panneaux, fenêtres
 | --- | --- |
 | <kbd>Ctrl K</kbd> | Ouvrir la palette : rechercher, ou aller à une page, un espace, un document |
 | <kbd>/</kbd> | Ouvrir la page Recherche, son champ sélectionné |
-| <kbd>I</kbd> | Importer des documents |
+| <kbd>I</kbd> | Importer des documents, là où vous pouvez importer |
 | <kbd>[</kbd> | Afficher ou masquer la barre latérale |
-| <kbd>]</kbd> | Afficher ou masquer le panneau de droite |
+| <kbd>]</kbd> | Afficher ou masquer le panneau de droite, sur la page d’un document |
 | <kbd>Échap</kbd> | Fermer une fenêtre ou un menu |
 | <kbd>Ctrl Entrée</kbd> | Envoyer une question à l’assistant <span class="vb">v0.3</span> |
 
-Sur macOS, <kbd>Ctrl</kbd> est remplacé par <kbd>⌘</kbd>. <kbd>Ctrl K</kbd>, <kbd>/</kbd>, <kbd>I</kbd>, <kbd>[</kbd> et <kbd>]</kbd> n’agissent pas pendant une saisie ; <kbd>Ctrl K</kbd> et <kbd>/</kbd> non plus quand une fenêtre est ouverte.
+Sur macOS, <kbd>Ctrl</kbd> est remplacé par <kbd>⌘</kbd>. Ces raccourcis, sauf <kbd>Échap</kbd> et <kbd>Ctrl Entrée</kbd>, n’agissent ni pendant une saisie, ni quand une fenêtre est ouverte.
 
 ## Dans la palette
 
@@ -27,6 +27,16 @@ Sur macOS, <kbd>Ctrl</kbd> est remplacé par <kbd>⌘</kbd>. <kbd>Ctrl K</kbd>, 
 
 Voir [La palette](search.md#la-palette).
 
+## Dans l’historique des versions
+
+Une fois une bande de *Versions* sélectionnée, d’un clic ou avec <kbd>Tab</kbd> :
+
+| Raccourci | Action |
+| --- | --- |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Version plus récente, version plus ancienne |
+
+Voir [Historique en strates](versions.md#historique-en-strates).
+
 ## Dans le lecteur PDF
 
 Une fois le lecteur sélectionné, d’un clic ou avec <kbd>Tab</kbd> :
@@ -35,6 +45,7 @@ Une fois le lecteur sélectionné, d’un clic ou avec <kbd>Tab</kbd> :
 | --- | --- |
 | <kbd>←</kbd> <kbd>→</kbd> | Page précédente, page suivante |
 | <kbd>+</kbd> <kbd>-</kbd> | Agrandir, réduire |
+| <kbd>=</kbd> | Agrandir, comme <kbd>+</kbd> |
 
 Ces touches n’agissent pas pendant une saisie. Dans un document Markdown, Word ou texte, <kbd>Ctrl F</kbd> cherche dans le contenu affiché, et <kbd>Ctrl P</kbd> l’imprime. Voir [Lire un document](reader.md#le-lecteur-pdf).
 

@@ -9,9 +9,9 @@ description: "Lore is open source. Feedback, issues, code, documentation and tra
 - For a significant change, open an issue first to discuss it.
 - Issues and discussions can be written in English or in French; code and commit messages are in English.
 
-## Contributor License Agreement
+## Developer Certificate of Origin
 
-Before your first contribution, you will sign a Contributor License Agreement (CLA), based on the Apache Software Foundation’s; its text will be published before the first outside contribution. You will keep the copyright on your code; the agreement will let the project also distribute it under other licenses, which funds its development.
+Lore asks for no contributor agreement. Each commit is signed off under the [Developer Certificate of Origin](https://developercertificate.org/): the `Signed-off-by` line, added by `git commit -s`, certifies that you wrote the change, or have the right to submit it under the project’s license. You keep the copyright on your code, published under the AGPL-3.0 like the rest of Lore.
 
 ## Propose a change
 

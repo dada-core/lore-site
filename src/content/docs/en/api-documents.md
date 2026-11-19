@@ -58,7 +58,7 @@ Returns a page of the documents of the space that you can see, grouped by folder
 
 `newerVersion` describes a version imported after the current one, being extracted or failed: `number`, `extractionStatus`, `extractionError` and `createdAt`; `null` when the latest version is the current one.
 
-Field errors: `sort`, `direction` and `status` (`invalid_value`), `ids` (`too_many`).
+Field errors: `folder`, `sort`, `direction` and `status` (`invalid_value`), `ids` (`too_many`).
 
 ## Count the documents of a space
 
@@ -439,7 +439,7 @@ The details only give what you may know: the number of people chosen for an acce
 
 `GET /api/v1/activity`
 
-The 8 latest imports, new versions and changes of status of the documents you see, archived ones left out: for *Recent activity in your spaces*, on the home page. Each with `occurredAt`, `actor`, `action`, `document` (`id`, `title`), `space` and `details` (`version`, `before`, `after`).
+The 8 latest imports, new versions and changes of status of the documents you see, archived ones left out: for *Recent activity in your spaces*, on the home page. The response is an array, each item with `id`, `occurredAt`, `actor`, `action`, `document` (`id`, `title`), `space` and `details` (`version`, `before`, `after`).
 
 ## Access to a document
 
@@ -551,7 +551,7 @@ The operations of the organization, the latest first. Reserved for owners and ad
 
 `GET /api/v1/admin/audit/export`
 
-The same filters, without `before` or `size`, as CSV (`text/csv`, UTF-8 with a byte order mark, RFC 4180), written as it is read, as the attachment `lore-audit-2026-11-18.csv`. Columns: `occurred_at`, `actor_id`, `actor_name`, `actor_email`, `action`, `category`, `resource_type`, `resource_id`, `title`, `space`, `ip` and `details` (as JSON). A value that starts with `=`, `+`, `-` or `@` is written after an apostrophe, so that a spreadsheet does not read it as a formula. The export itself is recorded in the log (`audit.exported`, with the filters and the number of lines). One export at a time per person: `429 export_running`.
+The same filters, without `before` or `size`, as CSV (`text/csv`, UTF-8 with a byte order mark, RFC 4180), written as it is read, as the attachment `lore-audit-2026-11-18.csv`. Columns: `occurred_at`, `actor_id`, `actor_name`, `actor_email`, `action`, `category`, `resource_type`, `resource_id`, `title`, `space`, `ip` and `details` (as JSON). A value that starts with `=`, `+`, `-`, `@`, a tab or a carriage return is written after an apostrophe, so that a spreadsheet does not read it as a formula. A value that holds a semicolon or a tab is quoted, like one that holds a comma, a quote or a line break, so that a spreadsheet set for French does not split the cell there. The export itself is recorded in the log (`audit.exported`, with the filters and the number of lines). One export at a time per person: `429 export_running`.
 
 ## Spaces and folders
 

@@ -41,12 +41,11 @@ export const VIDEO = {
 export const LEGAL = {
   publisher: 'Wilfried POKA',
   address: 'Abidjan, Côte d’Ivoire',
-  phone: '+225 07 01 60 33 09',
   director: 'Wilfried POKA',
   host: 'GitHub, Inc. (GitHub Pages)',
   hostAddress: { fr: '88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis', en: '88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, United States' },
   hostPhone: '+1 877 448 4820',
-  updated: '2026-11-13'
+  updated: '2026-11-19'
 };
 
 /* Edit a file of the website repository on GitHub, on its reference branch. */

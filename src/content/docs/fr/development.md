@@ -4,7 +4,7 @@ description: "Lancer Lore depuis les sources, pour contribuer au code."
 ---
 
 > [!NOTE]
-> **Lore est en cours de développement.** Les comptes, la configuration initiale, la connexion, l’administration de l’organisation, les espaces, l’import de documents et leur lecture fonctionnent ; la recherche arrive ensuite.
+> **Lore est en cours de développement.** Toutes les fonctions de la version 0.1 sont en place : les comptes, la configuration initiale, la connexion, l’administration de l’organisation, les espaces, l’import de documents, leur lecture, la recherche, les versions, les statuts et le journal d’audit.
 
 ## Prérequis
 
@@ -12,7 +12,7 @@ description: "Lancer Lore depuis les sources, pour contribuer au code."
 | --- | --- |
 | Java | 21 |
 | Maven | Fourni par le dépôt (`./mvnw`) |
-| Node.js | 22.12 ou plus récent, pour l’interface |
+| Node.js | 24.15 ou plus récent (24 LTS), pour l’interface |
 | Docker | Pour PostgreSQL et les tests d’intégration |
 
 ## Lancer en local
@@ -57,10 +57,25 @@ Les fichiers arrivent dans `build/dist/`. Ajoutez `--platform linux/arm64` pour 
 | --- | --- |
 | `./mvnw verify` | Tests du serveur, sur une vraie base PostgreSQL (Testcontainers), et frontières entre les modules |
 | `npm test` | Tests de l’interface |
-| `npm run lint` | Règles du code de l’interface, dont l’absence de tiret cadratin |
+| `npm run lint` | Règles du code de l’interface, et l’absence de tiret cadratin et demi-cadratin dans tout le dépôt |
 | `npm run typecheck` | Types TypeScript |
+| `npm run e2e` | Les parcours de bout en bout dans Chromium, avec un audit d’accessibilité (axe) de chaque écran de la version 0.1, une cinquantaine avec les fenêtres ; ceux de la lecture, de la recherche, du clavier et du téléphone aussi dans Firefox et WebKit |
 
 L’intégration continue lance ces commandes, puis installe Lore avec Docker Compose, avec l’archive, et avec les paquets sur chaque distribution prise en charge (en arm64, sur une partie d’entre elles) : chaque installation neuve doit démarrer et demander la configuration initiale.
+
+### Parcours de bout en bout
+
+`npm run e2e`, dans `web/`, lance les parcours (`web/e2e/`) contre une installation neuve de Lore : dans l’intégration continue, l’image Docker de la branche. Tous tournent dans Chromium ; ceux de la lecture, de la recherche, du clavier et du téléphone aussi dans Firefox et WebKit, où l’affichage des PDF, la sélection et les touches diffèrent. Le premier parcours fait la configuration initiale dans le navigateur, avec le code lu dans les journaux :
+
+```sh
+docker compose -p lore-e2e up -d --build --wait
+cd web && npm ci && npx playwright install --with-deps chromium firefox webkit
+LORE_SETUP_CODE=$(docker compose -p lore-e2e logs --no-log-prefix lore | grep -A2 "enter this setup code" | tail -1 | tr -d ' ') npm run e2e
+```
+
+Ici, `LORE_SETUP_CODE` est lu par les parcours, pas par Lore. `LORE_E2E_URL` les dirige vers une autre adresse que `http://localhost:8080`. Les parcours ont leur propre projet Docker Compose, `lore-e2e`, avec ses propres données ; il publie le port 8080 : arrêtez d’abord une autre installation qui l’occupe. Pour les relancer, repartez d’une installation vide : `docker compose -p lore-e2e down --volumes`, puis de nouveau la première commande.
+
+`sh packaging/five-minutes.sh docker-compose.yml` chronomètre le premier parcours depuis le téléchargement de `docker-compose.yml`, comme l’intégration continue, et échoue au-delà de trois minutes de temps machine. Il reprend l’image `lore:local` construite plus haut et publie le port 8080 : arrêtez d’abord l’installation des parcours (`docker compose -p lore-e2e down --volumes`).
 
 ## API et types de l’interface
 
@@ -74,7 +89,7 @@ La commande régénère `web/openapi.json` et `web/src/api/schema.d.ts`. L’int
 
 ## Organisation du code
 
-Lore est une seule application découpée en modules, un par paquet Java. Un test automatisé vérifie qu’aucun module n’accède aux données d’un autre.
+Lore est une seule application découpée en modules, un par paquet Java. Un test automatisé (Spring Modulith) vérifie que chaque module n’utilise que les types publics des autres, ceux de leur paquet de base, sans dépendance circulaire entre modules. Aucun module ne lit les tables d’un autre : c’est une règle de conception, que ce test ne contrôle pas.
 
 | Module | Rôle |
 | --- | --- |
@@ -83,10 +98,12 @@ Lore est une seule application découpée en modules, un par paquet Java. Un tes
 | `library` | Espaces, dossiers et documents |
 | `storage` | Fichiers importés sur le disque |
 | `ingestion` | Extraction du texte des fichiers, dans des processus séparés |
+| `search` | Recherche dans les documents : routes, analyse de ce qui est tapé, forme des résultats, limites |
 | `audit` | Journal des opérations sensibles |
 | `web` | Service de l’interface, erreurs de l’API, description OpenAPI |
+| `shared` | Types communs à tous les modules : erreurs de l’API, pagination, commandes du serveur |
 
-Suivra `search`. L’interface, en React et TypeScript, se trouve dans `web/`.
+L’interface, en React et TypeScript, se trouve dans `web/`.
 
 Toutes les adresses sont en anglais, quelle que soit la langue de l’interface : `/login`, `/admin/members`.
 

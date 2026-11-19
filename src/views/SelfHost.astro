@@ -5,7 +5,7 @@ import PageHero from '../components/PageHero.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import { demo, GITHUB } from '../config';
 import { docHref, type DocKey } from '../docs/nav';
-import { STEPS } from '../data/code';
+import { PREVIEW, STEPS } from '../data/code';
 import type { Lang } from '../i18n/routes';
 import type { IconName } from '../lib/icons';
 
@@ -18,8 +18,8 @@ const T = {
     title: 'Auto-hébergement',
     description: 'Installer Lore sur votre serveur avec Docker Compose, un paquet .deb ou .rpm, ou l’archive universelle. Prérequis, installation, sauvegarde et mise à jour.',
     h1: 'Installé en cinq minutes, sur votre serveur.',
-    lead: 'Lore et PostgreSQL, rien d’autre : avec Docker, un paquet .deb ou .rpm, ou une archive. Aucun autre service à installer, à sauvegarder ni à mettre à jour.',
-    notice: ['La version 0.1 n’est pas encore publiée : ces étapes décrivent son installation. Une préversion permet déjà de l’essayer.', 'Voir les versions publiées'],
+    lead: 'Lore et PostgreSQL, rien d’autre : en moins de cinq minutes avec Docker Compose, ou avec un paquet .deb ou .rpm, ou une archive. Aucun autre service à installer, à sauvegarder ni à mettre à jour.',
+    notice: [PREVIEW ? `La version 0.1 n’est pas encore publiée : ces commandes installent la préversion ${PREVIEW}, dont les données seront reprises par la version 0.1.0.` : 'Ces commandes installent la dernière version publiée.', 'Voir les versions publiées'],
     needs: 'Ce qu’il vous faut',
     req: [
       ['Système', 'Linux, ou macOS et Windows pour un essai'],
@@ -47,8 +47,8 @@ const T = {
     title: 'Self-hosting',
     description: 'Install Lore on your server with Docker Compose, a .deb or .rpm package, or the universal archive. Requirements, installation, backups and updates.',
     h1: 'Installed in five minutes, on your server.',
-    lead: 'Lore and PostgreSQL, nothing else: with Docker, a .deb or .rpm package, or an archive. No other service to install, back up or update.',
-    notice: ['Version 0.1 has not been released yet: these steps describe its installation. A preview already lets you try it.', 'See the released versions'],
+    lead: 'Lore and PostgreSQL, nothing else: in under five minutes with Docker Compose, or with a .deb or .rpm package, or an archive. No other service to install, back up or update.',
+    notice: [PREVIEW ? `Version 0.1 has not been released yet: these commands install the ${PREVIEW} preview, whose data will carry over to version 0.1.0.` : 'These commands install the latest released version.', 'See the released versions'],
     needs: 'What you need',
     req: [
       ['System', 'Linux, or macOS and Windows for a trial'],

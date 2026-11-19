@@ -26,7 +26,7 @@
   const fmtIco = (d) => (d.format === 'PDF' ? 'file' : 'file-text');
   const pill = (t, c) => `<span class="pill ${c || 'p-gray'}">${esc(t)}</span>`;
   const vb = (v) => {
-    const title = v === 'Plus tard' ? 'Prévu après la v0.3' : v.indexOf('v0') === 0 ? 'Prévu en ' + v : v === 'Offres payantes' ? 'Réservé aux offres payantes' : 'Prévu ' + v.toLowerCase();
+    const title = v === 'Plus tard' ? 'Prévu après la v0.3' : v.indexOf('v0') === 0 ? 'Prévu en ' + v : 'Prévu ' + v.toLowerCase();
     return `<span class="vb" title="${title}">${esc(v)}</span>`;
   };
   const DEFAULT_Q = 'pg_restore role "does not exist"';
@@ -67,7 +67,7 @@
 
   function indexPill(d) {
     if (d.flags && d.flags.indexing) return `<span class="pill p-blue">${ico('spinner', 'spin')}En cours</span>`;
-    if (d.flags && d.flags.scanned) return `<span class="pill p-yellow" title="Seuls le titre et la description sont recherchables">${ico('scan')}Numérisé</span>`;
+    if (d.flags && d.flags.scanned) return `<span class="pill p-yellow" title="Ses pages numérisées ne sont pas recherchables">${ico('scan')}Numérisé</span>`;
     return `<span class="pill p-green">${ico('check')}Indexé</span>`;
   }
 
@@ -249,6 +249,8 @@
     [/^\/admin\/([\w-]+)$/, screenAdmin],
     [/^\/not-found$/, screen404]
   ];
+  /* Comme l'application : #/admin mène à la page Général. */
+  const REDIRECTS = { '/admin': '/admin/general' };
 
   function currentRoute() {
     const h = location.hash.replace(/^#/, '');
@@ -262,7 +264,13 @@
   }
 
   function render() {
-    const { path, params } = currentRoute();
+    const route = currentRoute();
+    const params = route.params;
+    let path = route.path;
+    if (REDIRECTS[path]) {
+      path = REDIRECTS[path];
+      history.replaceState(null, '', '#' + path + (params.toString() ? '?' + params : ''));
+    }
     let view = null;
     for (const [re, fn] of ROUTES) {
       const m = path.match(re);
@@ -271,7 +279,7 @@
     if (!view) view = screen404();
     closeOverlay(true);
     $('#root').innerHTML = fr(view.auth ? view.html : shell(view));
-    document.title = (view.title ? view.title + ' – ' : '') + 'Démo Lore';
+    document.title = (view.title ? view.title + ' · ' : '') + 'Démo Lore';
     window.scrollTo(0, 0);
     const h1 = $('#root h1');
     if (h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
@@ -307,7 +315,7 @@
           <li><a class="nav-link" href="#/spaces/${s.id}/members"${sub === 'members' ? ' aria-current="page"' : ''}>${ico('users')}<span class="label">Membres</span></a></li>
           <li><a class="nav-link" href="#/spaces/${s.id}/settings"${sub === 'settings' ? ' aria-current="page"' : ''}>${ico('settings')}<span class="label">Paramètres</span></a></li>
         </ul>` : '';
-      return `<li><a class="nav-link" href="#/spaces/${s.id}">${spaceIco(s)}<span class="label">${esc(s.name)}</span><span class="count">${s.docs}</span></a>${subList}</li>`;
+      return `<li><a class="nav-link" href="#/spaces/${s.id}">${spaceIco(s)}<span class="label">${esc(s.name)}</span></a>${subList}</li>`;
     }).join('');
     return `<aside class="sidebar" id="sidebar" aria-label="Navigation principale">
       <div class="ws">
@@ -320,7 +328,6 @@
             <a class="menu-item" href="#/login">${ico('logout')}Se déconnecter</a>
           </div>
         </div>
-        <button class="icon-btn" type="button" data-action="open" data-overlay="import" title="Importer des documents (I)" aria-label="Importer des documents">${ico('upload')}</button>
         <button class="icon-btn side-collapse" type="button" data-action="toggle-panel" data-panel="nav" data-label="la barre latérale" data-key="[">${ico('sidebar-left')}</button>
       </div>
       <button class="search-trigger" type="button" data-action="palette">${ico('search')}<span>Rechercher</span><span class="kbd">Ctrl K</span></button>
@@ -367,6 +374,7 @@
     if (step === 1) {
       inner = `<h1>Configurer Lore</h1><p class="lead">Premier lancement de cette installation.</p>${stepper}
         <div class="auth-panel"><form class="form" data-form="setup1">
+          <div class="field"><label for="o-code">Code de configuration</label><input class="input input-mono" id="o-code" value="K7QM-4XRT-9HWC" autocomplete="off" spellcheck="false" required><span class="help">Écrit dans les journaux du serveur au démarrage : <code>docker compose logs lore</code></span></div>
           <div class="field"><label for="o-name">Nom de l’organisation</label><input class="input" id="o-name" value="DadaGroup" required></div>
           <div class="field"><label for="o-url">Adresse publique</label><input class="input input-mono" id="o-url" value="${D.org.url}"><span class="help">L’adresse à laquelle votre équipe ouvrira Lore. Elle sert aussi aux liens d’invitation.</span></div>
           <div class="field"><label for="o-lang">Langue de l’interface</label><select class="select" id="o-lang"><option>Français</option><option>English</option></select></div>
@@ -385,11 +393,10 @@
           <div class="row-between"><a class="btn btn-ghost" href="#/setup">Retour</a><button class="btn btn-primary btn-lg" type="submit">Créer le compte</button></div>
         </form></div>`;
     } else {
-      inner = `<h1>DadaGroup est prête</h1><p class="lead">Voici les trois premières choses à faire.</p>${stepper}
+      inner = `<h1>DadaGroup est prête</h1><p class="lead">Voici les premières choses à faire.</p>${stepper}
         <div class="auth-panel"><ul class="next-list">
-          <li><a href="#/spaces?open=create-space"><span class="cat-ico">${ico('grid')}</span><span><strong>Créer un premier espace</strong><span class="help">Un espace par équipe ou par domaine : Infrastructure, Réseau, Support…</span></span></a></li>
           <li><a href="#/admin/members?open=invite"><span class="cat-ico">${ico('users')}</span><span><strong>Inviter votre équipe</strong><span class="help">Par lien, sans serveur de messagerie.</span></span></a></li>
-          <li><a href="#/?open=import"><span class="cat-ico">${ico('upload')}</span><span><strong>Importer des documents</strong><span class="help">PDF, Word, texte et Markdown.</span></span></a></li>
+          <li><a href="#/admin/security"><span class="cat-ico">${ico('shield')}</span><span><strong>Régler la sécurité</strong><span class="help">Longueur des mots de passe, blocage après plusieurs échecs, durée des sessions.</span></span></a></li>
         </ul></div>
         <a class="btn btn-primary btn-lg btn-block" href="#/">Ouvrir Lore</a>`;
     }
@@ -410,34 +417,35 @@
       <p class="auth-alt">Pas encore de compte ? Demandez un lien d’invitation à un administrateur.</p>`);
   }
 
+  /* Comme dans l'application : l'invitation fait entrer dans l'organisation, avec un rôle, et éventuellement dans des espaces. */
   function screenInvitation() {
-    const s = spaceById('infrastructure');
-    return authPage('Invitation', `<h1>Rejoindre ${esc(D.org.name)}</h1><p class="lead">Amenan Souaga vous invite dans l’espace ${esc(s.name)}, avec le rôle Contributeur.</p>
+    const joined = [['infrastructure', 'Contributeur'], ['securite', 'Lecteur']];
+    return authPage('Invitation', `<h1>Rejoindre ${esc(D.org.name)}</h1><p class="lead">Amenan Souaga vous invite avec le rôle Membre.</p>
+      <div class="join-spaces"><p>Vous rejoindrez aussi ces espaces :</p><ul>${joined.map(([id, role]) => { const s = spaceById(id); return `<li>${spaceIco(s)}${esc(s.name)}${pill(role, ROLE[role])}</li>`; }).join('')}</ul></div>
       <div class="auth-panel"><form class="form" data-form="join">
-        <div class="list-row" style="border:1px solid var(--border);border-radius:8px">${spaceIco(s, true)}<div class="list-main"><div class="list-title">${esc(s.name)}</div><div class="list-sub">${s.docs} documents, ${s.members} membres</div></div>${pill('Contributeur', ROLE.Contributeur)}</div>
         <div class="field"><label for="i-name">Nom complet</label><input class="input" id="i-name" placeholder="Prénom Nom"></div>
         <div class="field"><label for="i-mail">E-mail professionnel</label><input class="input" id="i-mail" type="email" placeholder="prenom.nom@dada.group"></div>
-        <div class="field"><label for="i-pw">Mot de passe</label><input class="input" id="i-pw" type="password"><span class="help">12 caractères au minimum.</span></div>
-        <button class="btn btn-primary btn-lg btn-block" type="submit">Créer mon compte et rejoindre l’espace</button>
+        <div class="form-2">
+          <div class="field"><label for="i-pw">Mot de passe</label><input class="input" id="i-pw" type="password"><span class="help">12 caractères au minimum.</span></div>
+          <div class="field"><label for="i-pw2">Confirmation</label><input class="input" id="i-pw2" type="password"></div>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Créer mon compte</button>
       </form></div>
-      <p class="auth-alt">Ce lien ne sert qu’une fois et expire le 18 nov. 2026.</p>`);
+      <p class="auth-alt">Ce lien ne sert qu’une fois et expire le 18 nov. 2026.</p>`, true);
   }
 
+  /* Comme dans l'application, la page ne nomme personne : un visiteur non connecté n'apprend pas qui administre l'organisation. */
   function screenForgot() {
     return authPage('Mot de passe oublié', `<h1>Mot de passe oublié</h1><p class="lead">Un administrateur peut vous donner un lien de réinitialisation.</p>
       <div class="auth-panel"><div class="form">
-        <div class="callout">${ico('info')}<p>L’envoi d’e-mails n’est pas configuré sur cette installation. Demandez à l’une de ces personnes de générer un lien de réinitialisation pour votre compte.</p></div>
-        <ul class="list">
-          <li><div class="list-row">${avatar('wk', true)}<div class="list-main"><div class="list-title">Wilfried Kouakou</div><div class="list-sub">wilfried.kouakou@dada.group</div></div>${pill('Propriétaire', ROLE['Propriétaire'])}</div></li>
-          <li><div class="list-row">${avatar('as', true)}<div class="list-main"><div class="list-title">Amenan Souaga</div><div class="list-sub">amenan.souaga@dada.group</div></div>${pill('Administrateur', ROLE.Administrateur)}</div></li>
-        </ul>
-        <p class="help">Si l’envoi d’e-mails est configuré (option SMTP), cette page propose de recevoir le lien directement.</p>
+        <div class="callout">${ico('info')}<p>L’envoi d’e-mails n’est pas configuré sur cette installation. Demandez à un administrateur de votre organisation de générer un lien de réinitialisation pour votre compte.</p></div>
+        <div class="field"><p class="help">Seul administrateur de cette installation ? Lancez cette commande sur le serveur, elle affiche un lien de réinitialisation :</p><code class="command">docker compose exec lore lore reset-password votre@adresse</code></div>
       </div></div>
       <p class="auth-alt"><a class="link" href="#/login">Retour à la connexion</a></p>`);
   }
 
   function screenReset() {
-    return authPage('Nouveau mot de passe', `<h1>Choisir un nouveau mot de passe</h1><p class="lead">Compte d’Hervé Coulibaly, herve.coulibaly@dada.group</p>
+    return authPage('Nouveau mot de passe', `<h1>Choisir un nouveau mot de passe</h1><p class="lead">Compte : Hervé Coulibaly, herve.coulibaly@dada.group</p>
       <div class="auth-panel"><form class="form" data-form="reset">
         <div class="field"><label for="r-pw">Nouveau mot de passe</label><input class="input" id="r-pw" type="password"><span class="help">12 caractères au minimum.</span></div>
         <div class="field"><label for="r-pw2">Confirmation</label><input class="input" id="r-pw2" type="password"></div>
@@ -456,8 +464,18 @@
 
   function screenHome() {
     const recent = [['restaurer-pg', 'Consulté il y a 2 heures'], ['inc-2291', 'Consulté hier'], ['guide-baie', 'Consulté le 8 nov.']];
-    const tiles = D.spaces.map((s) => `<a class="tile" href="#/spaces/${s.id}">${spaceIco(s, true)}<div><div class="tile-name">${esc(s.name)}</div><div class="tile-sub">${s.docs} documents</div><div class="tile-sub">Votre rôle : ${s.role}</div></div></a>`).join('');
-    const feed = D.audit.filter((a) => a.who && a.type !== 'Consultation').slice(0, 6).map((a) => `<li>${avatar(a.who)}<span><b>${esc(person(a.who).name)}</b> ${esc(a.text)}</span><time>${esc(a.when.split(',')[0])}</time></li>`).join('');
+    /* Comme dans l'application : « 0 document » et « 1 membre » restent au singulier. */
+    const count = (n, word) => `${n} ${word}${n > 1 ? 's' : ''}`;
+    const tiles = D.spaces.map((s) => `<a class="tile" href="#/spaces/${s.id}">${spaceIco(s, true)}<div><div class="tile-name">${esc(s.name)}</div><div class="tile-sub">${count(s.docs, 'document')}</div><div class="tile-sub">${count(s.members, 'membre')}</div><div class="tile-sub">Votre rôle : ${s.role}</div></div></a>`).join('');
+    /* Comme dans l'application : seulement les imports, les nouvelles versions et les changements de statut. */
+    const feed = D.audit.filter((a) => a.who && (a.type === 'Import' || a.type === 'Statut')).slice(0, 6).map((a) => `<li>${avatar(a.who)}<span><b>${esc(person(a.who).name)}</b> ${esc(a.text)}</span><time>${esc(a.when.split(',')[0])}</time></li>`).join('');
+    /* Comme dans l'application, pour une administratrice : inviter, régler la sécurité, vérifier l'adresse publique, puis son compte. */
+    const next = [
+      ['#/admin/members?open=invite', 'users', 'Inviter votre équipe', 'Par lien, sans serveur de messagerie.'],
+      ['#/admin/security', 'shield', 'Régler la sécurité', 'Longueur des mots de passe, blocage après plusieurs échecs, durée des sessions.'],
+      ['#/admin/general', 'globe', 'Vérifier l’adresse publique', 'Elle sert aux liens d’invitation et de réinitialisation.'],
+      ['#/account', 'user', 'Régler votre compte', 'Nom, langue de l’interface, thème et mot de passe.']
+    ].map(([href, icon, title, help]) => `<li><a class="list-row" href="${href}"><span class="cat-ico">${ico(icon)}</span><div class="list-main"><div class="list-title">${title}</div><div class="list-sub">${help}</div></div>${ico('chevron-right')}</a></li>`).join('');
     return {
       nav: 'home', title: 'Accueil',
       crumbs: crumbs([{ label: 'Accueil' }]),
@@ -466,13 +484,14 @@
         <div class="stack">
           <div><h1 class="page-title">Bonjour, Amenan</h1><p class="page-intro">Mercredi 11 novembre 2026</p></div>
           <section><h2 class="section-title">Reprendre</h2><ul class="list">${recent.map(([id, w]) => docRowLink(docById(id), w)).join('')}</ul></section>
+          <section><h2 class="section-title">Activité récente dans vos espaces</h2><ul class="feed">${feed}</ul></section>
           <section><div class="row-between"><h2 class="section-title">Vos espaces</h2><a class="link" href="#/spaces">Tous les espaces</a></div>
             <div class="tiles">${tiles}<button class="tile tile-new" type="button" data-action="open" data-overlay="create-space"><span class="space-ico space-ico-lg">${ico('plus')}</span><span>Créer un espace</span></button></div></section>
-          <section><h2 class="section-title">Activité récente dans vos espaces</h2><ul class="feed">${feed}</ul></section>
+          <section><h2 class="section-title">Pour commencer</h2><ul class="list">${next}</ul></section>
         </div>
         <aside class="stack">
           <section><h2 class="section-title">À traiter</h2><div class="inbox">
-            <a href="#/?open=import">${ico('alert')}<span>Import en échec</span><span class="n">2</span></a>
+            <a href="#/?open=import">${ico('alert')}<span>Import en échec</span><span class="n">1</span></a>
             <a href="#/documents/plan-reprise">${ico('spinner', 'spin')}<span>Indexation en cours</span><span class="n">1</span></a>
             <a href="#/knowledge">${stIcon('review')}<span>Fiches à valider</span>${vb('v0.2')}<span class="n">2</span></a>
             <a href="#/dashboard">${ico('clock')}<span>Révisions en retard</span>${vb('v0.2')}<span class="n">2</span></a>
@@ -483,24 +502,24 @@
             <li><span>Importer des documents</span><span class="kbd">I</span></li>
             <li><span>Afficher ou masquer la barre latérale</span><span class="kbd">[</span></li>
             <li><span>Afficher ou masquer le panneau de droite</span><span class="kbd">]</span></li>
-            <li><span>Fermer une fenêtre</span><span class="kbd">Échap</span></li>
+            <li><span>Fermer une fenêtre ou un menu</span><span class="kbd">Échap</span></li>
           </ul></section>
         </aside>
       </div></div>`
     };
   }
 
-  function screenSpaces() {
+  function screenSpaces(m, p) {
+    const archived = p.get('archived') === 'true';
     const rows = D.spaces.map((s, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><div class="cell-title">${spaceIco(s)}<a href="#/spaces/${s.id}">${esc(s.name)}</a><a class="expand" href="#/spaces/${s.id}" aria-label="Ouvrir ${esc(s.name)}">${ico('expand')}</a></div></td><td>${esc(s.desc)}</td><td class="num">${s.docs}</td><td class="num">${s.members}</td><td>${pill(s.role, ROLE[s.role])}</td><td>${esc(s.activity)}</td></tr>`).join('');
     return {
       nav: 'spaces', title: 'Espaces',
       crumbs: crumbs([{ label: 'Espaces' }]),
       actions: `<button class="btn btn-primary" type="button" data-action="open" data-overlay="create-space">${ico('plus')}<span class="btn-label">Créer un espace</span></button>`,
       html: `<h1 class="sr-only">Espaces</h1>
-        <div class="toolbar"><div class="views"><a class="view-tab" href="#/spaces" aria-current="page">${ico('grid')}Tous les espaces</a></div>
-          <div class="tools"><button class="tool" type="button" data-mock>${ico('filter')}Filtrer</button><button class="tool" type="button" data-mock>${ico('sort')}Trier</button></div></div>
-        <div class="grid-wrap"><table class="grid"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('text')}Nom</span></th><th><span class="th">${ico('text')}Description</span></th><th><span class="th">${ico('hash')}Documents</span></th><th><span class="th">${ico('hash')}Membres</span></th><th><span class="th">${ico('tag')}Votre rôle</span></th><th><span class="th">${ico('calendar')}Dernière activité</span></th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="grid-foot"><span>${D.spaces.length} espaces</span><span>${D.org.docs} documents</span></div>`
+        <div class="toolbar"><nav class="views" aria-label="Espaces actifs ou archivés"><a class="view-tab" href="#/spaces"${archived ? '' : ' aria-current="page"'}>Actifs</a><a class="view-tab" href="#/spaces?archived=true"${archived ? ' aria-current="page"' : ''}>${ico('archive')}Archivés</a></nav></div>
+        ${archived ? '<div class="empty"><p class="help">Aucun espace archivé.</p></div>' : `<div class="grid-wrap"><table class="grid"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('text')}Nom</span></th><th><span class="th">${ico('text')}Description</span></th><th><span class="th">${ico('hash')}Documents</span></th><th><span class="th">${ico('hash')}Membres</span></th><th><span class="th">${ico('tag')}Votre rôle</span></th><th><span class="th">${ico('calendar')}Dernière activité</span></th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="grid-foot"><span>${D.spaces.length} espaces</span><span>${D.org.docs} documents</span></div>`}`
     };
   }
 
@@ -534,7 +553,6 @@
     }
     const view = p.get('view') === 'kanban' ? 'kanban' : 'grid';
     const folder = p.get('folder');
-    const grouped = p.get('group') !== 'none';
     const folders = D.folders[s.id];
     const docs = D.docs.filter((d) => d.space === s.id && (!folder || d.folder === folder));
     const fName = folder ? (folders.find((f) => f.id === folder) || {}).name : '';
@@ -542,7 +560,6 @@
       const o = new URLSearchParams();
       if (view === 'kanban') o.set('view', 'kanban');
       if (folder) o.set('folder', folder);
-      if (!grouped) o.set('group', 'none');
       Object.entries(extra || {}).forEach(([k, v]) => (v === null ? o.delete(k) : o.set(k, v)));
       const str = o.toString();
       return '#/spaces/' + s.id + (str ? '?' + str : '');
@@ -560,9 +577,7 @@
             <div class="menu-sep"></div>
             ${folders.map((f) => `<a class="menu-item" href="${qs({ folder: f.id })}">${ico('folder')}${esc(f.name)}<span class="kbd">${D.docs.filter((d) => d.folder === f.id).length}</span></a>`).join('')}
           </div></div>
-        ${view === 'grid' ? `<div class="menu"><button class="tool${grouped ? ' is-on' : ''}" type="button" data-action="menu" aria-expanded="false">${ico('group')}${grouped ? 'Regroupé par dossier' : 'Regrouper'}</button>
-          <div class="popover popover-right" hidden><a class="menu-item" href="${qs({ group: null })}">${ico('folder')}Par dossier</a><a class="menu-item" href="${qs({ group: 'none' })}">${ico('x')}Aucun regroupement</a></div></div>` : ''}
-        <button class="tool is-on-green" type="button" data-mock="Tri : non simulé.">${ico('sort')}Trié par mise à jour</button>
+        <button class="tool is-on-green" type="button" data-mock="Tri : non simulé.">${ico('sort')}Trier par : Mise à jour</button>
         <span class="divider-v"></span>
         <button class="tool" type="button" data-action="palette" aria-label="Rechercher">${ico('search')}</button>
       </div></div>`;
@@ -577,15 +592,16 @@
     } else {
       let n = 0, rows = '';
       const head = `<thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('text')}Titre</span></th><th><span class="th">${ico('tag')}Statut</span></th><th><span class="th">${ico('tag')}Catégorie</span></th><th><span class="th">${ico('user')}Responsable</span></th><th><span class="th">${ico('calendar')}Mis à jour</span></th><th><span class="th">${ico('hash')}Version</span></th><th><span class="th">${ico('tag')}Indexation</span></th><th><span class="th">${ico('globe')}Langue</span></th><th><span class="th">${ico('file')}Format</span></th></tr></thead>`;
-      if (grouped) {
-        folders.forEach((f) => {
-          const list = docs.filter((d) => d.folder === f.id);
-          if (!list.length) return;
-          rows += `<tr class="group-row"><td colspan="10"><div class="group-head">${ico('chevron')}<span class="lbl">Dossier</span><strong>${esc(f.name)}</strong><span class="count">${list.length}</span></div></td></tr>`;
-          list.forEach((d) => { rows += libRow(d, ++n); });
-        });
-      } else docs.forEach((d) => { rows += libRow(d, ++n); });
-      body = `<div class="grid-wrap"><table class="grid">${head}<tbody>${rows}</tbody></table></div><div class="grid-foot"><span>${docs.length} document${docs.length > 1 ? 's' : ''}</span>${docs.some((d) => d.flags && d.flags.indexing) ? `<span>${docs.filter((d) => d.flags && d.flags.indexing).length} en cours d’indexation</span>` : ''}${docs.some((d) => d.flags && d.flags.scanned) ? `<span>${docs.filter((d) => d.flags && d.flags.scanned).length} numérisé, non recherchable</span>` : ''}</div>`;
+      /* Comme dans l'application, la grille est toujours regroupée par dossier. */
+      folders.forEach((f) => {
+        const list = docs.filter((d) => d.folder === f.id);
+        if (!list.length) return;
+        rows += `<tr class="group-row"><td colspan="10"><div class="group-head">${ico('chevron')}<span class="lbl">Dossier</span><strong>${esc(f.name)}</strong><span class="count">${list.length}</span></div></td></tr>`;
+        list.forEach((d) => { rows += libRow(d, ++n); });
+      });
+      const indexing = docs.filter((d) => d.flags && d.flags.indexing).length;
+      const scanned = docs.filter((d) => d.flags && d.flags.scanned).length;
+      body = `<div class="grid-wrap"><table class="grid">${head}<tbody>${rows}</tbody></table></div><div class="grid-foot"><span>${docs.length} document${docs.length > 1 ? 's' : ''}</span>${indexing ? `<span>${indexing} en cours d’indexation</span>` : ''}${scanned ? `<span>${scanned} numérisé${scanned > 1 ? 's' : ''}, en partie non recherchable${scanned > 1 ? 's' : ''}</span>` : ''}</div>`;
     }
     base.html = `<h1 class="sr-only">${esc(s.name)} : documents</h1>${toolbar}${body}`;
     return base;
@@ -596,15 +612,28 @@
      ========================================================= */
   function strata(d) {
     const n = d.versions.length;
+    /* Comme dans l'application : tant que son texte est en cours d'extraction, l'ampleur des modifications
+       d'une version n'est pas connue, et sa strate est hachurée, à l'épaisseur moyenne (21 px). */
+    const pending = !!(d.flags && d.flags.indexing);
     const bands = d.versions.map((v, i) => {
       const color = i === 0 ? 'var(--accent)' : i === n - 1 ? 'var(--s2)' : i % 2 ? 'var(--s4)' : 'var(--s3)';
-      return `<button class="stratum" type="button" data-action="stratum" data-doc="${d.id}" data-v="${v.n}" aria-pressed="${i === 0}" style="--h:${v.w}px;--c:${color}"><span class="band" aria-hidden="true"></span><span class="stratum-label"><span>Version ${v.n}</span><span>${esc(v.short)}</span></span></button>`;
+      const unknown = pending && i === 0;
+      return `<button class="stratum" type="button" data-action="stratum" data-doc="${d.id}" data-v="${v.n}" aria-pressed="${i === 0}" style="--h:${unknown ? 21 : v.w}px;--c:${color}"><span class="band${unknown ? ' is-unknown' : ''}" aria-hidden="true"></span><span class="stratum-label"><span>Version ${v.n}</span><span>${esc(v.short)}</span></span></button>`;
     }).join('');
     return `<div class="strata" role="group" aria-label="Historique des versions, de la plus récente à la plus ancienne">${bands}</div><div class="version-detail" id="vd" aria-live="polite">${versionDetail(d, d.versions[0])}</div><p class="caption">L’épaisseur d’une strate indique l’ampleur des modifications apportées par la version.</p>`;
   }
+  /* Empreinte SHA-256 fictive, décalée selon le document et la version : deux versions n'ont jamais la même. */
+  const SHA256 = '3f9c2a71d84be05c6a1f7e39b2d4c8e0915a7f3cb6e2d0498a5c1f7e3b9d2a64';
+  const fingerprint = (d, v) => {
+    let k = v.n * 7;
+    for (const c of d.id) k += c.charCodeAt(0);
+    k %= SHA256.length;
+    return SHA256.slice(k) + SHA256.slice(0, k);
+  };
   function versionDetail(d, v) {
     const cur = v.n === d.version;
-    return `<strong>Version ${v.n}${cur ? ', actuelle' : ''}</strong><p>Importée le ${esc(v.date)} par ${esc(person(v.by).name)}</p><p>${esc(v.note)}</p><div class="actions">${cur ? '' : `<button class="btn" type="button" data-mock="Affichage de la version ${v.n} : non simulé dans la démo.">Afficher</button>`}<button class="btn" type="button" data-mock="Téléchargement : non simulé dans la démo.">${ico('download')}Télécharger</button></div>`;
+    const hash = fingerprint(d, v);
+    return `<strong>Version ${v.n}${cur ? ', actuelle' : ''}</strong><p>Importée le ${esc(v.date)} par ${esc(person(v.by).name)}</p><p>${esc(v.note)}</p><p class="path">${esc(d.file)}</p><span class="fingerprint"><span class="help">Empreinte SHA-256</span><code title="${hash}">${hash.slice(0, 16)}…</code><button class="icon-btn" type="button" data-mock="Empreinte copiée." aria-label="Copier l’empreinte" title="Copier l’empreinte">${ico('copy')}</button></span><div class="actions">${cur ? '' : `<button class="btn" type="button" data-mock="Affichage de la version ${v.n} : non simulé dans la démo.">Afficher</button>`}<button class="btn" type="button" data-mock="Téléchargement : non simulé dans la démo.">${ico('download')}Télécharger</button></div>`;
   }
 
   function bodyRestaurer() {
@@ -700,6 +729,8 @@ pg_restore -U postgres -d facturation_restore \\
       </svg></div></div></div>`;
   }
   function renderBody(d, p) {
+    /* Comme dans l'application : tant que l'extraction n'est pas finie, ni sommaire ni contenu. */
+    if (d.flags && d.flags.indexing) return { toc: null, html: '<p class="muted">Le contenu s’affichera dès la fin de l’extraction.</p>' };
     if (d.body === 'restaurer') return bodyRestaurer();
     if (d.body === 'incident') return bodyIncident();
     if (d.body === 'tls') return bodyTls();
@@ -717,8 +748,11 @@ pg_restore -U postgres -d facturation_restore \\
 
   /* Les consultations n’y figurent jamais : elles ne vont qu’au journal d’audit. */
   function docActivity(d) {
-    const items = d.versions.map((v) => `<li>${avatar(v.by)}<span><b>${esc(person(v.by).name)}</b> a importé la version ${v.n}<time>${esc(v.date)}</time></span></li>`);
-    if (d.status === 'obsolete') items.unshift(`<li>${avatar('hc')}<span><b>Hervé Coulibaly</b> a marqué le document comme obsolète<time>${esc(d.obsoleteSince)}</time></span></li>`);
+    const items = d.versions.map((v) => `<li>${avatar(v.by)}<span><b>${esc(person(v.by).name)}</b> ${v.n === 1 ? 'a importé le document' : 'a importé la version ' + v.n}<time>${esc(v.date)}</time></span></li>`);
+    if (d.status === 'obsolete') {
+      const r = docById(d.replacedBy);
+      items.unshift(`<li>${avatar('hc')}<span><b>Hervé Coulibaly</b> a changé le statut : Obsolète${r ? `. Remplacé par <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a>` : ''}<time>${esc(d.obsoleteSince)}</time></span></li>`);
+    }
     if (d.restricted) items.unshift(`<li>${avatar('as')}<span><b>Amenan Souaga</b> a restreint l’accès à 2 personnes<time>11 nov. 2026</time></span></li>`);
     return `<section class="activity"><h2 class="section-title">Activité</h2><ol>${items.join('')}</ol></section>`;
   }
@@ -761,13 +795,13 @@ pg_restore -U postgres -d facturation_restore \\
       const r = docById(d.replacedBy);
       banners.push(`<div class="callout callout-warn">${ico('alert')}<p>Ce document est obsolète depuis le ${esc(d.obsoleteSince)}. Utilisez plutôt <a class="link" href="#/documents/${r.id}">${esc(r.title)}</a>.</p></div>`);
     }
-    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Document numérisé : son contenu n’est pas recherchable. Seuls son titre et sa description le sont.</p>${d.description ? '' : '<button class="btn" type="button" data-mock="Ajout d’une description : non simulé.">Ajouter une description</button>'}</div>`);
-    if (d.flags && d.flags.indexing) banners.push(`<div class="callout">${ico('spinner', 'spin')}<p>Extraction du texte en cours : ce document apparaîtra dans les résultats de recherche d’ici quelques instants.</p></div>`);
+    if (d.flags && d.flags.scanned) banners.push(`<div class="callout callout-warn">${ico('scan')}<p>Document numérisé : le texte de ses pages numérisées n’a pas pu être extrait. Le document est trouvé par son titre, sa description et ses autres pages.</p>${d.description ? '<button class="btn" type="button" data-mock="Modification de la description : non simulée.">Modifier la description</button>' : '<button class="btn" type="button" data-mock="Ajout d’une description : non simulé.">Ajouter une description</button>'}</div>`);
+    if (d.flags && d.flags.indexing) banners.push(`<div class="callout" role="status">${ico('spinner', 'spin')}<p>Extraction du texte en cours. Cette page se met à jour d’elle-même.</p></div>`);
 
     const members = D.spaceMembers[d.space] || [];
     const access = d.restricted
       ? `<p class="access-note">Accès restreint : seules ces personnes, le responsable du document, les responsables de l’espace et les administrateurs voient ce document.</p>${d.grants.map((g) => `<div class="grant">${avatar(g)}${esc(person(g).name)}</div>`).join('')}<button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}" style="margin-top:8px">${ico('lock')}Modifier l’accès</button>`
-      : `<p class="access-note">Visible par ${members.length ? 'les ' + members.length + ' membres' : 'les membres'} de l’espace ${esc(s.name)}.</p><button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Restreindre l’accès</button>`;
+      : `<p class="access-note">Visible par ${members.length ? 'les ' + members.length + ' membres' : 'les membres'} de l’espace ${esc(s.name)} et par les administrateurs.</p><button class="btn" type="button" data-action="open" data-overlay="access" data-params="doc=${d.id}">${ico('lock')}Restreindre l’accès</button>`;
     const fmt = d.format === 'PDF' ? `PDF, ${d.pagesCount} pages, ${d.size}` : `${d.format}, ${d.size}`;
     const props = `<aside class="props" aria-label="Propriétés du document">
       <section><h2>Propriétés</h2><dl>
@@ -937,7 +971,7 @@ pg_restore -U postgres -d facturation_restore \\
     const terms = flatTerms(q);
     const all = computeResults(q);
     if (!all.length) {
-      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>Aucun document ne correspond à « ${esc(q)} »</h2><p>Vérifiez l’orthographe des identifiants, retirez un mot ou des guillemets. Les documents numérisés ne sont recherchables que par leur titre et leur description.</p>
+      host.innerHTML = fr(`<div class="empty">${ico('search')}<h2>Aucun document ne correspond à « ${esc(q)} »</h2><p>Vérifiez l’orthographe des identifiants, retirez un mot ou des guillemets. Les pages numérisées ne sont pas cherchées : un document numérisé est trouvé par son titre, sa description et le texte de ses autres pages.</p>
         <div class="actions"><a class="btn" href="#/search?mode=semantic&q=${enc(D.semantic.question)}">Chercher par le sens ${vb('v0.2')}</a><a class="btn" href="#/assistant?q=${enc(q)}">${ico('ask')}Demander à l’assistant ${vb('v0.3')}</a></div>
         <p class="help">Les recherches sans résultat sont comptées dans le tableau de bord pour repérer les lacunes documentaires. ${vb('v0.2')}</p></div>`);
       return;
@@ -964,7 +998,7 @@ pg_restore -U postgres -d facturation_restore \\
     host.innerHTML = fr(`<div class="results-meta"><span>${visible.length} document${visible.length > 1 ? 's' : ''}${visible.length < all.length ? ' sur ' + all.length : ''}</span><span>Classés par pertinence. Les documents obsolètes apparaissent en dernier.</span></div>
       ${items || `<div class="row-between results-none"><p class="help">Aucun résultat avec ces filtres.</p><button class="btn" type="button" data-action="clear-filters">Retirer les filtres</button></div>`}
       ${visible.length > state.shown ? `<div class="results-more"><button class="btn" type="button" data-action="more-results">Afficher plus de résultats</button></div>` : ''}
-      <ul class="notes"><li>${ico('lock')}Seuls les documents auxquels vous avez accès apparaissent.</li><li>${ico('scan')}Les documents numérisés ne sont recherchables que par leur titre et leur description.</li></ul>`);
+      <ul class="notes"><li>${ico('lock')}Seuls les documents auxquels vous avez accès apparaissent.</li><li>${ico('scan')}Les pages numérisées ne sont pas cherchées : un document numérisé est trouvé par son titre, sa description et le texte de ses autres pages.</li></ul>`);
     updateChipLabels(all);
   }
 
@@ -980,26 +1014,30 @@ pg_restore -U postgres -d facturation_restore \\
     if (!s) return screen404();
     const list = D.spaceMembers[s.id] || [{ id: 'as', role: 'Responsable', added: '11 nov. 2026' }];
     const roles = ['Lecteur', 'Contributeur', 'Responsable'];
-    const rows = list.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}${esc(person(x.id).name)}</span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${esc(x.added)}</td><td><button class="btn btn-ghost" type="button" data-mock="Retrait d’un membre : non simulé.">Retirer</button></td></tr>`).join('');
+    /* Comme dans l'application : chacun peut quitter l'espace ; sur sa propre ligne, « Quitter l’espace » remplace « Retirer ». */
+    const action = (x) => (x.id === 'as'
+      ? '<button class="btn btn-ghost" type="button" data-mock="Départ de l’espace : non simulé.">Quitter l’espace</button>'
+      : '<button class="btn btn-ghost" type="button" data-mock="Retrait d’un membre : non simulé.">Retirer</button>');
+    const rows = list.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}<span>${esc(person(x.id).name)}${x.id === 'as' ? '<span class="muted"> (vous)</span>' : ''}</span></span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${esc(x.added)}</td><td>${action(x)}</td></tr>`).join('');
     const restricted = D.docs.filter((d) => d.space === s.id && d.restricted);
     return {
-      nav: 'space:' + s.id + ':members', title: s.name + ' : membres',
+      nav: 'space:' + s.id + ':members', title: 'Membres de l’espace ' + s.name,
       crumbs: spaceCrumbs(s, 'Membres'),
       actions: `<button class="btn btn-primary" type="button" data-action="open" data-overlay="add-members" data-params="space=${s.id}">${ico('plus')}<span class="btn-label">Ajouter des membres</span></button>`,
       html: `<div class="pad"><div class="stack" style="max-width:1040px;gap:0">
-        <div><h1 class="page-title">Membres de ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} membre${list.length > 1 ? 's' : ''}. Les administrateurs de l’organisation ont aussi accès à tout l’espace.</p>
+        <div><h1 class="page-title">Membres de l’espace ${esc(s.name)}</h1><p class="page-intro" style="margin-bottom:18px">${list.length} membre${list.length > 1 ? 's' : ''}. Les administrateurs de l’organisation ont aussi accès à tout l’espace.</p>
           <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:680px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Membre</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Rôle</span></th><th><span class="th">${ico('calendar')}Ajouté le</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
           <section style="margin-top:28px"><h2 class="section-title">Documents restreints de cet espace <span class="muted">${restricted.length}</span></h2>
-            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible par ${d.grants.map((g) => esc(person(g).name)).join(' et ')}, ainsi que par le responsable du document, les responsables de l’espace et les administrateurs</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">Aucun document restreint.</p>'}
+            ${restricted.length ? `<ul class="list">${restricted.map((d) => `<li><a class="list-row" href="#/documents/${d.id}">${ico('lock')}<div class="list-main"><div class="list-title">${esc(d.title)}</div><div class="list-sub">Visible par ${d.grants.map((g) => esc(person(g).name)).join(' et ')}, ainsi que par le responsable du document, les responsables de l’espace et les administrateurs</div></div>${ico('chevron-right')}</a></li>`).join('')}</ul>` : '<p class="help">Aucun document restreint dans cet espace.</p>'}
           </section>
         </div>
         <section style="margin-top:28px"><h2 class="section-title">Ce que permet chaque rôle</h2>
           <dl class="roles">
-            <div><dt>${pill('Lecteur', ROLE.Lecteur)}</dt><dd>Consulte, recherche et télécharge les documents de l’espace.</dd></div>
-            <div><dt>${pill('Contributeur', ROLE.Contributeur)}</dt><dd>Importe des documents, les modifie, les déplace et en crée de nouvelles versions. Supprime ce qu’il a importé tant qu’il n’en existe qu’une version.</dd></div>
-            <div><dt>${pill('Responsable', ROLE.Responsable)}</dt><dd>Gère aussi les membres, archive et supprime. Voit les documents restreints de l’espace.</dd></div>
+            <div><dt>${pill('Lecteur', ROLE.Lecteur)}</dt><dd>Consulte les dossiers et les documents de l’espace, et voit ses membres.</dd></div>
+            <div><dt>${pill('Contributeur', ROLE.Contributeur)}</dt><dd>Crée, renomme et supprime aussi les dossiers, importe et modifie les documents.</dd></div>
+            <div><dt>${pill('Responsable', ROLE.Responsable)}</dt><dd>Gère aussi les membres et les paramètres, archive et supprime l’espace.</dd></div>
           </dl>
-          <p class="help" style="margin-top:10px">Pour qu’un document échappe aussi aux responsables, rangez-le dans un espace dédié, aux membres choisis.</p>
+          <p class="help" style="margin-top:10px">Les propriétaires et les administrateurs de l’organisation ont les droits d’un responsable dans tous les espaces.</p>
         </section>
       </div></div>`
     };
@@ -1060,21 +1098,20 @@ pg_restore -U postgres -d facturation_restore \\
   function screenAccount() {
     return settingsPage('account', 'Profil et préférences', `
       <form class="set-sec" data-form="save"><h2>Profil</h2><div class="set-box">
-        ${row('Photo', '', `${avatar('as', true)}<button class="btn" type="button" data-mock="Envoi d’une photo : non simulé.">Changer</button>`)}
         ${row('Nom complet', '', '<input class="input" value="Amenan Souaga" aria-label="Nom complet">')}
         ${row('E-mail', 'Sert d’identifiant de connexion.', '<input class="input" value="amenan.souaga@dada.group" aria-label="E-mail">')}
       </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Enregistrer</button></div></form>
       <section class="set-sec"><h2>Préférences</h2><div class="set-box">
         ${row('Langue de l’interface', '', '<select class="select" aria-label="Langue de l’interface"><option>Français</option><option>English</option></select>')}
-        ${row('Thème', 'Suit le réglage de votre système par défaut.', '<select class="select" data-theme-select aria-label="Thème"><option value="auto">Système</option><option value="light">Clair</option><option value="dark">Sombre</option></select>')}
+        ${row('Thème', 'Gardé dans ce navigateur. Par défaut, il suit le réglage de votre système.', '<select class="select" data-theme-select aria-label="Thème"><option value="auto">Système</option><option value="light">Clair</option><option value="dark">Sombre</option></select>')}
       </div></section>
       <form class="set-sec" data-form="save"><h2>Mot de passe</h2><div class="set-box">
         ${row('Mot de passe actuel', '', '<input class="input" type="password" aria-label="Mot de passe actuel">')}
         ${row('Nouveau mot de passe', '12 caractères au minimum.', '<input class="input" type="password" aria-label="Nouveau mot de passe">')}
       </div><div style="margin-top:12px"><button class="btn" type="submit">Changer le mot de passe</button></div></form>
       <section class="set-sec"><h2>Sessions ouvertes</h2><div class="set-box">
-        ${row('Chrome sur Windows', 'Cette session, Abidjan, active maintenant.', pill('Cette session', 'p-green'))}
-        ${row('Firefox sur Ubuntu', 'Ouverte il y a 2 jours.', '<button class="btn" type="button" data-mock="Session fermée.">Déconnecter</button>')}
+        ${row('Chrome sur Windows', 'Adresse IP 10.0.3.17, active maintenant.', pill('Cette session', 'p-green'))}
+        ${row('Firefox sur Ubuntu', 'Adresse IP 10.0.3.42, dernière activité il y a 2 jours.', '<button class="btn" type="button" data-mock="Session fermée.">Déconnecter</button>')}
       </div><div style="margin-top:12px"><button class="btn" type="button" data-mock="Toutes les autres sessions sont fermées.">Déconnecter toutes les autres sessions</button></div></section>`,
       { nav: 'account' });
   }
@@ -1086,8 +1123,8 @@ pg_restore -U postgres -d facturation_restore \\
         <form class="set-sec" data-form="save"><h2>Organisation</h2><div class="set-box">
           ${row('Nom', '', `<input class="input" value="${esc(D.org.name)}" aria-label="Nom de l’organisation">`)}
           ${row('Adresse publique', 'Utilisée dans les liens d’invitation et de réinitialisation.', `<input class="input input-mono" value="${D.org.url}" aria-label="Adresse publique">`)}
-          ${row('Langue par défaut', 'Pour les nouveaux comptes.', '<select class="select" aria-label="Langue par défaut"><option>Français</option><option>English</option></select>')}
-          ${row('Fuseau horaire', '', '<select class="select" aria-label="Fuseau horaire"><option>GMT (UTC)</option><option>Europe/Paris</option></select>')}
+          ${row('Langue par défaut', 'Pour les comptes qui n’ont pas choisi de langue.', '<select class="select" aria-label="Langue par défaut"><option>Français</option><option>English</option></select>')}
+          ${row('Fuseau horaire', 'Les dates s’affichent dans ce fuseau.', '<select class="select" aria-label="Fuseau horaire"><option>GMT (UTC)</option><option>Europe/Paris</option></select>')}
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Enregistrer</button></div></form>
         <section class="set-sec"><h2>Modules</h2><p class="help">Lore fonctionne entièrement sans ces modules.</p><div class="set-box">
           ${row('Recherche par le sens', 'Combine la correspondance exacte des mots et la proximité de sens.', sw(false, true, 'Recherche par le sens'), vb('v0.2'))}
@@ -1095,17 +1132,20 @@ pg_restore -U postgres -d facturation_restore \\
         </div></section>`);
     }
     if (k === 'members') {
-      const roles = ['Membre', 'Administrateur', 'Propriétaire'];
-      const rows = D.orgMembers.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}${esc(person(x.id).name)}</span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${roleCell(x.role, roles)}</td><td>${pill(x.state, STATE[x.state])}</td><td>${esc(x.spaces)}</td><td>${esc(x.last)}</td>
-        <td style="overflow:visible"><div class="menu"><button class="icon-btn" type="button" data-action="menu" aria-expanded="false" aria-label="Actions pour ${esc(person(x.id).name)}">${ico('dots')}</button><div class="popover popover-right" hidden>
+      /* Comme dans l'application : Amenan Souaga, administratrice mais pas propriétaire, ne modifie ni son propre compte ni celui
+         d'un propriétaire, et ne peut attribuer que les rôles Membre et Administrateur. */
+      const roles = ['Membre', 'Administrateur'];
+      const manageable = (x) => x.id !== 'as' && x.role !== 'Propriétaire';
+      const rows = D.orgMembers.map((x, i) => `<tr><td class="rn">${i + 1}</td><td class="primary"><span class="who">${avatar(x.id)}<span>${esc(person(x.id).name)}${x.id === 'as' ? '<span class="muted"> (vous)</span>' : ''}</span></span></td><td>${esc(person(x.id).email)}</td><td style="overflow:visible">${manageable(x) ? roleCell(x.role, roles) : pill(x.role, ROLE[x.role])}</td><td>${pill(x.state, STATE[x.state])}</td><td>${esc(x.last)}</td>
+        <td style="overflow:visible">${manageable(x) ? `<div class="menu"><button class="icon-btn" type="button" data-action="menu" aria-expanded="false" aria-label="Actions pour ${esc(person(x.id).name)}">${ico('dots')}</button><div class="popover popover-right" hidden>
           <button class="menu-item" type="button" data-action="open" data-overlay="reset-link" data-params="for=${x.id}">${ico('key')}Générer un lien de réinitialisation</button>
           <button class="menu-item" type="button" data-mock="Désactivation : non simulée.">${ico('x')}Désactiver le compte</button>
-          <div class="menu-sep"></div><button class="menu-item danger" type="button" data-mock="Retrait : non simulé.">${ico('trash')}Retirer de l’organisation</button></div></div></td></tr>`).join('');
+          <div class="menu-sep"></div><button class="menu-item danger" type="button" data-mock="Retrait : non simulé.">${ico('trash')}Retirer de l’organisation</button></div></div>` : ''}</td></tr>`).join('');
       return settingsPage('members', 'Membres', `
         <div class="row-between" style="margin-top:20px"><div class="search-box" style="height:34px;max-width:300px;flex:1">${ico('search')}<input placeholder="Rechercher un membre" aria-label="Rechercher un membre"></div><button class="btn btn-primary" type="button" data-action="open" data-overlay="invite">${ico('plus')}Inviter</button></div>
-        <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:900px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Membre</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Rôle</span></th><th><span class="th">${ico('tag')}État</span></th><th><span class="th">${ico('grid')}Espaces</span></th><th><span class="th">${ico('clock')}Dernière connexion</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="set-box" style="overflow:hidden"><div class="grid-wrap"><table class="grid" style="min-width:760px"><thead><tr><th class="rn"></th><th class="primary"><span class="th">${ico('user')}Membre</span></th><th><span class="th">${ico('mail')}E-mail</span></th><th><span class="th">${ico('tag')}Rôle</span></th><th><span class="th">${ico('tag')}État</span></th><th><span class="th">${ico('clock')}Dernière connexion</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
         <div class="grid-foot" style="border-bottom:0"><span>6 membres affichés sur ${D.org.members}</span></div></div>`,
-        { wide: true, intro: `${D.org.members} membres. Les propriétaires et administrateurs ont accès à tous les espaces.` });
+        { wide: true, intro: `${D.org.members} membres. Les propriétaires et administrateurs gèrent l’organisation.` });
     }
     if (k === 'security') {
       return settingsPage('security', 'Sécurité et connexion', `
@@ -1113,26 +1153,21 @@ pg_restore -U postgres -d facturation_restore \\
           ${row('Longueur minimale', 'Les mots de passe sont hachés avec Argon2id.', '<input class="input" type="number" value="12" aria-label="Longueur minimale" style="width:90px"> caractères')}
           ${row('Tentatives avant blocage', '', '<input class="input" type="number" value="5" aria-label="Tentatives avant blocage" style="width:90px">')}
           ${row('Durée du blocage', '', '<select class="select" aria-label="Durée du blocage"><option>15 minutes</option><option>1 heure</option></select>')}
-          ${row('Expiration après inactivité', '', '<select class="select" aria-label="Expiration après inactivité"><option>8 heures</option><option>24 heures</option><option>7 jours</option></select>')}
-          ${row('Validité des liens d’invitation', '', '<select class="select" aria-label="Validité des liens d’invitation"><option>7 jours</option><option>48 heures</option><option>30 jours</option></select>')}
+          ${row('Expiration après inactivité', 'Au plus 8 heures, plafond fixé par LORE_SESSION_TIMEOUT.', '<select class="select" aria-label="Expiration après inactivité"><option>15 minutes</option><option>30 minutes</option><option>1 heure</option><option>2 heures</option><option>4 heures</option><option selected>8 heures</option></select>')}
+          ${row('Validité des liens d’invitation', '', '<select class="select" aria-label="Validité des liens d’invitation"><option>1 jour</option><option>2 jours</option><option selected>7 jours</option><option>14 jours</option><option>30 jours</option></select>')}
         </div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Enregistrer</button></div></form>
-        <section class="set-sec"><h2 style="display:flex;align-items:center;gap:8px">Fournisseur d’identité ${vb('Après v0.1')}</h2><p class="help">Connexion avec le compte d’entreprise via OpenID Connect : Keycloak, Authentik, Google, GitLab, Entra ID… Inclus dans l’édition Community.</p><div class="set-box">
+        <section class="set-sec"><h2 style="display:flex;align-items:center;gap:8px">Fournisseur d’identité ${vb('Après v0.1')}</h2><p class="help">Connexion avec le compte d’entreprise via OpenID Connect : Keycloak, Authentik, Google, GitLab, Entra ID…</p><div class="set-box">
           ${row('Activer OpenID Connect', '', sw(false, true, 'Activer OpenID Connect'))}
           ${row('URL de l’émetteur', '', '<input class="input input-mono" disabled placeholder="https://sso.dada.group/realms/dadagroup" aria-label="URL de l’émetteur">')}
           ${row('Identifiant client', '', '<input class="input input-mono" disabled placeholder="lore" aria-label="Identifiant client">')}
-        </div></section>
-        <section class="set-sec"><h2 style="display:flex;align-items:center;gap:8px">SSO d’entreprise ${vb('Offres payantes')}</h2><div class="set-box">
-          ${row('SAML, LDAP et Active Directory', 'Connexion avec l’annuaire de l’entreprise.', `<button class="btn" type="button" data-mock="Offres payantes.">En savoir plus</button>`)}
-          ${row('Provisionnement SCIM et synchronisation des groupes', 'Comptes créés et désactivés automatiquement.', `<button class="btn" type="button" data-mock="Offres payantes.">En savoir plus</button>`)}
-          ${row('SSO obligatoire', 'Interdit la connexion par mot de passe.', `<button class="btn" type="button" data-mock="Offres payantes.">En savoir plus</button>`)}
         </div></section>`);
     }
     if (k === 'storage') {
       return settingsPage('storage', 'Stockage et import', `
         <section class="set-sec"><h2>Utilisation</h2><div class="set-box">
-          ${row('Volume stocké', 'Aucun quota en auto-hébergement.', `<strong class="num">${D.org.storage}</strong>`)}
+          ${row('Volume stocké', 'Un même contenu n’est stocké qu’une fois. Aucun quota : seule la place du disque compte.', `<strong class="num">${D.org.storage}</strong>`)}
           ${row('Documents', `Dans ${D.spaces.length} espaces.`, `<strong class="num">${D.org.docs}</strong>`)}
-          ${row('Documents numérisés', 'Contenu non recherchable : seuls le titre et la description le sont.', `<strong class="num">${D.org.scanned}</strong><a class="btn" href="#/documents/schema-cablage">Voir un exemple</a>`)}
+          ${row('Documents numérisés', 'Pages numérisées non recherchables : décrivez ces documents.', `<strong class="num">${D.org.scanned}</strong><a class="btn" href="#/documents/schema-cablage">Voir un exemple</a>`)}
         </div></section>
         <form class="set-sec" data-form="save"><h2>Import</h2><div class="set-box">
           ${row('Taille maximale d’un fichier', '50 Mo par défaut. Plafond fixé par <code>LORE_MAX_UPLOAD_SIZE</code> sur le serveur : 1 024 Mo. Au-delà, l’import est refusé avec un message clair.', '<input class="input" type="number" value="50" min="1" max="1024" aria-label="Taille maximale en mégaoctets" style="width:90px"> Mo')}
@@ -1144,7 +1179,7 @@ pg_restore -U postgres -d facturation_restore \\
           ${row('Reconnaissance de texte (OCR)', 'Hors v0.1 : les PDF sans texte sont détectés et signalés.', pill('Non disponible', 'p-gray'))}
         </div></section>
         <section class="set-sec"><h2>Fichiers</h2><div class="set-box">
-          ${row('Emplacement', 'Volume local du conteneur, indiqué par <code>LORE_FILES_PATH</code>.', '<code style="font-size:12.5px">/var/lib/lore/files</code>')}
+          ${row('Emplacement', 'Défini par <code>LORE_FILES_PATH</code> sur le serveur.', '<code style="font-size:12.5px">/var/lib/lore/files</code>')}
           ${row('Stockage compatible S3', '', sw(false, true, 'Stockage compatible S3'), vb('Plus tard'))}
         </div></section>`);
     }
@@ -1153,7 +1188,7 @@ pg_restore -U postgres -d facturation_restore \\
       return settingsPage('audit', 'Journal d’audit', `
         <div class="target-chips" style="margin:18px 0 12px">
           <select class="select select-sm" data-audit="type" aria-label="Catégorie"><option value="">Toutes les catégories</option>${types.map((t) => `<option>${t}</option>`).join('')}</select>
-          <select class="select select-sm" data-audit="who" aria-label="Personne"><option value="">Toutes les personnes</option>${[...new Set(D.audit.filter((a) => a.who).map((a) => a.who))].map((w) => `<option value="${w}">${esc(person(w).name)}</option>`).join('')}</select>
+          <select class="select select-sm" data-audit="who" aria-label="Personne"><option value="">Tout le monde</option>${[...new Set(D.audit.filter((a) => a.who).map((a) => a.who))].map((w) => `<option value="${w}">${esc(person(w).name)}</option>`).join('')}</select>
           <select class="select select-sm" aria-label="Période"><option>7 derniers jours</option><option>30 derniers jours</option><option>12 derniers mois</option></select>
           <span style="flex:1"></span><button class="btn" type="button" data-mock="Export CSV : non simulé.">${ico('download')}Exporter en CSV</button>
         </div>
@@ -1189,7 +1224,7 @@ pg_restore -U postgres -d facturation_restore \\
 
   function screenSources() {
     const rows = D.sources.map((s) => `<li><div class="list-row">${ico(s.kind === 'GitLab' ? 'branch' : 'server')}<div class="list-main"><div class="list-title">${esc(s.kind)} : <span style="font-family:var(--mono);font-size:13px">${esc(s.name)}</span></div><div class="list-sub">${esc(s.detail)}, vers ${esc(s.target)}. ${s.files} fichiers.</div></div><div class="list-side">${s.state === 'ok' ? pill('Synchronisé ' + s.sync, 'p-green') : pill(s.warn, 'p-yellow')}<button class="btn" type="button" data-mock="Synchronisation lancée.">${ico('refresh')}Synchroniser</button></div></div></li>`).join('');
-    const cat = [['GitLab', 'branch', ''], ['GitHub', 'branch', ''], ['Dossier partagé', 'server', ''], ['Confluence', 'book', 'Offres payantes'], ['SharePoint', 'folder', 'Offres payantes'], ['Google Drive', 'folder', 'Offres payantes'], ['OneDrive', 'folder', 'Offres payantes']];
+    const cat = [['GitLab', 'branch', ''], ['GitHub', 'branch', ''], ['Dossier partagé', 'server', ''], ['Confluence', 'book', ''], ['SharePoint', 'folder', ''], ['Google Drive', 'folder', ''], ['OneDrive', 'folder', '']];
     return settingsPage('sources', 'Sources connectées', `
       <div class="callout" style="margin-top:18px">${ico('info')}<p>Prévu après la v0.3. Première source prévue : les fichiers Markdown des dépôts Git.</p></div>
       <section class="set-sec"><h2>Sources de l’organisation</h2><ul class="list" style="margin-top:12px">${rows}</ul></section>
@@ -1235,7 +1270,7 @@ pg_restore -U postgres -d facturation_restore \\
     const review = f.status === 'review';
     return {
       nav: 'knowledge', title: f.title,
-      crumbs: crumbs([{ label: 'Base de connaissances', href: '#/knowledge' }, { label: f.title }]),
+      crumbs: crumbs([{ label: 'Base de connaissances', href: '#/knowledge' }, { label: f.title, badge: ' ' + vb('v0.2') }]),
       actions: (review
         ? `<button class="btn" type="button" data-mock="Demande de modifications envoyée à la personne qui l’a rédigée." title="Demander des modifications">${ico('edit')}<span class="btn-label">Demander des modifications</span></button><button class="btn btn-primary" type="button" data-mock="Fiche validée : elle est maintenant proposée dans la recherche." title="Valider la fiche">${ico('check')}<span class="btn-label">Valider la fiche</span></button>`
         : `<button class="btn" type="button" data-mock="Édition : non simulée.">${ico('edit')}<span class="btn-label">Modifier</span></button>`) + panelBtn('props', 'les propriétés', 'sidebar-right', ']'),
@@ -1309,7 +1344,7 @@ pg_restore -U postgres -d facturation_restore \\
       actions: `<select class="select select-sm" aria-label="Période"><option>30 derniers jours</option><option>90 derniers jours</option></select><button class="btn" type="button" data-mock="Export : non simulé.">${ico('download')}<span class="btn-label">Exporter</span></button>`,
       html: `<div class="pad"><h1 class="page-title" style="margin-bottom:16px">Tableau de bord</h1>
         <div class="kpis">
-          ${kpi('Documents', D.org.docs, D.org.scanned + ' numérisés, non recherchables')}
+          ${kpi('Documents', D.org.docs, D.org.scanned + ' numérisés, en partie non recherchables')}
           ${kpi('Membres actifs', '41', 'sur ' + D.org.members + ' membres')}
           ${kpi('Recherches', '944', '30 derniers jours')}
           ${kpi('Sans résultat', '6 %', '57 recherches')}
@@ -1447,7 +1482,7 @@ pg_restore -U postgres -d facturation_restore \\
           ${file('file-text', 'plan-reprise-2026.docx', '1,2 Mo', `<span class="file-state is-busy">${ico('spinner', 'spin')}Extraction du texte en cours</span>`)}
           ${file('file-text', 'runbook-redis.md', '14 Ko', `<span class="file-state is-ok">${ico('check')}Indexé : 5 sections</span>`)}
           ${file('file', 'inventaire-baies-2026.pdf', '18,4 Mo', `<span class="file-state is-busy">${ico('upload')}Envoi… 42 %</span><span class="progress" aria-hidden="true"><span style="width:42%"></span></span>`)}
-          ${file('file', 'schema-cablage-salle-b.pdf', '8,7 Mo', `<span class="file-state is-warn">${ico('scan')}Document numérisé : importé, mais seuls son titre et sa description sont recherchables.</span>`)}
+          ${file('file', 'schema-cablage-salle-b.pdf', '8,7 Mo', `<span class="file-state is-warn">${ico('scan')}Document numérisé : importé, mais ses pages numérisées ne sont pas recherchables. Décrivez-le.</span>`)}
           ${file('file', 'export-journaux-octobre.pdf', '72 Mo', `<span class="file-state is-err">${ico('alert')}Non importé : le fichier fait 72 Mo, la limite est de 50 Mo.</span>`)}
           ${file('file-text', 'procedure-vpn.docx', '340 Ko', `<span class="file-state is-err">${ico('alert')}Échec de l’extraction : le fichier est protégé par un mot de passe. Retirez la protection, puis importez-le à nouveau.</span>`)}
         </div>`,
@@ -1512,7 +1547,7 @@ pg_restore -U postgres -d facturation_restore \\
       const candidates = D.orgMembers.filter((x) => inSpace.indexOf(x.id) < 0);
       return modal('Ajouter des membres', `
         <p class="help" style="margin-top:-4px">Membres de l’organisation qui ne font pas encore partie de l’espace ${esc(s.name)}.</p>
-        <div class="search-box" style="height:34px">${ico('search')}<input placeholder="Rechercher par nom ou adresse e-mail" aria-label="Rechercher par nom ou adresse e-mail"></div>
+        <div class="search-box" style="height:34px">${ico('search')}<input placeholder="Rechercher une personne de l’organisation" aria-label="Rechercher une personne de l’organisation"></div>
         ${candidates.length ? `<div class="people-pick" role="group" aria-label="Personnes">${candidates.map((x, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${avatar(x.id)}${esc(person(x.id).name)}<span class="role help">${esc(person(x.id).email)}</span></label>`).join('')}</div>` : '<p class="help">Toutes les personnes de l’organisation font déjà partie de l’espace.</p>'}
         <div class="field"><label for="am-role">Rôle dans l’espace</label><select class="select" id="am-role"><option>Lecteur</option><option selected>Contributeur</option><option>Responsable</option></select></div>
         <p class="help">Pour faire entrer une nouvelle personne dans l’organisation, un administrateur crée une invitation.</p>`,
@@ -1520,10 +1555,10 @@ pg_restore -U postgres -d facturation_restore \\
     },
     'invite': () => modal('Inviter dans l’organisation', `
       <p class="help" style="margin-top:-4px">Créez un lien et transmettez-le vous-même. Aucun serveur de messagerie n’est nécessaire.</p>
-      <div class="form-2"><div class="field"><label for="io-role">Rôle dans l’organisation</label><select class="select" id="io-role"><option>Membre</option><option>Administrateur</option></select></div>
-        <div class="field"><label for="io-exp">Validité</label><select class="select" id="io-exp"><option>7 jours, usage unique</option><option>48 heures, usage unique</option></select></div></div>
-      <div class="field"><span class="field-label">Espaces à rejoindre</span><div class="people-pick">${D.spaces.filter((s) => !s.empty).map((s, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${spaceIco(s)}${esc(s.name)}<span class="role"><select class="select select-sm" aria-label="Rôle dans ${esc(s.name)}"><option>Lecteur</option><option selected>Contributeur</option><option>Responsable</option></select></span></label>`).join('')}</div></div>
-      <div id="invite-result" hidden><div class="target-chips"><label class="sr-only" for="inv-url">Lien d’invitation</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#P3n8-Lw2c-9QxA" style="flex:1"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copier</button></div></div>`,
+      <div class="field"><label for="io-role">Rôle dans l’organisation</label><select class="select" id="io-role"><option>Membre</option><option>Administrateur</option></select></div>
+      <div class="field"><label for="io-mail">E-mail de la personne (facultatif)</label><input class="input" id="io-mail" type="email" autocomplete="off"><span class="help">Facultatif. Réserve le lien à cette adresse et l’affiche dans les invitations en attente. Indispensable pour faire revenir un ancien membre avec son compte.</span></div>
+      <div class="field"><span class="field-label">Espaces à rejoindre (facultatif)</span><div class="people-pick">${D.spaces.filter((s) => !s.empty).map((s, i) => `<label><input type="checkbox"${i === 0 ? ' checked' : ''}>${spaceIco(s)}${esc(s.name)}<span class="role"><select class="select select-sm" aria-label="Rôle dans ${esc(s.name)}"><option>Lecteur</option><option selected>Contributeur</option><option>Responsable</option></select></span></label>`).join('')}</div><span class="help">La personne en devient membre dès son arrivée, avec le rôle choisi.</span></div>
+      <div id="invite-result" hidden><div class="target-chips"><label class="sr-only" for="inv-url">Lien d’invitation</label><input class="input input-mono" id="inv-url" readonly value="${D.org.url}/join#P3n8-Lw2c-9QxA" style="flex:1"><button class="btn" type="button" data-action="copy" data-target="inv-url">${ico('copy')}Copier</button></div><p class="help" style="margin-top:6px">Ce lien ne sert qu’une fois et expire le 18 nov. 2026. Il ne sera plus affiché ensuite.</p></div>`,
       `${cancelBtn}<button class="btn btn-primary" type="button" data-action="invite-create">${ico('link')}Créer le lien</button>`),
     'reset-link': (p) => {
       const pp = person(p.get('for') || 'hc');
@@ -1591,7 +1626,7 @@ pg_restore -U postgres -d facturation_restore \\
     add('Actions', 'ask', 'Poser une question à l’assistant', () => go('#/assistant'), vb('v0.3'));
     add('Actions', 'theme', 'Changer de thème', () => { closeOverlay(); cycleTheme(); });
     add('Actions', 'map', 'Plan de la démo', () => openOverlay('plan'));
-    [['home', 'Accueil', '#/'], ['search', 'Recherche', '#/search'], ['grid', 'Tous les espaces', '#/spaces'], ['book', 'Base de connaissances', '#/knowledge'], ['chart', 'Tableau de bord', '#/dashboard'], ['settings', 'Administration', '#/admin/general'], ['list', 'Journal d’audit', '#/admin/audit'], ['user', 'Mon compte', '#/account']].forEach(([i, l, h]) => add('Aller à', i, l, () => go(h)));
+    [['home', 'Accueil', '#/'], ['search', 'Recherche', '#/search'], ['grid', 'Tous les espaces', '#/spaces'], ['book', 'Base de connaissances', '#/knowledge', vb('v0.2')], ['chart', 'Tableau de bord', '#/dashboard', vb('v0.2')], ['settings', 'Administration', '#/admin/general'], ['list', 'Journal d’audit', '#/admin/audit'], ['user', 'Mon compte', '#/account']].forEach(([i, l, h, b]) => add('Aller à', i, l, () => go(h), b));
     D.spaces.forEach((s) => add('Espaces', null, s.name, () => go('#/spaces/' + s.id), `${s.docs} documents`));
     D.docs.forEach((d) => add('Documents', fmtIco(d), d.title, () => go('#/documents/' + d.id), esc(spaceById(d.space).name)));
     return items;
@@ -1608,7 +1643,11 @@ pg_restore -U postgres -d facturation_restore \\
     if (nq) {
       items = items.slice(0, 12);
       items.unshift({ group: 'Recherche', icon: 'search', label: `Rechercher « ${q.trim()} » dans les documents`, run: () => go('#/search?q=' + enc(q.trim())), hint: '<span class="kbd">Entrée</span>' });
-    } else items = items.filter((it) => it.group !== 'Documents' || ['restaurer-pg', 'inc-2291', 'bascule-k8s'].some((id) => docById(id).title === it.label));
+    } else {
+      /* Comme dans l'application : sans saisie, les documents récents, les mêmes que « Reprendre » sur l'accueil. */
+      items = items.filter((it) => it.group !== 'Documents' || ['restaurer-pg', 'inc-2291', 'guide-baie'].some((id) => docById(id).title === it.label))
+        .map((it) => (it.group === 'Documents' ? Object.assign({}, it, { group: 'Documents récents' }) : it));
+    }
     state.pal.items = items;
     state.pal.sel = 0;
     let html = '', last = '';

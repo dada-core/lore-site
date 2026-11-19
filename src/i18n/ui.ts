@@ -4,7 +4,7 @@ import type { Lang } from './routes';
 const fr = {
   locale: 'fr_FR',
   skip: 'Aller au contenu',
-  siteTitle: 'Lore, la mémoire technique de votre équipe',
+  siteTitle: 'Lore · La mémoire technique de votre équipe',
   nav: {
     label: 'Navigation principale',
     home: 'Accueil',
@@ -26,7 +26,7 @@ const fr = {
     dark: 'Sombre'
   },
   menu: { open: 'Ouvrir le menu', close: 'Fermer le menu', label: 'Menu' },
-  seeDemo: 'Voir la démo',
+  seeDemo: 'Voir la vidéo',
   openDemo: 'Ouvrir la démo',
   install: 'Installer',
   installLong: 'Installer Lore',
@@ -62,7 +62,7 @@ type UI = typeof fr;
 const en: UI = {
   locale: 'en_US',
   skip: 'Skip to content',
-  siteTitle: 'Lore, your team’s technical memory',
+  siteTitle: 'Lore · Your team’s technical memory',
   nav: {
     label: 'Main navigation',
     home: 'Home',
@@ -84,7 +84,7 @@ const en: UI = {
     dark: 'Dark'
   },
   menu: { open: 'Open menu', close: 'Close menu', label: 'Menu' },
-  seeDemo: 'See the demo',
+  seeDemo: 'Watch the video',
   openDemo: 'Open the demo',
   install: 'Install',
   installLong: 'Install Lore',
