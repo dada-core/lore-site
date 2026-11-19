@@ -8,7 +8,7 @@ description: "Lore se configure par variables d’environnement : dans docker-co
 | Variable | Description |
 | --- | --- |
 | `LORE_DB_PASSWORD` | Le mot de passe de la base PostgreSQL. Obligatoire. |
-| `LORE_PUBLIC_URL` | L’adresse à laquelle votre équipe ouvre Lore, par exemple `https://lore.example.com`, utilisée dans les liens d’invitation et de réinitialisation. Facultative : sans elle, Lore reprend l’adresse saisie à la configuration initiale. Si elle est définie, elle prime et ne se modifie plus dans l’administration. |
+| `LORE_PUBLIC_URL` | L’adresse à laquelle votre équipe ouvre Lore, par exemple `https://lore.example.com`, utilisée dans les liens d’invitation et de réinitialisation. Facultative : sans elle, Lore reprend l’adresse saisie à la configuration initiale. Si elle est définie, elle prime et ne se modifie plus dans l’administration. Le `docker-compose.yml` publié et le `lore.env` des paquets et de l’archive la fixent à `http://localhost:8080` : remplacez-la par l’adresse de votre équipe. |
 
 ## Base de données
 
@@ -48,16 +48,17 @@ L’envoi des invitations et des réinitialisations par e-mail est prévu : Lore
 | Variable | Défaut | Description |
 | --- | --- | --- |
 | `LORE_SESSION_TIMEOUT` | `8h` | Durée maximale d’inactivité d’une session. Dans *Administration › Sécurité et connexion*, on peut la réduire, pas la dépasser. |
-| `LORE_SETUP_CODE` | vide | Code de configuration initiale imposé, pour une installation automatisée. Vide : un code tiré au hasard est écrit dans les journaux. Voir [Configuration initiale](initial-setup.md). |
-| `LORE_LOG_LEVEL` | `INFO` | Niveau de journalisation |
+| `LORE_SETUP_CODE` | vide | Code de configuration initiale imposé, pour une installation automatisée : 12 caractères au moins, espaces et tirets non comptés : avec un code plus court, Lore refuse de démarrer tant que la configuration initiale n’est pas faite, et ses journaux nomment la variable. Vide : un code tiré au hasard est écrit dans les journaux. Voir [Configuration initiale](initial-setup.md#le-code-de-configuration). |
+| `LORE_LOG_LEVEL` | `INFO` | Niveau de journalisation. Même en `DEBUG` ou en `TRACE`, Lore n’écrit ni les mots de passe, ni les liens d’invitation et de réinitialisation, ni le code de configuration saisi dans le navigateur, ni les recherches, ni les cookies de session ; le code tiré au hasard, lui, est écrit dans les journaux tant que la configuration n’est pas faite. `DEBUG` et `TRACE` restent réservés au diagnostic : des bibliothèques y écrivent d’autres détails des requêtes. Revenez à `INFO` aussitôt, puis effacez ces journaux. |
 | `LORE_PORT` | `8080` | Port de Lore, avec les paquets et l’archive. Avec Docker, changez plutôt le port publié. |
+| `LORE_TRUSTED_PROXIES` | `127.0.0.0/8, ::1/128` | Les proxys inverses dont Lore croit les en-têtes `X-Forwarded-*` : des plages en notation CIDR, chacune avec son « / », séparées par des virgules, par exemple `10.0.0.5/32, 10.0.0.6/32`. Par défaut, un proxy sur la même machine, avec les paquets et l’archive ; avec Docker, aucun proxy hors du conteneur : voir [Avec Docker Compose](reverse-proxy.md#avec-docker-compose). Vide : aucun proxy (avec Docker Compose, une valeur vide dans `.env` redonne la valeur par défaut). Une liste sans aucun « / », ou un nom d’hôte ou de conteneur à la place d’une adresse, empêche Lore de démarrer, comme une plage mal écrite. **Au plus juste.** Toute machine d’une plage déclarée qui joint Lore directement peut choisir l’adresse inscrite : déclarez l’adresse du proxy seule (`10.0.0.5/32`), pas le réseau de vos postes. Voir [HTTPS et proxy inverse](reverse-proxy.md#déclarer-le-proxy). |
 | `LORE_JAVA_OPTS` | `-XX:MaxRAMPercentage=25` | Options de Java de l’application, avec les paquets et l’archive, par exemple `-Xmx2g` pour la mémoire. Les processus d’extraction ont la leur : `LORE_EXTRACTION_MEMORY`. |
 
 ## Où les indiquer
 
 | Méthode | Fichier | Après un changement |
 | --- | --- | --- |
-| Docker Compose | La section `environment` du service `lore`, dans `docker-compose.yml` | `docker compose up -d` |
+| Docker Compose | La section `environment` du service `lore`, dans `docker-compose.yml`. Le fichier `.env` ne fournit que les trois variables que ce fichier lit (`LORE_PUBLIC_URL`, `DB_PASSWORD`, `LORE_TRUSTED_PROXIES`) : une autre variable écrite dans `.env` est ignorée. | `docker compose up -d` |
 | Paquets | `/etc/lore/lore.env` | `sudo systemctl restart lore` |
 | Archive | `conf/lore.env` | Redémarrez Lore |
 
@@ -81,4 +82,4 @@ LORE_DB_PASSWORD='un-mot-de-passe-long'
 LORE_SESSION_TIMEOUT=4h
 ```
 
-Dans `lore.env`, mettez une valeur entre apostrophes droites si elle contient des espaces ou des caractères spéciaux. Avec l’archive sous Windows, utilisez plutôt des guillemets droits : les apostrophes y feraient partie de la valeur.
+Dans `lore.env`, mettez une valeur entre apostrophes droites si elle contient des espaces ou des caractères spéciaux. Avec l’archive sous Windows, utilisez plutôt des guillemets droits : les apostrophes y feraient partie de la valeur. Pour `LORE_TRUSTED_PROXIES`, séparez les plages par des virgules, sans espace : `10.0.0.5/32,10.0.0.6/32`.

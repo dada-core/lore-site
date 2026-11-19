@@ -1,8 +1,14 @@
 /* Code samples shown on the site, and their light coloring. */
 import type { Lang } from '../i18n/routes';
 
+/* The preview the commands install while no stable version is out: GitHub's "latest" names a stable
+   version only. Set to the newest preview at each one; null once 0.1.0 is published. */
+export const PREVIEW: string | null = '0.1.0-rc.2';
+const DOWNLOAD = PREVIEW ? `download/v${PREVIEW}` : 'latest/download';
+const VERSION = PREVIEW ?? '0.1.0';
+
 export const STEPS = {
-  download: 'curl -LO https://github.com/dada-core/lore/releases/latest/download/docker-compose.yml',
+  download: `curl -LO https://github.com/dada-core/lore/releases/${DOWNLOAD}/docker-compose.yml`,
   password: 'echo "DB_PASSWORD=$(openssl rand -base64 24)" > .env',
   start: 'docker compose up -d'
 };
@@ -19,7 +25,7 @@ export function packages(lang: Lang) {
   const c = lang === 'fr'
     ? ['# Ubuntu et Debian', '# RHEL, Rocky Linux et AlmaLinux', '# Puis, une fois la base prête et /etc/lore/lore.env rempli']
     : ['# Ubuntu and Debian', '# RHEL, Rocky Linux and AlmaLinux', '# Then, once the database and /etc/lore/lore.env are ready'];
-  return [c[0], 'sudo apt install ./lore_0.1.0_amd64.deb', '', c[1], 'sudo dnf install ./lore-0.1.0-1.x86_64.rpm', '', c[2], 'sudo systemctl enable --now lore'].join('\n');
+  return [c[0], `sudo apt install ./lore_${VERSION}_amd64.deb`, '', c[1], `sudo dnf install ./lore-${VERSION}-1.x86_64.rpm`, '', c[2], 'sudo systemctl enable --now lore'].join('\n');
 }
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);

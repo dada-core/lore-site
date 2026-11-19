@@ -25,7 +25,7 @@ Chaque passage garde sa place dans le document : sa page, ou son titre et les ti
 Les contributeurs et les responsables d’un espace y importent des documents, comme les propriétaires et les administrateurs de l’organisation. Un espace archivé n’en reçoit plus.
 
 1. **Ouvrir la fenêtre d’import**
-   Bouton *Importer* de la page *Documents* d’un espace ou de l’accueil, ou touche <kbd>I</kbd>. Depuis l’accueil, choisissez d’abord l’espace.
+   Bouton *Importer* de la page *Documents* d’un espace ou de l’accueil, ou touche <kbd>I</kbd>. Hors des pages d’un espace, choisissez d’abord l’espace, sauf si vous ne contribuez qu’à un seul : il est alors déjà choisi.
 2. **Choisir la destination**
    Le dossier, ou *Sans dossier* pour ranger les documents à la racine de l’espace ; le statut, *Brouillon* (par défaut) ou *Publié* ; la catégorie, facultative.
 3. **Restreindre l’accès, si besoin**
@@ -77,7 +77,7 @@ Un fichier refusé n’est pas importé : aucun document n’est créé, et rien
 
 L’état de chaque document s’affiche dans la fenêtre d’import, dans la liste des documents de l’espace et sur la page du document. Vos propres imports encore en cours ou en échec sont aussi rappelés sur l’accueil.
 
-**Document numérisé.** Une page compte comme sans texte en dessous de 20 caractères visibles. Le document est importé, son nombre de pages est connu et le texte de ses autres pages est gardé ; la recherche le trouve par son titre et sa description : donnez-lui une description qui dit ce qu’il contient.
+**Document numérisé.** Une page compte comme une image sans texte quand elle a moins de 20 caractères visibles et contient une image, quelle qu’elle soit. Une page sans aucune image ne compte jamais, même presque vide (diapositive à titre court, formulaire, schéma dessiné) ; une diapositive à titre court avec un logo, si. Le document est importé, son nombre de pages est connu et le texte de ses autres pages est gardé, et cherché ; le contenu de ses images ne l’est pas : donnez-lui une description qui dit ce qu’il contient.
 
 **Texte tronqué.** Lore garde jusqu’à 10 millions de caractères de texte par document. Au-delà, la suite est laissée de côté, et la page du document le signale.
 
@@ -106,7 +106,7 @@ Un document se met à jour en important une nouvelle version de son fichier : *N
 - **Format.** Il peut changer d’une version à l’autre ; la fenêtre l’annonce (« Le format change : Markdown, puis PDF. »).
 - **Statut.** Un document publié propose *Conserver le statut Publié*, cochée ; décochée, il repasse en Brouillon. Un document obsolète propose *Repasser en Publié*. Le choix s’applique quand la version devient la version actuelle, et pas si le statut a changé entre-temps.
 - **Pendant l’extraction.** Tout le monde lit encore la version actuelle, et la recherche s’appuie sur elle ; la page du document affiche « Une nouvelle version est en cours de traitement. », la liste des documents « Version 5 en cours ». Une fois le texte extrait, la nouvelle version devient la version actuelle d’un coup, pour la lecture comme pour la recherche.
-- **En cas d’échec.** La version actuelle ne change pas. Les contributeurs voient « La version 5 n’a pas pu être traitée », avec *Relancer* pour une cause passagère et *Importer une autre version*.
+- **En cas d’échec.** La version actuelle ne change pas. Les contributeurs voient « La version 5 n’a pas pu être traitée : … », avec *Relancer* pour une cause passagère et *Importer une autre version*.
 - **Langue.** Elle est détectée de nouveau, sauf si quelqu’un a choisi celle de la version actuelle : la nouvelle version la reprend.
 
 La version précédente reste consultable et téléchargeable dans l’historique du document. Un document archivé n’accepte pas de nouvelle version : ramenez-le d’abord à un autre statut.

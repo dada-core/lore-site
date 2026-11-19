@@ -33,10 +33,10 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --no-audit --no-fund
-      - name: No em dash in the sources
+      - name: No em dash nor en dash in the sources
         run: |
-          if LC_ALL=C.UTF-8 grep -rnIP '\x{2014}' src public scripts README.md astro.config.mjs; then
-            echo "::error::Em dash found: rewrite these lines with a colon, a comma or parentheses."
+          if LC_ALL=C.UTF-8 grep -rnIP '\x{2014}|\x{2013}' src public scripts README.md astro.config.mjs; then
+            echo "::error::Em dash or en dash found: rewrite these lines with a colon, a comma or parentheses."
             exit 1
           fi
       - name: Types

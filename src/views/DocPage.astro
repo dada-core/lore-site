@@ -29,7 +29,7 @@ const T = {
     count: ['Aucun résultat', '1 résultat', '{n} résultats'],
     anchor: 'Lien vers cette section',
     toc: 'Sur cette page',
-    notice: 'Documentation de la version 0.1, en préparation. Les commandes, les variables et les points d’accès de l’API sont des propositions : ils peuvent changer d’ici la sortie.',
+    notice: 'Documentation de la version 0.1, en préparation : la préversion en contient déjà toutes les fonctions. Quelques détails peuvent encore changer.',
     edit: 'Modifier cette page sur GitHub',
     report: 'Signaler un problème',
     issue: 'Documentation : ',
@@ -55,7 +55,7 @@ const T = {
     count: ['No results', '1 result', '{n} results'],
     anchor: 'Link to this section',
     toc: 'On this page',
-    notice: 'Documentation for version 0.1, in preparation. Commands, variables and API endpoints are proposals: they may change before the release.',
+    notice: 'Documentation for version 0.1, in preparation: the preview already holds all its features. A few details may still change.',
     edit: 'Edit this page on GitHub',
     report: 'Report a problem',
     issue: 'Documentation: ',
@@ -86,7 +86,7 @@ const section = docSection(key);
 const i = DOC_ORDER.indexOf(key);
 const prev = i > 0 ? DOC_ORDER[i - 1] : null;
 const next = i < DOC_ORDER.length - 1 ? DOC_ORDER[i + 1] : null;
-const pageTitle = key === 'introduction' ? T.docs : `${title} – ${T.docs}`;
+const pageTitle = key === 'introduction' ? T.docs : `${title} · ${T.docs}`;
 const report = `${GITHUB.siteIssues}?title=${encodeURIComponent(T.issue + title)}`;
 const words = JSON.stringify({ none: T.none, count: T.count, anchor: T.anchor, index: lang === 'fr' ? '/docs/search.json' : '/en/docs/search.json' });
 ---

@@ -13,18 +13,19 @@ window.SL = (function () {
 
   var org = {
     name: 'DadaGroup',
-    url: 'https://lore.dada.group',
+    url: 'https://lore.example.com',
     members: 48,
     docs: 844,
     scanned: 37,
     storage: '2,4 Go'
   };
 
+  /* role : celui d’Amenan Souaga. Administratrice de l’organisation, elle est responsable de tous les espaces. */
   var spaces = [
     { id: 'infrastructure', name: 'Infrastructure', color: '#13705E', desc: 'Exploitation des serveurs, des bases de données et des sauvegardes.', docs: 9, members: 5, role: 'Responsable', activity: 'Aujourd’hui' },
-    { id: 'reseau', name: 'Réseau', color: '#3F6C9A', desc: 'Architecture réseau, pare-feu, VPN et DNS.', docs: 214, members: 9, role: 'Contributeur', activity: 'Hier' },
-    { id: 'support', name: 'Support N2', color: '#8A6A1F', desc: 'Procédures de diagnostic et réponses types du support.', docs: 486, members: 15, role: 'Lecteur', activity: 'Aujourd’hui' },
-    { id: 'atlas', name: 'Projet Atlas', color: '#6B5A8E', desc: 'Refonte de la plateforme de facturation.', docs: 97, members: 11, role: 'Contributeur', activity: '8 nov.' },
+    { id: 'reseau', name: 'Réseau', color: '#3F6C9A', desc: 'Architecture réseau, pare-feu, VPN et DNS.', docs: 214, members: 9, role: 'Responsable', activity: 'Hier' },
+    { id: 'support', name: 'Support N2', color: '#8A6A1F', desc: 'Procédures de diagnostic et réponses types du support.', docs: 486, members: 15, role: 'Responsable', activity: 'Aujourd’hui' },
+    { id: 'atlas', name: 'Projet Atlas', color: '#6B5A8E', desc: 'Refonte de la plateforme de facturation.', docs: 97, members: 11, role: 'Responsable', activity: '8 nov.' },
     { id: 'securite', name: 'Sécurité', color: '#8E4B44', desc: 'Politiques, durcissement et réponse aux incidents de sécurité.', docs: 38, members: 4, role: 'Responsable', activity: '4 nov.' },
     { id: 'applications', name: 'Applications métier', color: '#4E7A5A', desc: 'Documentation des applications internes.', docs: 0, members: 1, role: 'Responsable', activity: 'Créé aujourd’hui', empty: true }
   ];
@@ -40,11 +41,11 @@ window.SL = (function () {
     atlas: [{ id: 'decisions', name: 'Décisions techniques' }]
   };
 
-  /* Documents. age : jours depuis la dernière mise à jour (filtre de date de la recherche). */
+  /* Documents. age : jours depuis la dernière mise à jour (filtre de date de la recherche). file : nom du fichier importé, affiché dans l’historique des versions. */
   var docs = [
     {
       id: 'plan-reprise', title: 'Plan de reprise d’activité 2026', space: 'infrastructure', folder: 'procedures',
-      format: 'Word', size: '1,2 Mo', category: 'Procédure d’exploitation', status: 'draft', owner: 'as',
+      format: 'Word', file: 'plan-reprise-2026.docx', size: '1,2 Mo', category: 'Procédure d’exploitation', status: 'draft', owner: 'as',
       updated: 'Aujourd’hui', updatedRel: 'aujourd’hui', age: 0, version: 1, lang: 'fr', flags: { indexing: true },
       review: 'Aucune',
       versions: [{ n: 1, date: '11 nov. 2026', short: '11 nov.', by: 'as', note: 'Première version, en cours de relecture.', w: 50 }],
@@ -54,7 +55,7 @@ window.SL = (function () {
     },
     {
       id: 'restaurer-pg', title: 'Restaurer une base PostgreSQL depuis une sauvegarde', space: 'infrastructure', folder: 'runbooks',
-      format: 'Markdown', size: '18 Ko', category: 'Runbook', status: 'published', owner: 'as',
+      format: 'Markdown', file: 'restaurer-base-postgresql.md', size: '18 Ko', category: 'Runbook', status: 'published', owner: 'as',
       updated: 'Hier', updatedRel: 'hier', age: 1, version: 4, lang: 'fr', body: 'restaurer', sections: 6,
       review: '10 mai 2027',
       versions: [
@@ -73,7 +74,7 @@ window.SL = (function () {
     },
     {
       id: 'bascule-k8s', title: 'Bascule du cluster Kubernetes vers le site de secours', space: 'infrastructure', folder: 'runbooks',
-      format: 'Markdown', size: '26 Ko', category: 'Runbook', status: 'published', owner: 'hc',
+      format: 'Markdown', file: 'bascule-kubernetes-secours.md', size: '26 Ko', category: 'Runbook', status: 'published', owner: 'hc',
       updated: '8 nov.', updatedRel: 'le 8 nov. 2026', age: 3, version: 7, lang: 'fr', sections: 9,
       review: '1er nov. 2026 (dépassée)',
       versions: [
@@ -92,7 +93,7 @@ window.SL = (function () {
     },
     {
       id: 'inc-2291', title: 'Incident INC-2291 : disque saturé sur pg-prod-02', space: 'infrastructure', folder: 'incidents',
-      format: 'Word', size: '96 Ko', category: 'Rapport d’incident', status: 'published', owner: 'ck',
+      format: 'Word', file: 'INC-2291.docx', size: '96 Ko', category: 'Rapport d’incident', status: 'published', owner: 'ck',
       updated: '3 nov.', updatedRel: 'le 3 nov. 2026', age: 8, version: 2, lang: 'fr', body: 'incident', sections: 6,
       review: 'Aucune',
       versions: [
@@ -107,7 +108,7 @@ window.SL = (function () {
     },
     {
       id: 'rotation-tls', title: 'Rotation des certificats TLS internes', space: 'infrastructure', folder: 'procedures',
-      format: 'Markdown', size: '9 Ko', category: 'Documentation de sécurité', status: 'draft', owner: 'ck',
+      format: 'Markdown', file: 'rotation-certificats-tls.md', size: '9 Ko', category: 'Documentation de sécurité', status: 'draft', owner: 'ck',
       updated: '29 oct.', updatedRel: 'le 29 oct. 2026', age: 13, version: 1, lang: 'fr', body: 'tls', sections: 3,
       restricted: true, grants: ['ck', 'ey'], review: 'Aucune',
       versions: [{ n: 1, date: '29 oct. 2026', short: '29 oct.', by: 'ck', note: 'Première rédaction.', w: 44 }],
@@ -117,7 +118,7 @@ window.SL = (function () {
     },
     {
       id: 'guide-baie', title: 'Storage array administration guide', space: 'infrastructure', folder: 'constructeur',
-      format: 'PDF', size: '24,8 Mo', pagesCount: 312, category: 'Documentation constructeur', status: 'published', owner: 'eb',
+      format: 'PDF', file: 'storage-array-admin-guide.pdf', size: '24,8 Mo', pagesCount: 312, category: 'Documentation constructeur', status: 'published', owner: 'eb',
       updated: '21 oct.', updatedRel: 'le 21 oct. 2026', age: 21, version: 1, lang: 'en', body: 'pdf', sections: 312,
       review: 'Aucune',
       versions: [{ n: 1, date: '21 oct. 2026', short: '21 oct.', by: 'eb', note: 'Import du guide constructeur, édition 2026.1.', w: 56 }],
@@ -133,7 +134,7 @@ window.SL = (function () {
     },
     {
       id: 'archi-sauvegardes', title: 'Architecture du stockage des sauvegardes', space: 'infrastructure', folder: 'architecture',
-      format: 'Word', size: '412 Ko', category: 'Documentation d’architecture', status: 'published', owner: 'hc',
+      format: 'Word', file: 'architecture-sauvegardes.docx', size: '412 Ko', category: 'Documentation d’architecture', status: 'published', owner: 'hc',
       updated: '17 oct.', updatedRel: 'le 17 oct. 2026', age: 25, version: 3, lang: 'fr', sections: 8,
       review: '15 oct. 2026 (dépassée)',
       versions: [
@@ -148,7 +149,7 @@ window.SL = (function () {
     },
     {
       id: 'schema-cablage', title: 'Schéma de câblage de la salle serveurs B', space: 'infrastructure', folder: 'constructeur',
-      format: 'PDF', size: '8,7 Mo', pagesCount: 4, category: 'Documentation technique', status: 'published', owner: 'ey',
+      format: 'PDF', file: 'schema-cablage-salle-b.pdf', size: '8,7 Mo', pagesCount: 4, category: 'Documentation technique', status: 'published', owner: 'ey',
       updated: '14 oct.', updatedRel: 'le 14 oct. 2026', age: 28, version: 1, lang: 'other', body: 'scan', flags: { scanned: true },
       description: 'Schéma des baies B1 à B6 de la salle B, câblage vers le cœur de réseau, fibre OM4 entre B3 et B4.',
       review: 'Aucune',
@@ -157,7 +158,7 @@ window.SL = (function () {
     },
     {
       id: 'barman', title: 'Sauvegardes nocturnes avec Barman (ancienne procédure)', space: 'infrastructure', folder: 'runbooks',
-      format: 'Markdown', size: '12 Ko', category: 'Runbook', status: 'obsolete', obsoleteSince: '10 nov. 2026', replacedBy: 'restaurer-pg', owner: 'hc',
+      format: 'Markdown', file: 'sauvegardes-barman.md', size: '12 Ko', category: 'Runbook', status: 'obsolete', obsoleteSince: '10 nov. 2026', replacedBy: 'restaurer-pg', owner: 'hc',
       updated: '2 mars 2025', updatedRel: 'le 2 mars 2025', age: 619, version: 3, lang: 'fr', body: 'barman', sections: 4,
       review: 'Aucune',
       versions: [
@@ -171,7 +172,7 @@ window.SL = (function () {
     },
     {
       id: 'migration-pg18', title: 'Migration vers PostgreSQL 18', space: 'atlas', folder: 'decisions',
-      format: 'PDF', size: '2,1 Mo', pagesCount: 18, category: 'Documentation d’architecture', status: 'published', owner: 'hc',
+      format: 'PDF', file: 'migration-postgresql-18.pdf', size: '2,1 Mo', pagesCount: 18, category: 'Documentation d’architecture', status: 'published', owner: 'hc',
       updated: '24 sept.', updatedRel: 'le 24 sept. 2026', age: 48, version: 2, lang: 'fr', body: 'pdf', sections: 18,
       review: '24 mars 2027',
       versions: [
@@ -205,27 +206,27 @@ window.SL = (function () {
   };
 
   var orgMembers = [
-    { id: 'wk', role: 'Propriétaire', spaces: 'Tous', state: 'Actif', last: 'Aujourd’hui' },
-    { id: 'as', role: 'Administrateur', spaces: 'Tous', state: 'Actif', last: 'Aujourd’hui' },
-    { id: 'hc', role: 'Membre', spaces: 'Infrastructure, Projet Atlas', state: 'Actif', last: 'Aujourd’hui' },
-    { id: 'ck', role: 'Membre', spaces: 'Infrastructure, Support N2, Sécurité', state: 'Actif', last: 'Hier' },
-    { id: 'ey', role: 'Membre', spaces: 'Infrastructure, Réseau, Support N2, Sécurité', state: 'Actif', last: '9 nov.' },
-    { id: 'eb', role: 'Membre', spaces: 'Infrastructure, Sécurité', state: 'Actif', last: 'Aujourd’hui' }
+    { id: 'wk', role: 'Propriétaire', state: 'Actif', last: 'Aujourd’hui' },
+    { id: 'as', role: 'Administrateur', state: 'Actif', last: 'Aujourd’hui' },
+    { id: 'hc', role: 'Membre', state: 'Actif', last: 'Aujourd’hui' },
+    { id: 'ck', role: 'Membre', state: 'Actif', last: 'Hier' },
+    { id: 'ey', role: 'Membre', state: 'Actif', last: '9 nov.' },
+    { id: 'eb', role: 'Membre', state: 'Actif', last: 'Aujourd’hui' }
   ];
 
   var audit = [
     { when: 'Aujourd’hui, 10 h 42', who: 'as', type: 'Droits', text: 'a restreint l’accès à « Rotation des certificats TLS internes » (2 personnes).' },
-    { when: 'Aujourd’hui, 10 h 15', who: 'as', type: 'Import', text: 'a importé « Plan de reprise d’activité 2026 », version 1.' },
+    { when: 'Aujourd’hui, 10 h 15', who: 'as', type: 'Import', text: 'a importé « Plan de reprise d’activité 2026 » dans Infrastructure.' },
     { when: 'Aujourd’hui, 9 h 58', who: 'eb', type: 'Consultation', text: 'a consulté « Restaurer une base PostgreSQL depuis une sauvegarde ».' },
     { when: 'Aujourd’hui, 9 h 31', who: null, type: 'Connexion', text: '5 tentatives de connexion échouées pour herve.coulibaly@dada.group. Compte bloqué 15 minutes.' },
     { when: 'Aujourd’hui, 8 h 47', who: 'wk', type: 'Organisation', text: 'a créé l’espace « Applications métier ».' },
     { when: 'Hier, 18 h 04', who: 'as', type: 'Import', text: 'a importé la version 4 de « Restaurer une base PostgreSQL depuis une sauvegarde ».' },
     { when: 'Hier, 16 h 20', who: 'as', type: 'Droits', text: 'a changé le rôle d’Eli Brou dans Infrastructure : Lecteur, auparavant Contributeur.' },
-    { when: 'Hier, 15 h 12', who: 'hc', type: 'Statut', text: 'a marqué « Sauvegardes nocturnes avec Barman » comme obsolète.' },
+    { when: 'Hier, 15 h 12', who: 'hc', type: 'Statut', text: 'a changé le statut de « Sauvegardes nocturnes avec Barman (ancienne procédure) » : Obsolète.' },
     { when: 'Hier, 14 h 03', who: 'eb', type: 'Modification', text: 'a modifié la description de « Schéma de câblage de la salle serveurs B ».' },
     { when: 'Hier, 11 h 05', who: 'ck', type: 'Suppression', text: 'a supprimé « Procédure VPN (copie) » (1 version).' },
     { when: '9 nov., 8 h 15', who: 'ey', type: 'Téléchargement', text: 'a téléchargé l’original de « Schéma de câblage de la salle serveurs B ».' },
-    { when: '8 nov., 17 h 40', who: 'as', type: 'Membres', text: 'a créé un lien d’invitation pour l’espace Infrastructure (rôle Contributeur).' }
+    { when: '8 nov., 17 h 40', who: 'as', type: 'Membres', text: 'a créé une invitation dans l’organisation, avec le rôle Membre et l’espace Infrastructure.' }
   ];
 
   /* v0.2 : fiches de connaissances */

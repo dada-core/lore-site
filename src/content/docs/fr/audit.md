@@ -17,13 +17,15 @@ Chaque opération appartient à une catégorie, celle du filtre de l’écran :
 | Suppression | Suppression définitive d’un document, avec son nombre de versions |
 | Droits | Restriction d’un document ou retour à tout l’espace, personnes choisies ajoutées ou retirées ; changement du responsable d’un document, avec l’ancien et le nouveau ; changement de rôle, dans l’organisation ou dans un espace |
 | Membres | Invitation créée ou révoquée ; arrivée, départ, désactivation et réactivation d’un compte ; lien de réinitialisation ; membre ajouté à un espace ou retiré |
-| Connexion | Échec de connexion, blocage d’un compte ; changement de mot de passe ou d’adresse e-mail ; nouveau mot de passe choisi par un lien de réinitialisation |
-| Organisation | Création, modification, archivage, réactivation ou suppression d’un espace, avec son nombre de documents ; création, renommage ou suppression d’un dossier ; changement d’un réglage, comme la taille maximale d’un fichier ; export du journal |
+| Connexion | Échec de connexion, y compris un mot de passe actuel faux dans *Mon compte*, et blocage d’un compte ; changement de mot de passe ou d’adresse e-mail ; nouveau mot de passe choisi par un lien de réinitialisation |
+| Organisation | Création de l’organisation, à la configuration initiale ; création, modification, archivage ou réactivation d’un espace, ou sa suppression avec son nombre de documents ; création, renommage ou suppression d’un dossier ; changement d’un réglage, comme la taille maximale d’un fichier ; export du journal |
 | Autre | Une opération qu’aucune autre catégorie ne classe |
+
+Un propriétaire ou un administrateur qui devient membre, est désactivé ou est retiré perd les invitations et les liens de réinitialisation qu’il a créés et qui sont encore en attente : ils sont révoqués, et leur nombre figure dans le détail de l’opération (`revokedLinks`, colonne `details` de l’export), quand il y en a. Voir [Membres et invitations](members.md#changer-un-rôle-désactiver-retirer).
 
 Un changement de langue garde l’ancienne : dans l’événement `document.updated`, `changes` contient `language`, et `previousLanguage` donne l’ancienne langue. Ce qui change, écrit avec une nouvelle version, n’est pas repris dans le journal : il reste dans l’historique du document. L’extraction du texte n’est pas inscrite.
 
-Les recherches ne sont jamais inscrites, ni dans ce journal, ni dans les journaux du serveur. Ouvrir un document depuis un résultat est une consultation, inscrite comme les autres. Voir [Rechercher](search.md#confidentialité).
+Les recherches ne sont jamais inscrites, ni dans ce journal, ni dans les journaux du serveur, même en `DEBUG` ou en `TRACE`. Ouvrir un document depuis un résultat est une consultation, inscrite comme les autres. Voir [Rechercher](search.md#confidentialité).
 
 Une page rouverte ou rechargée dans l’heure n’ajoute pas de consultation, et un document que la personne ne peut pas voir n’en inscrit jamais. Chaque téléchargement est inscrit ; la reprise d’un téléchargement interrompu ne l’est pas, ni la lecture d’un PDF dans la page ou dans un nouvel onglet, qui fait partie de la consultation.
 
@@ -38,15 +40,15 @@ Chaque événement garde le titre du document et le nom de son espace au moment 
 | Colonne | Contenu |
 | --- | --- |
 | Date | Le jour et l’heure de l’opération |
-| Personne | Qui a agi, nommé même après son départ de l’organisation ; *Système* pour une opération sans auteur, comme un échec de connexion |
+| Personne | Qui a agi, nommé même après son départ de l’organisation ; *Système* pour une opération sans auteur, comme un échec de connexion. Un mot de passe actuel faux dans *Mon compte* est un échec de connexion inscrit avec la personne comme auteur. |
 | Catégorie | La catégorie de l’opération |
 | Opération | Une phrase, comme « A importé la version 5 de « Plan de reprise d’activité 2026 » » ou « A changé le statut de « … » : Obsolète » |
-| Adresse IP | Affichée seulement en cochant *Afficher l’adresse IP* |
+| Adresse IP | Celle de la connexion, ou celle que transmet un proxy déclaré dans `LORE_TRUSTED_PROXIES` ; `invalid` quand ce n’est pas une adresse IP. Affichée seulement en cochant *Afficher l’adresse IP*. Voir [HTTPS et proxy inverse](reverse-proxy.md#déclarer-le-proxy). |
 
 Trois filtres réduisent la liste, et l’adresse de la page les garde :
 
 - **Catégorie** : une des catégories ci-dessus, ou toutes.
-- **Personne** : un membre de l’organisation, *Système*, ou tout le monde.
+- **Personne** : un membre actuel de l’organisation (les 200 premiers), *Système*, ou tout le monde. Un ancien membre se filtre par son identifiant, dans le paramètre `actor` de l’adresse ; cet identifiant se lit dans la colonne `actor_id` de l’export.
 - **Période** : les 7 derniers jours, par défaut, les 30 derniers jours ou les 12 derniers mois.
 
 Quand rien ne correspond : « Aucune opération avec ces filtres. »
@@ -69,11 +71,11 @@ Quand rien ne correspond : « Aucune opération avec ces filtres. »
 | `details` | Le détail de l’opération, en JSON |
 
 - **Format.** UTF-8 avec BOM, pour qu’un tableur reconnaisse les accents ; virgules, guillemets et fins de ligne selon la RFC 4180.
-- **Formules neutralisées.** Une valeur qui commence par `=`, `+`, `-` ou `@` est précédée d’une apostrophe : ouvert dans un tableur, le fichier n’exécute aucune formule, même si le titre d’un document a été écrit pour cela. Une valeur qui contient un point-virgule est mise entre guillemets : un tableur réglé en français, qui coupe les cellules aux points-virgules, la garde entière.
+- **Formules neutralisées.** Une valeur qui commence par `=`, `+`, `-`, `@`, une tabulation ou un retour chariot est précédée d’une apostrophe : ouvert dans un tableur, le fichier n’exécute aucune formule, même si le titre d’un document a été écrit pour cela. Une valeur qui contient un point-virgule ou une tabulation est mise entre guillemets : un tableur réglé en français, qui coupe les cellules aux points-virgules, la garde entière.
 - **Une à la fois.** Le fichier est écrit au fil de la lecture du journal. Une seconde exportation lancée par la même personne avant la fin de la première est refusée.
 - **Inscrit au journal.** Chaque export est lui-même une opération, `audit.exported`, avec ses filtres et son nombre de lignes, dans la catégorie Organisation.
 
-L’export passe aussi par l’API : voir [API des documents](api-documents.md).
+L’export passe aussi par l’API : voir [API des documents](api-documents.md#journal-daudit-administration).
 
 ## Conservation
 
